@@ -60,8 +60,8 @@ dev_dependencies:
   fluttertoast: ^8.2.4
   connectivity_plus: ^6.1.2
   flutter_svg: ^2.0.9
-
-
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

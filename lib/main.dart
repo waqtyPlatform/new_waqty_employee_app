@@ -41,8 +41,8 @@ Future<void> main() async {
       fallbackLocale: const Locale('en', 'US'),
       child: MyApp(
         navigateWidget: isLoggedInUser
-            ? Routes.buttonNavigationBarScreen
-            : Routes.buttonNavigationBarScreen,
+            ? Routes.loginScreen
+            : Routes.loginScreen,
       ),
     ),
   );

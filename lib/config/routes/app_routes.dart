@@ -7,6 +7,8 @@ import 'package:new_waqty_employee_app/features/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/login/ui/login_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
 import 'package:new_waqty_employee_app/features/home/ui/home_screen.dart';
+import 'package:new_waqty_employee_app/features/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/profile/ui/profile_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -34,6 +36,14 @@ class RouteGenerator {
           builder: (_) => BlocProvider(
             create: (context) => LoginCubit(getIt()),
             child: const LoginScreen(),
+          ),
+        );
+
+      case Routes.profileScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => ProfileCubit(getIt()),
+            child: const ProfileScreen(),
           ),
         );
 

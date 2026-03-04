@@ -13,33 +13,22 @@ class LoginCubit extends Cubit<LoginState> {
 
   LoginCubit(this._loginRepo) : super(InitialState());
 
-  GlobalKey<FormState> loginKey = GlobalKey<FormState>();
+  GlobalKey<FormState> loginKey = GlobalKey();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController countryCodeController = TextEditingController();
 
-  login() {
-    emit(OnLoginLoadingState());
-    _loginRepo
-        .login(
-          LoginRequestModel(
-            email: emailController.text,
-            password: passwordController.text,
-          ),
-        )
-        .then((value) {
-          value.fold(
-            (l) {
-              emit(OnLoginErrorState());
-            },
-            (r) async {
-              await cashUserData(r);
-              emit(OnLoginSuccessState());
-            },
-          );
-        })
-        .catchError((error) {
-          emit(OnLoginCatchErrorState());
-        });
+  int selectedFieldNumber = 0;
+  changeSelectedField(int value) {
+    selectedFieldNumber = value;
+    emit(OnChangeSelectedFieldState());
+  }
+
+  bool isPasswordVisibleLogin = true;
+
+  changePasswordLoginState() {
+    isPasswordVisibleLogin = !isPasswordVisibleLogin;
+    emit(IsPasswordVisibleState());
   }
 
   Future<void> cashUserData(LoginResponseModel response) async {

@@ -28,6 +28,7 @@ class AppTextFormField extends StatelessWidget {
   final Function(String?) validator;
   final Function(String)? onchange;
   final Function()? onTapOutside;
+  final Function()? onTap;
   final TextInputType keyboardType;
 
   const AppTextFormField({
@@ -52,6 +53,7 @@ class AppTextFormField extends StatelessWidget {
     required this.validator,
     this.onchange,
     this.onTapOutside,
+    this.onTap,
     required this.keyboardType,
     this.isPhoneNumber = false,
     this.isRegister = false,
@@ -65,7 +67,7 @@ class AppTextFormField extends StatelessWidget {
       autofocus: autofocus!,
       controller: controller,
       maxLines: maxLines,
-      enabled: isEnable??true,
+      enabled: isEnable ?? true,
       textAlign: textAlign ?? TextAlign.start,
       onTapOutside: (PointerDownEvent value) {
         FocusScope.of(context).unfocus();
@@ -85,36 +87,41 @@ class AppTextFormField extends StatelessWidget {
       },
       decoration: InputDecoration(
         isDense: true,
-        contentPadding: contentPadding ??
+        contentPadding:
+            contentPadding ??
             EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-        focusedBorder: focusedBorder ??
+        disabledBorder:
+            focusedBorder ??
+            OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.greyColor200, width: 1.3),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+        focusedBorder:
+            focusedBorder ??
+            OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.greyColor200, width: 1.3),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+        enabledBorder:
+            enabledBorder ??
+            OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.greyColor200, width: 1.3),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+        errorBorder:
+            errorBorder ??
             OutlineInputBorder(
               borderSide: BorderSide(
-                color: AppColors.greyColorDC,
+                color: AppColors.errorColor100,
                 width: 1.3,
               ),
               borderRadius: BorderRadius.circular(20.r),
             ),
-        enabledBorder: enabledBorder ??
+        focusedErrorBorder:
+            focusedErrorBorder ??
             OutlineInputBorder(
               borderSide: BorderSide(
-                color: AppColors.greyColorDC,
-                width: 1.3,
-              ),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-        errorBorder: errorBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: AppColors.redColor,
-                width: 1.3,
-              ),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-        focusedErrorBorder: focusedErrorBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: AppColors.redColor,
+                color: AppColors.errorColor100,
                 width: 1.3,
               ),
               borderRadius: BorderRadius.circular(20.r),
@@ -127,6 +134,7 @@ class AppTextFormField extends StatelessWidget {
         filled: true,
       ),
       obscureText: isObscureText ?? false,
+      onTap: onTap,
       style: textStyle ?? TextStyles.font16BlackColorWeight400,
       validator: (value) {
         return validator(value);

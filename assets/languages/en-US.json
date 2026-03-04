@@ -1,150 +1,17 @@
 {
   "appName": "Waste-less",
-  "noInternet": "No Internet",
-  "noInternetText": "No Internet",
-  "ok": "Ok",
   "home": {
     "searchText": "Find your favorite items"
   },
-  "terms": {
-    "q1": "question  question  question  question  question 1",
-    "a1": "answer answer answer answeranswer answer answer answeranswer answer answer answeranswer answer answer answeranswer answer answer answer answer answer 1"
-  },
-  "notification": {
-    "n1": "Notifications"
-  },
-  "register": {
-    "r1": "Register",
-    "r2": "name",
-    "r3": "Enter Value",
-    "r4": "Email",
-    "r5": "Phone",
-    "r6": "Password",
-    "r7": "Registered successfully. ",
-    "r8": "The email Or Phone has already been taken ",
-    "r9": "Register",
-    "r10": "Already Have An account?"
-  },
-  "Profile": {
-    "p1": "Profile",
-    "p2": "name",
-    "p3": " Profile Updated successfully. ",
-    "p4": "Cant Update Profile Now Please try Again ",
-    "p5": "Update Profile",
-    "p6": "Log Out"
-  },
-  "Orders": {
-    "o1": "Orders",
-    "o2": "Current",
-    "o3": "Past"
-  },
-  "Order2": {
-    "o1": "Your order",
-    "o2": "Order ID:",
-    "o3": "Past",
-    "o4": "Collected",
-    "o5": "Order description",
-    "o6": "Total",
-    "o7": "quantity",
-    "o8": "sub total",
-    "o9": "Total Discount",
-    "o10": "Total",
-    "o11": "left"
-  },
-  "Login": {
-    "l1": "Login",
-    "l2": "Email:",
-    "l3": "Password",
-    "l4": "Login successfully. ",
-    "l5": "The email Or Phone has Error",
-    "l6": "Don't Have An account?"
-  },
-  "Home": {
-    "h1": "Bundle Added To Favorite",
-    "h2": "Orders",
-    "h3": "Price",
-    "h4": "Rating",
-    "h5": "Collection day",
-    "h6": "Today",
-    "h7": "Tomorrow",
-    "h8": "Collection time",
-    "h9": "Sort and Filter",
-    "h10": "Clear All",
-    "h11": "Sort by",
-    "h12": "Apply",
-    "h13": "For tomorrow breakfast",
-    "h14": "For tomorrow breakfast",
-    "h15": "Last chance",
-    "h16": "Last chance",
-    "h17": "Popular around you",
-    "h18": "Popular around you",
-    "h19": "Before it’s too late",
-    "h20": "Apply"
-  },
-  "Questions": {
-    "q1": "question  question  question  question  question 1",
-    "q2": "answer answer answer answer answer answer 1"
-  },
-  "Favorites": {
-    "f1": "Favorites"
-  },
-  "Category": {
-    "c1": "Bundle Added To Favorite"
-  },
-  "ButtonBar": {
-    "b1": "Home",
-    "b2": "Browse",
-    "b3": "Favorite",
-    "b4": "Account",
-    "b5": "Home"
-  },
-  "Bundle": {
-    "b1": "Location",
-    "b2": "Direction",
-    "b3": "What you could get",
-    "b4": "REVIEW HIGHLIGHTS",
-    "b5": "WHAT OTHER PEOPLE ARE SAYING",
-    "b6": "Error! Try Again Later",
-    "b7": "RESERVE",
-    "b8": "Select quantity",
-    "b9": "Total",
-    "b10": "Write a review",
-    "b11": "Reviews"
-  },
-  "Browse": {
-    "b1": "Market name, restaurant name, cuisine..."
-  },
-  "Account": {
-    "a1": "Current Blue Points",
-    "a2": "49,291 ",
-    "a3": "Platinum ",
-    "a4": "Blue Bags saved",
-    "a5": "Money saved",
-    "a6": "My profile",
-    "a7": "Orders",
-    "a8": "Settings",
-    "a9": "Help",
-    "a10": "Payment methods",
-    "a11": "Refer a friend",
-    "a12": "Recommend a store",
-    "a13": "Terms and conditions"
-  },
-  "Language": {
-    "l1": "Language"
-  },
-  "Bundle2": {
-    "b1":  "Write a review",
-    "b2":     "Rate your experience",
-
-    "b3":  "Leave your review here",
-    "b4": "Let us know what you think.",
-
-    "b5":"Error try again ",
-    "b6":"Submit Review"
-  },
-  "Reviews": {
-    "r1":   "Ratings & Reviews",
-    "r2":     "Review this product"
-
+  "login": {
+    "title": "Login",
+    "description": "Enter your email and password to login to your account.",
+    "emailText": "Email",
+    "passwordText": "Password",
+    "forgetPasswordText": "Forgot Password?",
+    "signInButton": "Sign In",
+    "orContinueWith": "Or continue with",
+    "dontHaveAccountText": "Don't have an account? ",
+    "signUpText": "Sign Up"
   }
 }

@@ -65,36 +65,35 @@ class AppDropDownField extends StatelessWidget {
       decoration: InputDecoration(
         isDense: true,
 
-        contentPadding: contentPadding ??
+        contentPadding:
+            contentPadding ??
             EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-        focusedBorder: focusedBorder ??
+        focusedBorder:
+            focusedBorder ??
+            OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.greyColor200, width: 1.3),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+        enabledBorder:
+            enabledBorder ??
+            OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.greyColor200, width: 1.3),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+        errorBorder:
+            errorBorder ??
             OutlineInputBorder(
               borderSide: BorderSide(
-                color: AppColors.greyColorDC,
+                color: AppColors.errorColor100,
                 width: 1.3,
               ),
               borderRadius: BorderRadius.circular(20.r),
             ),
-        enabledBorder: enabledBorder ??
+        focusedErrorBorder:
+            focusedErrorBorder ??
             OutlineInputBorder(
               borderSide: BorderSide(
-                color: AppColors.greyColorDC,
-                width: 1.3,
-              ),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-        errorBorder: errorBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: AppColors.redColor,
-                width: 1.3,
-              ),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-        focusedErrorBorder: focusedErrorBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: AppColors.redColor,
+                color: AppColors.errorColor100,
                 width: 1.3,
               ),
               borderRadius: BorderRadius.circular(20.r),

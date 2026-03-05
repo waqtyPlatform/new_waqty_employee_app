@@ -9,14 +9,23 @@ import '../api/api_consumer.dart';
 import '../api/app_interceptor.dart';
 import '../api/http_consumer.dart';
 
-import 'package:new_waqty_employee_app/features/login/data/repo/login_repo.dart';
-import 'package:new_waqty_employee_app/features/login/data/services/login_service.dart';
+import 'package:new_waqty_employee_app/features/auth/login/data/repo/login_repo.dart';
+import 'package:new_waqty_employee_app/features/auth/login/data/services/login_service.dart';
 
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_service.dart';
 
 import 'package:new_waqty_employee_app/features/profile/data/repo/profile_repo.dart';
 import 'package:new_waqty_employee_app/features/profile/data/services/profile_service.dart';
+
+import 'package:new_waqty_employee_app/features/auth/forget_password/data/repo/forget_password_repo.dart';
+import 'package:new_waqty_employee_app/features/auth/forget_password/data/services/forget_password_service.dart';
+
+import 'package:new_waqty_employee_app/features/auth/verify_code/data/repo/verify_code_repo.dart';
+import 'package:new_waqty_employee_app/features/auth/verify_code/data/services/verify_code_service.dart';
+
+import 'package:new_waqty_employee_app/features/auth/reset_password/data/repo/reset_password_repo.dart';
+import 'package:new_waqty_employee_app/features/auth/reset_password/data/services/reset_password_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -55,5 +64,27 @@ class ServicesLocator {
       () => ProfileService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<ProfileRepo>(() => ProfileRepo(getIt()));
+
+    /// Forget Password
+    getIt.registerLazySingleton<ForgetPasswordService>(
+      () => ForgetPasswordService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<ForgetPasswordRepo>(
+      () => ForgetPasswordRepo(getIt()),
+    );
+
+    /// Verify Code
+    getIt.registerLazySingleton<VerifyCodeService>(
+      () => VerifyCodeService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<VerifyCodeRepo>(() => VerifyCodeRepo(getIt()));
+
+    /// Reset Password
+    getIt.registerLazySingleton<ResetPasswordService>(
+      () => ResetPasswordService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<ResetPasswordRepo>(
+      () => ResetPasswordRepo(getIt()),
+    );
   }
 }

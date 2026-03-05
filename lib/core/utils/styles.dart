@@ -104,6 +104,12 @@ class TextStyles {
     fontWeight: FontWeight.w500,
     fontFamily: 'IBMPlexSansArabic',
   );
+  static TextStyle font14greenColor500Weight400 = TextStyle(
+    fontSize: 14.sp,
+    color: AppColors.greenColor500,
+    fontWeight: FontWeight.w400,
+    fontFamily: 'IBMPlexSansArabic',
+  );
 
   static TextStyle font14greyColor500W500 = TextStyle(
     fontSize: 14.sp,

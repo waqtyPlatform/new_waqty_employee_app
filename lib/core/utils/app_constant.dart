@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:new_waqty_employee_app/core/utils/enums.dart';
-// import 'package:geocoding/geocoding.dart';
-// import 'package:geolocator/geolocator.dart';
 
-// import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:toastification/toastification.dart';
 
 import 'app_colors_white_theme.dart';
 
 bool isLoggedInUser = false;
+bool isOnBoarding = true;
 
 class AppConstant {
-  static toast(String message, Color colors) {
-    return Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 2,
-      backgroundColor: colors,
-      textColor: AppColors.whiteColor,
-      fontSize: 16.0.sp,
+  static toast(String message, bool isTrue, BuildContext context) {
+    return toastification.show(
+      context: context,
+      title: Text(message),
+      icon: Icon(
+        isTrue ? Icons.check_circle_outline_rounded : Icons.close,
+        color: isTrue ? AppColors.greenColor300 : AppColors.errorColor100,
+      ),
+      autoCloseDuration: const Duration(seconds: 5),
     );
   }
 
@@ -58,6 +56,53 @@ class AppConstant {
     "my_orders": 1,
     "leave_orders": 2,
   };
+
+  static void openUrl(String webUrl) async {
+    final String url = webUrl;
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw "Could not launch $url";
+    }
+  }
+
+  static String formatDate222String(String dateString) {
+    try {
+      // Parse the ISO date string
+
+      DateTime dateTime = DateTime.parse(dateString);
+
+      // Format only hours and minutes
+      return intl.DateFormat('HH:mm').format(dateTime);
+    } catch (error) {
+      return '';
+    }
+  }
+
+  static String formatDateString(String dateString) {
+    // تحويل النص إلى DateTime
+    DateTime dateTime = DateTime.parse(dateString).toLocal();
+    DateTime now = DateTime.now();
+
+    // الفرق بين اليوم والوقت
+    Duration difference = now.difference(dateTime);
+
+    // نفس اليوم
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day) {
+      return intl.DateFormat.Hm().format(dateTime); // مثال: 14:40
+    }
+    // أمس
+    else if (difference.inDays == 1 &&
+        dateTime.day == now.subtract(const Duration(days: 1)).day) {
+      return "Yesterday";
+    }
+    // أي يوم آخر
+    else {
+      return intl.DateFormat('yyyy-MM-dd').format(dateTime); // مثال: 2025-09-26
+    }
+  }
 
   // static void openUrl(String webUrl) async {
   //   final String url = webUrl;
@@ -117,16 +162,18 @@ class AppConstant {
   //   }
   // }
 
-  // static Future<void> openMap(double latitude, double longitude) async {
-  //   final googleUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+  static Future<void> openMap(double latitude, double longitude) async {
+    final googleUrl = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+    );
 
-  //   if (await canLaunchUrl(googleUrl)) {
-  //     await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-  //   } else {
-  //     throw 'Could not open the map.';
-  //   }
-  // }
-
+    if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not open the map.';
+    }
+  }
+  //
   // static Future<String> getLocationFromCoordinates(
   //   double latitude,
   //   double longitude,

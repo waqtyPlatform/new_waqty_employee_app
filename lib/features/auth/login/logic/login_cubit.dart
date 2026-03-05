@@ -33,12 +33,16 @@ class LoginCubit extends Cubit<LoginState> {
 
   Future<void> login() async {
     emit(OnLoginLoadingState());
-    final response = await _loginRepo.login(
-      LoginRequestModel(
-        email: emailController.text,
-        password: passwordController.text,
-      ),
-    );
+    final response = await _loginRepo
+        .login(
+          LoginRequestModel(
+            email: emailController.text,
+            password: passwordController.text,
+          ),
+        )
+        .catchError((error) {
+          emit(OnLoginCatchErrorState());
+        });
     response.fold(
       (failure) {
         if (failure.message.isNotEmpty) {

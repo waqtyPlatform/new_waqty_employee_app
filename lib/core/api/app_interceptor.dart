@@ -10,7 +10,7 @@ class AppInterceptor extends InterceptorContract {
     request.headers[ConstantKeys.contentType] = ConstantKeys.applicationJson;
     request.headers[ConstantKeys.acceptText] = ConstantKeys.applicationJson;
     // request.headers[ConstantKeys.acceptLanguage] =
-    //     getIt<AppConstant>().getLanguage();
+    // getIt<AppConstant>().getLanguage();
     debugPrint(request.toString());
     return request;
   }

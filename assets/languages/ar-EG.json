@@ -1,17 +1,6 @@
 {
   "appName": "Waste-less",
-  "home": {
-    "searchText": "ابحث عن عناصرِك المفضلة"
-  },
   "login": {
-    "title": "تسجيل الدخول",
-    "description": "أدخل بريدك الإلكتروني وكلمة المرور الخاصة بك لتسجيل الدخول إلى حسابك.",
-    "emailText": "البريد الإلكتروني",
-    "passwordText": "كلمة المرور",
-    "forgetPasswordText": "نسيت كلمة المرور؟",
-    "signInButton": "تسجيل الدخول",
-    "orContinueWith": "أو تسجيل الدخول باستخدام",
-    "dontHaveAccountText": "ليس لديك حساب؟ ",
-    "signUpText": "سجل الآن"
+    "welcomeBackText": "مرحباً بعودتك! 👋"
   }
 }

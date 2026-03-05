@@ -10,7 +10,13 @@ import 'package:new_waqty_employee_app/features/auth/reset_password/ui/widgets/r
 import 'package:new_waqty_employee_app/features/auth/reset_password/ui/widgets/reset_password_button_widget.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
-  const ResetPasswordScreen({super.key});
+  final String email;
+  final String code;
+  const ResetPasswordScreen({
+    super.key,
+    required this.email,
+    required this.code,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +68,7 @@ class ResetPasswordScreen extends StatelessWidget {
                 verticalSpace(6),
                 const ResetPasswordConfirmPasswordWidget(),
                 verticalSpace(48),
-                const ResetPasswordButtonWidget(),
+                ResetPasswordButtonWidget(email: email, code: code),
                 verticalSpace(24),
               ],
             ),

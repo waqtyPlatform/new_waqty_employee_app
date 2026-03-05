@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
+import 'package:new_waqty_employee_app/features/auth/login/ui/widgets/change_language_icon_widget.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/widgets/login_button_widget.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/widgets/login_email_widget.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/widgets/login_password_widget.dart';
@@ -29,10 +29,17 @@ class LoginScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpace(16),
-                Text(
-                  'Welcome Back! 👋',
-                  style: TextStyles.font24greyColor900Weight600,
+                Row(
+                  children: [
+                    Text(
+                      'login.welcomeBackText'.tr(),
+                      style: TextStyles.font24greyColor900Weight600,
+                    ),
+                    const Spacer(),
+                    const ChangeLanguageIconWidget(),
+                  ],
                 ),
+
                 verticalSpace(6),
                 Text(
                   'Sign in with your employee credentials to access the system.',

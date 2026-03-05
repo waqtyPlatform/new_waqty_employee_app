@@ -1,8 +1,8 @@
 class VerifyCodeRequestModel {
   String email;
-  String code;
+  String otp;
 
-  VerifyCodeRequestModel({required this.email, required this.code});
+  VerifyCodeRequestModel({required this.email, required this.otp});
 
-  Map<String, dynamic> toJson() => {"email": email, "code": code};
+  Map<String, dynamic> toJson() => {"email": email, "otp": otp};
 }

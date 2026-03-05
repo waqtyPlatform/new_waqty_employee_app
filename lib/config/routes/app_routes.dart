@@ -64,8 +64,8 @@ class RouteGenerator {
       case Routes.verifyCodeScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => VerifyCodeCubit(getIt()),
-            child: const VerifyCodeScreen(),
+            create: (context) => VerifyCodeCubit(getIt(), getIt()),
+            child: VerifyCodeScreen(email: args['email']),
           ),
         );
 
@@ -73,7 +73,10 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (context) => ResetPasswordCubit(getIt()),
-            child: const ResetPasswordScreen(),
+            child: ResetPasswordScreen(
+              email: args['email'],
+              code: args['code'],
+            ),
           ),
         );
 

@@ -22,8 +22,9 @@ class ResetPasswordService {
       ResetPasswordApiEndPoints.resetPassword,
       ResetPasswordRequestModel(
         email: parameter.email,
-        password: parameter.password,
-        passwordConfirmation: parameter.passwordConfirmation,
+        otp: parameter.otp,
+        newPassword: parameter.newPassword,
+        newPasswordConfirmation: parameter.newPasswordConfirmation,
       ).toJson(),
       {
         ConstantKeys.appAuthorization:

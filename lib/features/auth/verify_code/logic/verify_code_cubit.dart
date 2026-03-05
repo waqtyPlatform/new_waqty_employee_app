@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:new_waqty_employee_app/features/auth/forget_password/data/models/forget_password_request_model.dart';
+import 'package:new_waqty_employee_app/features/auth/forget_password/data/repo/forget_password_repo.dart';
+import 'package:new_waqty_employee_app/features/auth/verify_code/data/models/verify_code_request_model.dart';
 import 'package:new_waqty_employee_app/features/auth/verify_code/data/repo/verify_code_repo.dart';
 import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_code_state.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,8 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class VerifyCodeCubit extends Cubit<VerifyCodeState> {
   final VerifyCodeRepo _verifyCodeRepo;
+  final ForgetPasswordRepo _forgetPasswordRepo;
 
-  VerifyCodeCubit(this._verifyCodeRepo) : super(VerifyCodeInitialState()) {
+  VerifyCodeCubit(this._verifyCodeRepo, this._forgetPasswordRepo)
+    : super(VerifyCodeInitialState()) {
     startResendTimer();
   }
 
@@ -45,11 +50,46 @@ class VerifyCodeCubit extends Cubit<VerifyCodeState> {
     });
   }
 
-  void resendCode() {
+  void resendCode(String email) {
     if (canResend) {
       startResendTimer();
-      // TODO: Call resend API
+      resendCodeFromServer(email);
     }
+  }
+
+  Future<void> resendCodeFromServer(String email) async {
+    emit(ResendCodeLoadingState());
+
+    final result = await _forgetPasswordRepo
+        .forgetPassword(ForgetPasswordRequestModel(email: email))
+        .catchError((error) {
+          emit(ResendCodeCatchErrorState());
+        });
+
+    result.fold(
+      (failure) => emit(ResendCodeErrorState(message: failure.message)),
+      (response) => emit(ResendCodeSuccessState(response: response)),
+    );
+  }
+
+  Future<void> verifyCode(String email) async {
+    emit(VerifyCodeLoadingState());
+
+    final result = await _verifyCodeRepo
+        .verifyCode(
+          VerifyCodeRequestModel(email: email, otp: codeController.text),
+        )
+        .catchError((error) {
+          emit(VerifyCodeCatchErrorState());
+        });
+
+    result.fold((failure) {
+      if (failure.message.isNotEmpty) {
+        emit(VerifyCodeErrorState(message: failure.message));
+      } else {
+        emit(VerifyCodeCatchErrorState());
+      }
+    }, (response) => emit(VerifyCodeSuccessState(response: response)));
   }
 
   @override

@@ -1,17 +1,20 @@
 class ResetPasswordRequestModel {
   String email;
-  String password;
-  String passwordConfirmation;
+  String otp;
+  String newPassword;
+  String newPasswordConfirmation;
 
   ResetPasswordRequestModel({
     required this.email,
-    required this.password,
-    required this.passwordConfirmation,
+    required this.otp,
+    required this.newPassword,
+    required this.newPasswordConfirmation,
   });
 
   Map<String, dynamic> toJson() => {
     "email": email,
-    "password": password,
-    "password_confirmation": passwordConfirmation,
+    "otp": otp,
+    "new_password": newPassword,
+    "new_password_confirmation": newPasswordConfirmation,
   };
 }

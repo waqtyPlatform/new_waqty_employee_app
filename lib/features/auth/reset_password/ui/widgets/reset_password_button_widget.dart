@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -12,36 +13,36 @@ import 'package:new_waqty_employee_app/features/auth/reset_password/logic/reset_
 import 'package:new_waqty_employee_app/features/auth/reset_password/logic/reset_password_state.dart';
 
 class ResetPasswordButtonWidget extends StatelessWidget {
-  const ResetPasswordButtonWidget({super.key});
+  final String email;
+  final String code;
+  const ResetPasswordButtonWidget({
+    super.key,
+    required this.email,
+    required this.code,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ResetPasswordCubit, ResetPasswordState>(
-      // buildWhen: (previous, current) {
-      //   return current is OnLoginLoadingState ||
-      //       current is OnLoginSuccessState ||
-      //       current is OnLoginErrorState ||
-      //       current is OnLoginCatchErrorState;
-      // },
+      buildWhen: (previous, current) {
+        return current is ResetPasswordLoadingState ||
+            current is ResetPasswordSuccessState ||
+            current is ResetPasswordErrorState ||
+            current is ResetPasswordCatchErrorState;
+      },
       listener: (context, state) {
-        // if (state is OnLoginSuccessState) {
-        //   AppConstant.toast('Login successfully', true, context);
-        //   if (type == 'sender') {
-        //     context.pushNamed(Routes.senderButtonNavigationBarScreen);
-        //   } else {
-        //     context.pushNamed(Routes.buttonNavigationBarScreen);
-        //   }
-        //
-        //   ///
-        // } else if (state is OnLoginErrorState) {
-        //   AppConstant.toast(state.message, false, context);
-        // } else if (state is OnLoginCatchErrorState) {
-        //   AppConstant.toast('Email Or Password is Wrong', false, context);
-        // }
+        if (state is ResetPasswordSuccessState) {
+          AppConstant.toast('Password Changed Successfully', true, context);
+          showDialogChangePasswordDone(context);
+        } else if (state is ResetPasswordErrorState) {
+          AppConstant.toast(state.message, false, context);
+        } else if (state is ResetPasswordCatchErrorState) {
+          AppConstant.toast('Something went wrong', false, context);
+        }
       },
       builder: (context, state) {
         return ButtonWidget(
-          isLoading: false,
+          isLoading: state is ResetPasswordLoadingState,
           borderRadius: 12,
           buttonHeight: 50.h,
           buttonText: 'Create New Password',
@@ -49,11 +50,19 @@ class ResetPasswordButtonWidget extends StatelessWidget {
           borderColor: AppColors.greenColor500,
           textStyle: TextStyles.font16whiteColorWeight600,
           onPressed: () {
-            showDialogChangePasswordDone(context);
+            validateResetPassword(email, code, context);
           },
         );
       },
     );
+  }
+
+  void validateResetPassword(String email, String code, BuildContext context) {
+    if (ResetPasswordCubit.get(
+      context,
+    ).resetPasswordKey.currentState!.validate()) {
+      ResetPasswordCubit.get(context).resetPassword(email, code);
+    }
   }
 
   static showDialogChangePasswordDone(BuildContext context) {

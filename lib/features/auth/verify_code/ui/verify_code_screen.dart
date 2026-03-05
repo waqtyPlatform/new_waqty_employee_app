@@ -9,7 +9,8 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/ui/widgets/veri
 import 'package:new_waqty_employee_app/features/auth/verify_code/ui/widgets/resend_code_widget.dart';
 
 class VerifyCodeScreen extends StatelessWidget {
-  const VerifyCodeScreen({super.key});
+  final String email;
+  const VerifyCodeScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +48,12 @@ class VerifyCodeScreen extends StatelessWidget {
                   style: TextStyles.font14greyColor4002Weight400,
                 ),
                 verticalSpace(24),
-                Text('OTP Code', style: TextStyles.font14greyColor900Weight500),
-                verticalSpace(6),
-                const VerifyCodeInputWidget(),
+
+                VerifyCodeInputWidget(email: email),
                 verticalSpace(48),
-                const ResendCodeWidget(),
+                ResendCodeWidget(email: email),
                 verticalSpace(32),
-                const VerifyCodeButtonWidget(),
+                VerifyCodeButtonWidget(email: email),
 
                 verticalSpace(24),
               ],

@@ -22,7 +22,7 @@ class VerifyCodeService {
       VerifyCodeApiEndPoints.verifyCode,
       VerifyCodeRequestModel(
         email: parameter.email,
-        code: parameter.code,
+        otp: parameter.otp,
       ).toJson(),
       {
         ConstantKeys.appAuthorization:

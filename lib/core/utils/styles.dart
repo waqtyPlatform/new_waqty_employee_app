@@ -20,6 +20,12 @@ class TextStyles {
     fontFamily: 'IBMPlexSansArabic',
   );
 
+  static TextStyle font14Weight700 = TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w700,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
   static TextStyle font12greyColor4002Weight400 = TextStyle(
     fontSize: 12.sp,
     color: AppColors.greyColor4002,

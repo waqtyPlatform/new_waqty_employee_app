@@ -5,7 +5,8 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_co
 import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_code_state.dart';
 
 class ResendCodeWidget extends StatelessWidget {
-  const ResendCodeWidget({super.key});
+  final String email;
+  const ResendCodeWidget({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class ResendCodeWidget extends StatelessWidget {
               ),
             if (cubit.canResend)
               GestureDetector(
-                onTap: () => cubit.resendCode(),
+                onTap: () => cubit.resendCode(email),
                 child: Text(
                   'Resend Code',
                   style: TextStyles.font14greenColor500Weight600,

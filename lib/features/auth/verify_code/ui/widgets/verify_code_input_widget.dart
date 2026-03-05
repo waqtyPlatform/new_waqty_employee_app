@@ -11,7 +11,8 @@ import 'package:pinput/pinput.dart';
 import 'package:flutter/services.dart';
 
 class VerifyCodeInputWidget extends StatelessWidget {
-  const VerifyCodeInputWidget({super.key});
+  final String email;
+  const VerifyCodeInputWidget({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +56,7 @@ class VerifyCodeInputWidget extends StatelessWidget {
         ),
       ),
       onCompleted: (String? value) {
+        VerifyCodeCubit.get(context).verifyCode(email);
         // if (MyConnectivity.isOnline()) {
         // SendCodeCubit.get(context).verifyCode();
         // } else {

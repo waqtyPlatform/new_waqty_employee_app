@@ -50,7 +50,7 @@ class LoginScreen extends StatelessWidget {
                 const LoginPasswordWidget(),
                 verticalSpace(16),
                 Align(
-                  alignment: AlignmentGeometry.centerEnd,
+                  alignment: AlignmentGeometry.centerRight,
                   child: GestureDetector(
                     onTap: () {
                       context.pushNamed(Routes.forgetPasswordScreen);

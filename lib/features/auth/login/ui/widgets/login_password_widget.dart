@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -60,7 +61,7 @@ class LoginPasswordWidget extends StatelessWidget {
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your password';
+              return context.tr('login.passwordError');
             }
             return null;
           },

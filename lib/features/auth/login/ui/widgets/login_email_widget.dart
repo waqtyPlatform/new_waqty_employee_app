@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -8,12 +9,7 @@ import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dar
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_state.dart';
 
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/core/widgets/app_text_field.dart';
 
 class LoginEmailWidget extends StatelessWidget {
   const LoginEmailWidget({super.key});
@@ -26,7 +22,7 @@ class LoginEmailWidget extends StatelessWidget {
       },
       builder: (context, state) {
         return AppTextFormField(
-          hintText: 'Email',
+          hintText: context.tr('login.email'),
           hintStyle: TextStyles.font16greyColor4002Weight400,
           contentPadding: EdgeInsets.symmetric(
             vertical: 11.h,
@@ -52,7 +48,7 @@ class LoginEmailWidget extends StatelessWidget {
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your email';
+              return context.tr('login.emailError');
             }
             return null;
           },

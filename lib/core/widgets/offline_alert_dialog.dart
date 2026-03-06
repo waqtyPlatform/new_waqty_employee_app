@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:new_waqty_employee_app/my_app.dart';
 
+///redesign this widget
 class OfflineAlertDialog {
   const OfflineAlertDialog();
 

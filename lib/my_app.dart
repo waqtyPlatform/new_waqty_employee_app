@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
             locale: context.locale,
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
-            title: "waqty employee",
+            title: "appName".tr(),
             theme: themeData(),
             initialRoute: widget.navigateWidget,
             onGenerateRoute: RouteGenerator.generateRoute,

@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
@@ -32,12 +34,20 @@ class ResetPasswordButtonWidget extends StatelessWidget {
       },
       listener: (context, state) {
         if (state is ResetPasswordSuccessState) {
-          AppConstant.toast('Password Changed Successfully', true, context);
+          AppConstant.toast(
+            context.tr('resetPassword.successMessage'),
+            true,
+            context,
+          );
           showDialogChangePasswordDone(context);
         } else if (state is ResetPasswordErrorState) {
           AppConstant.toast(state.message, false, context);
         } else if (state is ResetPasswordCatchErrorState) {
-          AppConstant.toast('Something went wrong', false, context);
+          AppConstant.toast(
+            context.tr('resetPassword.errorMessage'),
+            false,
+            context,
+          );
         }
       },
       builder: (context, state) {
@@ -45,7 +55,7 @@ class ResetPasswordButtonWidget extends StatelessWidget {
           isLoading: state is ResetPasswordLoadingState,
           borderRadius: 12,
           buttonHeight: 50.h,
-          buttonText: 'Create New Password',
+          buttonText: context.tr('resetPassword.createPassword'),
           backGroundColor: AppColors.greenColor500,
           borderColor: AppColors.greenColor500,
           textStyle: TextStyles.font16whiteColorWeight600,
@@ -61,7 +71,15 @@ class ResetPasswordButtonWidget extends StatelessWidget {
     if (ResetPasswordCubit.get(
       context,
     ).resetPasswordKey.currentState!.validate()) {
-      ResetPasswordCubit.get(context).resetPassword(email, code);
+      if (MyConnectivity.isOnline()) {
+        ResetPasswordCubit.get(context).resetPassword(email, code);
+      } else {
+        AppConstant.toast(
+          context.tr('resetPassword.noInternet'),
+          false,
+          context,
+        );
+      }
     }
   }
 
@@ -80,13 +98,13 @@ class ResetPasswordButtonWidget extends StatelessWidget {
               Center(child: Image.asset(ImageAsset.doneImage)),
               verticalSpace(24),
               Text(
-                'Password Changes!',
+                context.tr('resetPassword.dialogTitle'),
                 style: TextStyles.font18greyColor900Weight600,
                 textAlign: TextAlign.center,
               ),
               verticalSpace(8),
               Text(
-                'Password has been changed successfully',
+                context.tr('resetPassword.dialogSubtitle'),
                 textAlign: TextAlign.center,
                 style: TextStyles.font14greyColor4002Weight400,
               ),
@@ -95,7 +113,7 @@ class ResetPasswordButtonWidget extends StatelessWidget {
                 isLoading: false,
                 borderRadius: 12,
                 buttonHeight: 50.h,
-                buttonText: 'Login Now',
+                buttonText: context.tr('resetPassword.loginNow'),
                 backGroundColor: AppColors.greenColor500,
                 borderColor: AppColors.greenColor500,
                 textStyle: TextStyles.font16whiteColorWeight600,

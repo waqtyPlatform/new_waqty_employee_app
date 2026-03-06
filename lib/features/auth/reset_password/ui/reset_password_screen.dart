@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -45,24 +46,24 @@ class ResetPasswordScreen extends StatelessWidget {
               children: [
                 verticalSpace(16),
                 Text(
-                  'Reset Password 🔑',
+                  context.tr('resetPassword.title'),
                   style: TextStyles.font24greyColor900Weight600,
                 ),
                 verticalSpace(6),
                 Text(
-                  'Create a new password for your account.',
+                  context.tr('resetPassword.subtitle'),
                   style: TextStyles.font14greyColor4002Weight400,
                 ),
                 verticalSpace(24),
                 Text(
-                  'New Password',
+                  context.tr('resetPassword.newPassword'),
                   style: TextStyles.font14greyColor900Weight500,
                 ),
                 verticalSpace(6),
                 const ResetPasswordNewPasswordWidget(),
                 verticalSpace(16),
                 Text(
-                  'Confirm Password',
+                  context.tr('resetPassword.confirmPassword'),
                   style: TextStyles.font14greyColor900Weight500,
                 ),
                 verticalSpace(6),

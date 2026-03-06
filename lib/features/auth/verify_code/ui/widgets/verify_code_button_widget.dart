@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
@@ -25,7 +27,11 @@ class VerifyCodeButtonWidget extends StatelessWidget {
       },
       listener: (context, state) {
         if (state is VerifyCodeSuccessState) {
-          AppConstant.toast('code verified successfully', true, context);
+          AppConstant.toast(
+            context.tr('verifyCode.successMessage'),
+            true,
+            context,
+          );
           context.pushNamed(
             Routes.resetPasswordScreen,
             arguments: {
@@ -36,7 +42,11 @@ class VerifyCodeButtonWidget extends StatelessWidget {
         } else if (state is VerifyCodeErrorState) {
           AppConstant.toast(state.message, false, context);
         } else if (state is VerifyCodeCatchErrorState) {
-          AppConstant.toast('Something went wrong', false, context);
+          AppConstant.toast(
+            context.tr('verifyCode.errorMessage'),
+            false,
+            context,
+          );
         }
       },
       builder: (context, state) {
@@ -44,7 +54,7 @@ class VerifyCodeButtonWidget extends StatelessWidget {
           isLoading: state is VerifyCodeLoadingState,
           borderRadius: 12,
           buttonHeight: 50.h,
-          buttonText: "Verify Code",
+          buttonText: context.tr('verifyCode.verify'),
           backGroundColor: AppColors.greenColor500,
           borderColor: AppColors.greenColor500,
           textStyle: TextStyles.font16whiteColorWeight600,
@@ -59,11 +69,15 @@ class VerifyCodeButtonWidget extends StatelessWidget {
   void validateVerifyCode(BuildContext context) {
     final code = VerifyCodeCubit.get(context).codeController.text;
     if (code.length != 4) {
-      AppConstant.toast('Please enter the 4-digit code', false, context);
+      AppConstant.toast(context.tr('verifyCode.codeError'), false, context);
       return;
     }
     if (VerifyCodeCubit.get(context).verifyCodeKey.currentState!.validate()) {
-      VerifyCodeCubit.get(context).verifyCode(email);
+      if (MyConnectivity.isOnline()) {
+        VerifyCodeCubit.get(context).verifyCode(email);
+      } else {
+        AppConstant.toast(context.tr('verifyCode.noInternet'), false, context);
+      }
     }
   }
 }

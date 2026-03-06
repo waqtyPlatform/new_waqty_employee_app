@@ -19,6 +19,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
   await EasyLocalization.ensureInitialized();
   await ServicesLocator.init();
   // await BluetoothPermissionHandler.init(false);
@@ -36,9 +37,9 @@ Future<void> main() async {
         Locale('ar', 'EG'), // Arabic first
       ],
       saveLocale: true,
-      startLocale: const Locale('en', 'US'),
+      startLocale: const Locale('ar', 'EG'),
       path: 'assets/languages',
-      fallbackLocale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('ar', 'EG'),
       child: MyApp(
         navigateWidget: isLoggedInUser
             ? Routes.loginScreen

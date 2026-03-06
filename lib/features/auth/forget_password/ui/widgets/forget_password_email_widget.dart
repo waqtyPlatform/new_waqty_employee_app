@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -20,7 +21,7 @@ class ForgetPasswordEmailWidget extends StatelessWidget {
       },
       builder: (context, state) {
         return AppTextFormField(
-          hintText: 'Email',
+          hintText: context.tr('forgetPassword.email'),
           hintStyle: TextStyles.font16greyColor4002Weight400,
           contentPadding: EdgeInsets.symmetric(
             vertical: 11.h,
@@ -46,7 +47,7 @@ class ForgetPasswordEmailWidget extends StatelessWidget {
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your email';
+              return context.tr('forgetPassword.emailError');
             }
             return null;
           },

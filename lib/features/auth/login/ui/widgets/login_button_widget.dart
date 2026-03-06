@@ -1,10 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/button_widget.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
@@ -25,14 +24,14 @@ class LoginButtonWidget extends StatelessWidget {
       },
       listener: (context, state) {
         if (state is OnLoginSuccessState) {
-          AppConstant.toast('Login successfully', true, context);
+          AppConstant.toast(state.message, true, context);
           // context.pushNamed(
           // Routes.homeScreen,
           // ); // Assuming home screen is the destination
         } else if (state is OnLoginErrorState) {
           AppConstant.toast(state.message, false, context);
         } else if (state is OnLoginCatchErrorState) {
-          AppConstant.toast('Email Or Password is Wrong', false, context);
+          AppConstant.toast(context.tr('login.loginErrorDesc'), false, context);
         }
       },
       builder: (context, state) {
@@ -40,7 +39,7 @@ class LoginButtonWidget extends StatelessWidget {
           isLoading: state is OnLoginLoadingState,
           borderRadius: 12,
           buttonHeight: 50.h,
-          buttonText: 'Sign In',
+          buttonText: context.tr('login.signIn'),
           backGroundColor: AppColors.greenColor500,
           borderColor: AppColors.greenColor500,
           fourGroundColor: AppColors.whiteColor,
@@ -56,7 +55,11 @@ class LoginButtonWidget extends StatelessWidget {
 
   void validatelogin(BuildContext context) {
     if (LoginCubit.get(context).loginKey.currentState!.validate()) {
-      LoginCubit.get(context).login();
+      if (MyConnectivity.isOnline()) {
+        LoginCubit.get(context).login();
+      } else {
+        AppConstant.toast(context.tr('login.noInternet'), false, context);
+      }
     }
   }
 }

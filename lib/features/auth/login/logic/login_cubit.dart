@@ -53,7 +53,7 @@ class LoginCubit extends Cubit<LoginState> {
       },
       (result) async {
         await cashUserData(result);
-        emit(OnLoginSuccessState());
+        emit(OnLoginSuccessState(message: result.message));
       },
     );
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -60,11 +61,11 @@ class ResetPasswordConfirmPasswordWidget extends StatelessWidget {
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
-              return 'Please confirm your password';
+              return context.tr('resetPassword.confirmPasswordError');
             }
             if (value !=
                 ResetPasswordCubit.get(context).passwordController.text) {
-              return 'Passwords do not match';
+              return context.tr('resetPassword.passwordMatchError');
             }
             return null;
           },

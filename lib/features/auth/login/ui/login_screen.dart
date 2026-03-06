@@ -32,27 +32,32 @@ class LoginScreen extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'login.welcomeBackText'.tr(),
+                      context.tr('login.welcomeBackText'),
                       style: TextStyles.font24greyColor900Weight600,
                     ),
                     const Spacer(),
                     const ChangeLanguageIconWidget(),
                   ],
                 ),
-
-                verticalSpace(6),
+                verticalSpace(16),
                 Text(
-                  'Sign in with your employee credentials to access the system.',
+                  context.tr('login.subtitle'),
                   style: TextStyles.font14greyColor4002Weight400,
                 ),
 
                 verticalSpace(16),
-                Text('Email', style: TextStyles.font14greyColor900Weight500),
+                Text(
+                  context.tr('login.email'),
+                  style: TextStyles.font14greyColor900Weight500,
+                ),
                 verticalSpace(6),
                 const LoginEmailWidget(),
                 verticalSpace(16),
 
-                Text('Password', style: TextStyles.font14greyColor900Weight500),
+                Text(
+                  context.tr('login.password'),
+                  style: TextStyles.font14greyColor900Weight500,
+                ),
                 verticalSpace(6),
                 const LoginPasswordWidget(),
                 verticalSpace(16),
@@ -63,7 +68,7 @@ class LoginScreen extends StatelessWidget {
                       context.pushNamed(Routes.forgetPasswordScreen);
                     },
                     child: Text(
-                      'Forgot Password?',
+                      context.tr('login.forgotPassword'),
                       style: TextStyles.font14greenColor500Weight600.copyWith(
                         decoration: TextDecoration.underline,
                         decorationColor: AppColors.greenColor500.withOpacity(

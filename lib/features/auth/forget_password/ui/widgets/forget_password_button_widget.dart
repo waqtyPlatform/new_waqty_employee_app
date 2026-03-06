@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
@@ -25,7 +27,7 @@ class ForgetPasswordButtonWidget extends StatelessWidget {
       listener: (context, state) {
         if (state is ForgetPasswordSuccessState) {
           AppConstant.toast(
-            'code send successfully Check your email',
+            context.tr('forgetPassword.successMessage'),
             true,
             context,
           );
@@ -39,7 +41,11 @@ class ForgetPasswordButtonWidget extends StatelessWidget {
         } else if (state is ForgetPasswordErrorState) {
           AppConstant.toast(state.message, false, context);
         } else if (state is ForgetPasswordCatchErrorState) {
-          AppConstant.toast('Something went wrong', false, context);
+          AppConstant.toast(
+            context.tr('forgetPassword.errorMessage'),
+            false,
+            context,
+          );
         }
       },
       builder: (context, state) {
@@ -47,7 +53,7 @@ class ForgetPasswordButtonWidget extends StatelessWidget {
           isLoading: state is ForgetPasswordLoadingState,
           borderRadius: 12,
           buttonHeight: 50.h,
-          buttonText: 'Send OTP',
+          buttonText: context.tr('forgetPassword.sendOtp'),
           backGroundColor: AppColors.greenColor500,
           borderColor: AppColors.greenColor500,
           textStyle: TextStyles.font16whiteColorWeight600,
@@ -63,7 +69,15 @@ class ForgetPasswordButtonWidget extends StatelessWidget {
     if (ForgetPasswordCubit.get(
       context,
     ).forgetPasswordKey.currentState!.validate()) {
-      ForgetPasswordCubit.get(context).forgetPassword();
+      if (MyConnectivity.isOnline()) {
+        ForgetPasswordCubit.get(context).forgetPassword();
+      } else {
+        AppConstant.toast(
+          context.tr('forgetPassword.noInternet'),
+          false,
+          context,
+        );
+      }
     }
   }
 }

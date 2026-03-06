@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -37,16 +38,19 @@ class ForgetPasswordScreen extends StatelessWidget {
               children: [
                 verticalSpace(16),
                 Text(
-                  'Forgot Password? 🔒',
+                  context.tr('forgetPassword.title'),
                   style: TextStyles.font24greyColor900Weight600,
                 ),
                 verticalSpace(6),
                 Text(
-                  'Enter your email address and we will send you a link to reset your password.',
+                  context.tr('forgetPassword.subtitle'),
                   style: TextStyles.font14greyColor4002Weight400,
                 ),
                 verticalSpace(24),
-                Text('Email', style: TextStyles.font14greyColor900Weight500),
+                Text(
+                  context.tr('forgetPassword.email'),
+                  style: TextStyles.font14greyColor900Weight500,
+                ),
                 verticalSpace(6),
                 const ForgetPasswordEmailWidget(),
                 verticalSpace(32),

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/app_text_field.dart';
 import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_code_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_code_state.dart';
 import 'package:pinput/pinput.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class VerifyCodeInputWidget extends StatelessWidget {
   final String email;
@@ -56,12 +59,15 @@ class VerifyCodeInputWidget extends StatelessWidget {
         ),
       ),
       onCompleted: (String? value) {
-        VerifyCodeCubit.get(context).verifyCode(email);
-        // if (MyConnectivity.isOnline()) {
-        // SendCodeCubit.get(context).verifyCode();
-        // } else {
-        //   AppConstant.toast("Check Internet Connection", AppColors.redColor);
-        // }
+        if (MyConnectivity.isOnline()) {
+          VerifyCodeCubit.get(context).verifyCode(email);
+        } else {
+          AppConstant.toast(
+            context.tr('verifyCode.noInternet'),
+            false,
+            context,
+          );
+        }
       },
     );
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -58,10 +59,10 @@ class ResetPasswordNewPasswordWidget extends StatelessWidget {
           ),
           validator: (String? value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your new password';
+              return context.tr('resetPassword.newPasswordError');
             }
             if (value.length < 6) {
-              return 'Password must be at least 6 characters';
+              return context.tr('resetPassword.passwordLengthError');
             }
             return null;
           },

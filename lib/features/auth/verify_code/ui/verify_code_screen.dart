@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -39,12 +40,12 @@ class VerifyCodeScreen extends StatelessWidget {
               children: [
                 verticalSpace(16),
                 Text(
-                  'Verify Code 📩',
+                  context.tr('verifyCode.title'),
                   style: TextStyles.font24greyColor900Weight600,
                 ),
                 verticalSpace(6),
                 Text(
-                  'Enter the OTP code that was sent to your email address.',
+                  context.tr('verifyCode.subtitle'),
                   style: TextStyles.font14greyColor4002Weight400,
                 ),
                 verticalSpace(24),

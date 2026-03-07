@@ -16,17 +16,7 @@ class ImageAsset {
   static const String doneImage = 'assets/images/done.png';
   //   static const String chartBackGroundImage = 'assets/images/chart_background_image.png';
   //   static const String notFoundImage = 'assets/images/not_found.png';
+
   ///icons
-  static const String accountIcon = 'assets/icons/account.png';
-  static const String selectedAccountIcon = 'assets/icons/selected_account.png';
-
-  static const String browseIcon = 'assets/icons/browse.png';
-  static const String selectedBrowseIcon = 'assets/icons/selected_browse.png';
-
-  static const String homeIcon = 'assets/icons/home.png';
-  static const String selectedHomeIcon = 'assets/icons/selected_home.png';
-
-  static const String favoriteIcon = 'assets/icons/favorite.png';
-  static const String selectedFavoriteIcon =
-      'assets/icons/selected_favorite.png';
+  static const String notificationIcon = 'assets/icons/notification_icon.svg';
 }

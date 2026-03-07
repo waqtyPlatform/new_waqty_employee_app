@@ -6,6 +6,13 @@ import 'app_colors_white_theme.dart';
 class TextStyles {
   // Welcome Text Styles
 
+  static TextStyle font32greyColor900Weight600 = TextStyle(
+    fontSize: 32.sp,
+    color: AppColors.greyColor900,
+    fontWeight: FontWeight.w600,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
   static TextStyle font24greyColor900Weight600 = TextStyle(
     fontSize: 24.sp,
     color: AppColors.greyColor900,
@@ -44,6 +51,27 @@ class TextStyles {
     fontSize: 12.sp,
     color: AppColors.greyColor3003,
     fontWeight: FontWeight.w400,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
+  static TextStyle font10greyColor3003Weight400 = TextStyle(
+    fontSize: 10.sp,
+    color: AppColors.greyColor3003,
+    fontWeight: FontWeight.w400,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
+  static TextStyle font15greyColor3003Weight500 = TextStyle(
+    fontSize: 15.sp,
+    color: AppColors.greyColor3003,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
+  static TextStyle font12greyColor3003Weight500 = TextStyle(
+    fontSize: 12.sp,
+    color: AppColors.greyColor3003,
+    fontWeight: FontWeight.w500,
     fontFamily: 'IBMPlexSansArabic',
   );
 
@@ -135,6 +163,13 @@ class TextStyles {
     fontSize: 12.sp,
     color: AppColors.greyColor500,
     fontWeight: FontWeight.w400,
+    fontFamily: 'IBMPlexSansArabic',
+  );
+
+  static TextStyle font12greyColor500W500 = TextStyle(
+    fontSize: 12.sp,
+    color: AppColors.greyColor500,
+    fontWeight: FontWeight.w500,
     fontFamily: 'IBMPlexSansArabic',
   );
 

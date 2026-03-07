@@ -15,6 +15,7 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_co
 import 'package:new_waqty_employee_app/features/auth/verify_code/ui/verify_code_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/reset_password/logic/reset_password_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/reset_password/ui/reset_password_screen.dart';
+import 'package:new_waqty_employee_app/features/main_navigation/ui/screens/main_navigation_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -22,13 +23,8 @@ class RouteGenerator {
     final dynamic args = settings.arguments ?? <String, dynamic>{};
 
     switch (settings.name) {
-      // case Routes.buttonNavigationBarScreen:
-      //   return MaterialPageRoute(
-      //     builder: (_) => BlocProvider(
-      //       create: (context) => ButtonNavigationBarCubit(),
-      //       child: const ButtonNavigationBarScreen(),
-      //     ),
-      //   );
+      case Routes.mainNavigationScreen:
+        return MaterialPageRoute(builder: (_) => const MainNavigationScreen());
       case Routes.homeScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(

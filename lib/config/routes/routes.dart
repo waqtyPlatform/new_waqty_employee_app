@@ -1,5 +1,5 @@
 class Routes {
-  static const buttonNavigationBarScreen = "/ButtonNavigationBarScreen";
+  static const mainNavigationScreen = "/MainNavigationScreen";
   static const loginScreen = "/LoginScreen";
   static const homeScreen = "/HomeScreen";
   static const profileScreen = "/ProfileScreen";

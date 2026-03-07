@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import '../../../../core/utils/app_colors_white_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -37,30 +39,39 @@ class CustomBottomNavBar extends StatelessWidget {
 
         selectedLabelStyle: TextStyles.font12greenColor500W600,
         unselectedLabelStyle: TextStyles.font12greyColor3003Weight400,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            icon: SvgPicture.asset(ImageAsset.homeIcon),
+            activeIcon: SvgPicture.asset(ImageAsset.homeSelectedIcon),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined),
-            activeIcon: Icon(Icons.calendar_month),
+            icon: SvgPicture.asset(ImageAsset.bookingIcon),
+            activeIcon: SvgPicture.asset(ImageAsset.bookingSelectedIcon),
             label: 'Booking',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics_outlined),
-            activeIcon: Icon(Icons.analytics),
-            label: 'Stats',
+            icon: SvgPicture.asset(ImageAsset.performanceIcon),
+            activeIcon: SvgPicture.asset(
+              ImageAsset.performanceSelectedIcon,
+              color: AppColors.greenColor500,
+            ),
+            label: 'Performance',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.request_quote_outlined),
-            activeIcon: Icon(Icons.request_quote),
+            icon: SvgPicture.asset(ImageAsset.moneyIcon),
+            activeIcon: SvgPicture.asset(
+              ImageAsset.moneyIcon,
+              color: AppColors.greenColor500,
+            ),
             label: 'Money',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
+            icon: SvgPicture.asset(ImageAsset.accountIcon),
+            activeIcon: SvgPicture.asset(
+              ImageAsset.accountIcon,
+              color: AppColors.greenColor500,
+            ),
             label: 'Account',
           ),
         ],

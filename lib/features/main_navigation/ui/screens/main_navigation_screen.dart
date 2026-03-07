@@ -32,6 +32,7 @@ class MainNavigationScreenView extends StatelessWidget {
       builder: (context, state) {
         return SafeArea(
           top: false,
+          bottom: false,
           child: Scaffold(
             backgroundColor: AppColors.whiteColor,
             body: _buildBody(MainNavigationCubit.get(context).currentIndex),

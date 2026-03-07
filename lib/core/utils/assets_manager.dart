@@ -19,4 +19,16 @@ class ImageAsset {
 
   ///icons
   static const String notificationIcon = 'assets/icons/notification_icon.svg';
+
+  static const String accountIcon = 'assets/icons/account_icon.svg';
+  static const String bookingIcon = 'assets/icons/booking_icon.svg';
+  static const String bookingSelectedIcon =
+      'assets/icons/booking_selected_icon.svg';
+  static const String homeIcon = 'assets/icons/home_icon.svg';
+  static const String homeSelectedIcon = 'assets/icons/home_selected_icon.svg';
+
+  static const String moneyIcon = 'assets/icons/money_icon.svg';
+  static const String performanceIcon = 'assets/icons/performance_icon.svg';
+  static const String performanceSelectedIcon =
+      'assets/icons/performance_selected_icon.svg';
 }

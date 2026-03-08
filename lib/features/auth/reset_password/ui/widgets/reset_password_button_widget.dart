@@ -35,7 +35,7 @@ class ResetPasswordButtonWidget extends StatelessWidget {
       listener: (context, state) {
         if (state is ResetPasswordSuccessState) {
           AppConstant.toast(
-            context.tr('resetPassword.successMessage'),
+            state.response.message,
             true,
             context,
           );

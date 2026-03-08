@@ -28,7 +28,7 @@ class VerifyCodeButtonWidget extends StatelessWidget {
       listener: (context, state) {
         if (state is VerifyCodeSuccessState) {
           AppConstant.toast(
-            context.tr('verifyCode.successMessage'),
+            state.response.message,
             true,
             context,
           );

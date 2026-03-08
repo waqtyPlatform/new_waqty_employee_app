@@ -27,7 +27,7 @@ class ForgetPasswordButtonWidget extends StatelessWidget {
       listener: (context, state) {
         if (state is ForgetPasswordSuccessState) {
           AppConstant.toast(
-            context.tr('forgetPassword.successMessage'),
+            state.response.message,
             true,
             context,
           );

@@ -132,6 +132,8 @@ class MyBookingItemCardWidget extends StatelessWidget {
         return AppColors.warningColor1002;
       case 'upcoming':
         return AppColors.blueColor5055;
+      case 'confirmed':
+        return AppColors.blueColor5055;
       case 'completed':
         return AppColors.greenColor5005;
       case 'canceled':
@@ -146,6 +148,8 @@ class MyBookingItemCardWidget extends StatelessWidget {
       case 'processing':
         return AppColors.warningColor1001;
       case 'upcoming':
+        return AppColors.blueColor506;
+      case 'confirmed':
         return AppColors.blueColor506;
       case 'completed':
         return AppColors.greenColor500;
@@ -162,6 +166,8 @@ class MyBookingItemCardWidget extends StatelessWidget {
         return 'Processing';
       case 'upcoming':
         return 'Upcoming';
+      case 'confirmed':
+        return 'Confirmed';
       case 'completed':
         return 'Completed';
       case 'canceled':

@@ -7,7 +7,7 @@ class MyBookingCubit extends Cubit<MyBookingState> {
 
   MyBookingCubit(this._myBookingRepo) : super(InitialState());
 
-  int selectedDayIndex = 3;
+  int selectedDayIndex = 0;
   int selectedTabIndex = 0;
 
   void changeSelectedDay(int index) {

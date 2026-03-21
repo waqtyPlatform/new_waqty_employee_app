@@ -16,6 +16,8 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/ui/verify_code_
 import 'package:new_waqty_employee_app/features/auth/reset_password/logic/reset_password_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/reset_password/ui/reset_password_screen.dart';
 import 'package:new_waqty_employee_app/features/main_navigation/ui/screens/main_navigation_screen.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/logic/booking_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/ui/booking_details_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -73,6 +75,14 @@ class RouteGenerator {
               email: args['email'],
               code: args['code'],
             ),
+          ),
+        );
+
+      case Routes.bookingDetailsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => BookingDetailsCubit(getIt()),
+            child: const BookingDetailsScreen(),
           ),
         );
 

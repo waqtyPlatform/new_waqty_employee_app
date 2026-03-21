@@ -22,36 +22,39 @@ class MyBookingScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.whiteColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         title: Text('My Booking', style: TextStyles.font20greyColor900W600),
       ),
-      body: BlocBuilder<MyBookingCubit, MyBookingState>(
-        ///build when state is InitialState
-        // buildWhen: (previous, current) => current is InitialState,
-        builder: (context, state) {
-          final cubit = MyBookingCubit.get(context);
-          return Column(
-            children: [
-              verticalSpace(16),
-              // Days Horizontal List
-              MyBookingDaysListWidget(
-                selectedDayIndex: cubit.selectedDayIndex,
-                onDaySelected: (index) => cubit.changeSelectedDay(index),
-              ),
+      body: SafeArea(
+        child: BlocBuilder<MyBookingCubit, MyBookingState>(
+          ///build when state is InitialState
+          // buildWhen: (previous, current) => current is InitialState,
+          builder: (context, state) {
+            final cubit = MyBookingCubit.get(context);
+            return Column(
+              children: [
+                verticalSpace(16),
+                // Days Horizontal List
+                MyBookingDaysListWidget(
+                  selectedDayIndex: cubit.selectedDayIndex,
+                  onDaySelected: (index) => cubit.changeSelectedDay(index),
+                ),
 
-              verticalSpace(16),
+                verticalSpace(16),
 
-              // Tab Bar (Upcoming / Completed / Canceled)
-              MyBookingTabBarWidget(
-                selectedTabIndex: cubit.selectedTabIndex,
-                onTabSelected: (index) => cubit.changeSelectedTab(index),
-              ),
+                // Tab Bar (Upcoming / Completed / Canceled)
+                MyBookingTabBarWidget(
+                  selectedTabIndex: cubit.selectedTabIndex,
+                  onTabSelected: (index) => cubit.changeSelectedTab(index),
+                ),
 
-              // Tab Body
-              Expanded(child: _buildTabBody(cubit.selectedTabIndex)),
-            ],
-          );
-        },
+                // Tab Body
+                Expanded(child: _buildTabBody(cubit.selectedTabIndex)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

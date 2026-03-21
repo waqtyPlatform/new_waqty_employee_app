@@ -30,6 +30,12 @@ import 'package:new_waqty_employee_app/features/auth/reset_password/data/service
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/repo/my_booking_repo.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/services/my_booking_service.dart';
 
+import 'package:new_waqty_employee_app/features/booking/booking_details/data/repo/booking_details_repo.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/data/services/booking_details_service.dart';
+
+import 'package:new_waqty_employee_app/features/performance/my_stats/data/repo/my_stats_repo.dart';
+import 'package:new_waqty_employee_app/features/performance/my_stats/data/services/my_stats_service.dart';
+
 final getIt = GetIt.instance;
 
 class ServicesLocator {
@@ -95,5 +101,21 @@ class ServicesLocator {
       () => MyBookingService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<MyBookingRepo>(() => MyBookingRepo(getIt()));
+
+    /// Booking Details
+    getIt.registerLazySingleton<BookingDetailsService>(
+      () => BookingDetailsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<BookingDetailsRepo>(
+      () => BookingDetailsRepo(getIt()),
+    );
+
+    /// My Stats
+    getIt.registerLazySingleton<MyStatsService>(
+      () => MyStatsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<MyStatsRepo>(
+      () => MyStatsRepo(getIt()),
+    );
   }
 }

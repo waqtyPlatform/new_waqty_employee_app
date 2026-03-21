@@ -28,4 +28,7 @@ class ImageAsset {
   static const String rateIcon = 'assets/icons/rate_icon.svg';
   static const String leftIcon = 'assets/icons/left_icon.svg';
   static const String doneIcon = 'assets/icons/done_icon.svg';
+  static const String notesIcon = 'assets/icons/notes_icon.svg';
+  static const String uppRowIcon = 'assets/icons/upp_row_icon.svg';
+  static const String downRowIcon = 'assets/icons/down_row_icon.svg';
 }

@@ -18,47 +18,70 @@ class VerifyCodeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: AppColors.whiteColor,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
-          },
-          icon: Icon(Icons.arrow_back, color: AppColors.greyColor900),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Form(
-            key: VerifyCodeCubit.get(context).verifyCodeKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                verticalSpace(16),
-                Text(
-                  context.tr('verifyCode.title'),
-                  style: TextStyles.font24greyColor900Weight600,
-                ),
-                verticalSpace(6),
-                Text(
-                  context.tr('verifyCode.subtitle'),
-                  style: TextStyles.font14greyColor4002Weight400,
-                ),
-                verticalSpace(24),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    height: 48.r,
+                    width: 48.r,
+                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.whiteColor,
+                      border: Border.all(color: AppColors.greyColor50),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: AppColors.greyColor900,
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
 
-                VerifyCodeInputWidget(email: email),
-                verticalSpace(48),
-                ResendCodeWidget(email: email),
-                verticalSpace(32),
-                VerifyCodeButtonWidget(email: email),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: VerifyCodeCubit.get(context).verifyCodeKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        verticalSpace(16),
+                        Text(
+                          context.tr('verifyCode.title'),
+                          style: TextStyles.font24greyColor900Weight600,
+                        ),
+                        verticalSpace(6),
+                        Text(
+                          context.tr('verifyCode.subtitle'),
+                          style: TextStyles.font14greyColor4002Weight400,
+                        ),
+                        verticalSpace(24),
 
-                verticalSpace(24),
-              ],
-            ),
+                        VerifyCodeInputWidget(email: email),
+                        verticalSpace(48),
+                        ResendCodeWidget(email: email),
+                        verticalSpace(32),
+                        VerifyCodeButtonWidget(email: email),
+
+                        verticalSpace(24),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

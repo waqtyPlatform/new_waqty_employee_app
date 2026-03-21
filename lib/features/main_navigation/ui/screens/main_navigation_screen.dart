@@ -8,6 +8,8 @@ import 'package:new_waqty_employee_app/features/booking/my_booking/ui/my_booking
 import 'package:new_waqty_employee_app/features/main_navigation/cubit/main_navigation_cubit.dart';
 import 'package:new_waqty_employee_app/features/main_navigation/cubit/main_navigation_state.dart';
 import 'package:new_waqty_employee_app/features/main_navigation/ui/widgets/custom_bottom_nav_bar.dart';
+import 'package:new_waqty_employee_app/features/performance/my_stats/logic/my_stats_cubit.dart';
+import 'package:new_waqty_employee_app/features/performance/my_stats/ui/my_stats_screen.dart';
 import '../../../../core/utils/app_colors_white_theme.dart';
 
 class MainNavigationScreen extends StatelessWidget {
@@ -63,7 +65,10 @@ class MainNavigationScreenView extends StatelessWidget {
           child: const MyBookingScreen(),
         );
       case 2:
-        return const Center(child: Text('Stats Screen'));
+        return BlocProvider(
+          create: (context) => MyStatsCubit(getIt()),
+          child: const MyStatsScreen(),
+        );
       case 3:
         return const Center(child: Text('Money Screen'));
       case 4:

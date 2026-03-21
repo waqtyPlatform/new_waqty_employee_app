@@ -27,6 +27,9 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/data/services/v
 import 'package:new_waqty_employee_app/features/auth/reset_password/data/repo/reset_password_repo.dart';
 import 'package:new_waqty_employee_app/features/auth/reset_password/data/services/reset_password_service.dart';
 
+import 'package:new_waqty_employee_app/features/booking/my_booking/data/repo/my_booking_repo.dart';
+import 'package:new_waqty_employee_app/features/booking/my_booking/data/services/my_booking_service.dart';
+
 final getIt = GetIt.instance;
 
 class ServicesLocator {
@@ -86,5 +89,11 @@ class ServicesLocator {
     getIt.registerLazySingleton<ResetPasswordRepo>(
       () => ResetPasswordRepo(getIt()),
     );
+
+    /// My Booking
+    getIt.registerLazySingleton<MyBookingService>(
+      () => MyBookingService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<MyBookingRepo>(() => MyBookingRepo(getIt()));
   }
 }

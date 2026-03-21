@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeSnapshotWidget extends StatelessWidget {
   const HomeSnapshotWidget({Key? key}) : super(key: key);
@@ -18,7 +20,7 @@ class HomeSnapshotWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildSnapshotCard(
-              icon: Icons.calendar_today,
+              imagePath: ImageAsset.bookedIcon,
               iconColor: AppColors.blueColor100,
               iconBgColor: AppColors.blueColor0,
               value: '7',
@@ -26,7 +28,7 @@ class HomeSnapshotWidget extends StatelessWidget {
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
-              icon: Icons.check_circle_outline,
+              imagePath: ImageAsset.doneIcon,
               iconColor: AppColors.successColor100,
               iconBgColor: AppColors.successColor0,
               value: '1',
@@ -34,7 +36,7 @@ class HomeSnapshotWidget extends StatelessWidget {
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
-              icon: Icons.timer_outlined,
+              imagePath: ImageAsset.leftIcon,
               iconColor: AppColors.warningColor100,
               iconBgColor: AppColors.warningColor0,
               value: '4',
@@ -42,7 +44,7 @@ class HomeSnapshotWidget extends StatelessWidget {
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
-              icon: Icons.star_border,
+              imagePath: ImageAsset.rateIcon,
               iconColor: AppColors.warningColor3003,
               iconBgColor:
                   AppColors.warningColor0, // Used a light warning color for bg
@@ -56,7 +58,7 @@ class HomeSnapshotWidget extends StatelessWidget {
   }
 
   Widget _buildSnapshotCard({
-    required IconData icon,
+    required String imagePath,
     required Color iconColor,
     required Color iconBgColor,
     required String value,
@@ -84,17 +86,17 @@ class HomeSnapshotWidget extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(12.r),
+              padding: EdgeInsets.all(9.r),
               decoration: BoxDecoration(
                 color: iconBgColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 24.r),
+              child: SvgPicture.asset(imagePath, height: 20.h, width: 20.w),
             ),
             verticalSpace(6),
-            Text(value, style: TextStyles.font24greyColor900Weight600),
+            Text(value, style: TextStyles.font16greyColor900Weight600),
             verticalSpace(6),
-            Text(label, style: TextStyles.font15greyColor3003Weight500),
+            Text(label, style: TextStyles.font10greyColor3003Weight500),
           ],
         ),
       ),

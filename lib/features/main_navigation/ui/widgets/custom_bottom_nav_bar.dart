@@ -42,21 +42,27 @@ class CustomBottomNavBar extends StatelessWidget {
         items: [
           BottomNavigationBarItem(
             icon: SvgPicture.asset(ImageAsset.homeIcon),
-            activeIcon: SvgPicture.asset(ImageAsset.homeSelectedIcon),
+            activeIcon: SvgPicture.asset(
+              ImageAsset.homeIcon,
+              color: AppColors.greenColor500,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(ImageAsset.bookingIcon),
-            activeIcon: SvgPicture.asset(ImageAsset.bookingSelectedIcon),
+            activeIcon: SvgPicture.asset(
+              ImageAsset.bookingIcon,
+              color: AppColors.greenColor500,
+            ),
             label: 'Booking',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.performanceIcon),
+            icon: SvgPicture.asset(ImageAsset.statsIcon),
             activeIcon: SvgPicture.asset(
-              ImageAsset.performanceSelectedIcon,
+              ImageAsset.statsIcon,
               color: AppColors.greenColor500,
             ),
-            label: 'Performance',
+            label: 'Stats',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(ImageAsset.moneyIcon),

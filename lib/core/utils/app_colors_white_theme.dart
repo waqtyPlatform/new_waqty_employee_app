@@ -13,9 +13,12 @@ class AppColors {
   static const Color greenColor300 = Color(0xff00CC77);
   static const Color greenColor400 = Color(0xff00B166);
   static const Color greenColor500 = Color(0xff009354);
+  static const Color greenColor5005 = Color(0xffF0FDF4);
 
   ///grey
   static const Color greyColor0 = Color(0xffF8F9FB);
+  static const Color greyColorA3 = Color(0xffA3A3A3);
+  static const Color greyColorF5 = Color(0xffF5F5F5);
   static const Color greyColor25 = Color(0xffF6F8FA);
   static const Color greyColor50 = Color(0xffECEFF3);
   static const Color greyColor100 = Color(0xffDFE1E6);
@@ -36,7 +39,10 @@ class AppColors {
   static const Color blueColor0 = Color(0xffEFFBFF);
   static const Color blueColor25 = Color(0xffD1F0F9);
   static const Color blueColor50 = Color(0xff7EDCF1);
+  static const Color blueColor505 = Color(0xffEFFBFF);
+  static const Color blueColor5055 = Color(0xffEFF6FF);
 
+  static const Color blueColor506 = Color(0xff3B82F6);
   static const Color blueColor100 = Color(0xff33CFFF);
   static const Color blueColor200 = Color(0xff106A97);
   static const Color blueColor300 = Color(0xff0C4D6E);
@@ -56,6 +62,8 @@ class AppColors {
   static const Color warningColor25 = Color(0xffF9ECCB);
   static const Color warningColor50 = Color(0xffFBD982);
   static const Color warningColor100 = Color(0xffFFBD4C);
+  static const Color warningColor1001 = Color(0xffEAB308);
+  static const Color warningColor1002 = Color(0xffFEFCE8);
   static const Color warningColor200 = Color(0xff956321);
   static const Color warningColor300 = Color(0xff5B3D1E);
   static const Color warningColor3003 = Color(0xffFFB900);
@@ -67,5 +75,7 @@ class AppColors {
   static const Color errorColor50 = Color(0xffED8296);
   static const Color errorColor100 = Color(0xffDF1C41);
   static const Color errorColor200 = Color(0xff95122B);
+  static const Color errorColor2002 = Color(0xffEF4444);
+  static const Color errorColor2003 = Color(0xffFEF2F2);
   static const Color errorColor300 = Color(0xff710E21);
 }

@@ -93,7 +93,7 @@ class RouteGenerator {
       case Routes.myServicesScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => MyServicesCubit(getIt()),
+            create: (context) => MyServicesCubit(getIt())..getAllServices(),
             child: const MyServicesScreen(),
           ),
         );

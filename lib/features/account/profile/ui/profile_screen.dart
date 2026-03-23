@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/config/routes/routes.dart';
 
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
+import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/app_text_field.dart';
@@ -58,7 +60,9 @@ class ProfileScreen extends StatelessWidget {
                   ProfileMenuItemData(
                     title: 'My Services',
                     iconPath: ImageAsset.profileServiceIcon,
-                    onTap: () {},
+                    onTap: () {
+                      context.pushNamed(Routes.myServicesScreen);
+                    },
                   ),
                   ProfileMenuItemData(
                     title: 'My Working Hours',

@@ -3,13 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_user_my_account_widget.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
 
-class ProfileUserBranchWidget extends StatelessWidget {
-  final List<ProfileMenuItemData> items;
+class ProfileServiceItemsWidget extends StatelessWidget {
+  final List<MyServiceModel> items;
 
-  const ProfileUserBranchWidget({Key? key, required this.items})
+  const ProfileServiceItemsWidget({Key? key, required this.items})
     : super(key: key);
 
   @override
@@ -34,34 +33,30 @@ class ProfileUserBranchWidget extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         itemBuilder: (context, index) {
           final item = items[index];
-          return GestureDetector(
-            onTap: item.onTap,
-
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16.r,
-                    backgroundColor: AppColors.greyColorFA,
-                    child: SvgPicture.asset(item.iconPath),
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item.name,
+                    maxLines: 1,
+                    style: TextStyles.font14greyColor900Weight500,
                   ),
-                  horizontalSpace(8),
-                  Expanded(
-                    child: Text(
-                      item.title,
-                      maxLines: 1,
-                      style: TextStyles.font14greyColor900Weight500,
-                    ),
+                ),
+                horizontalSpace(8),
+                CircleAvatar(
+                  radius: 12.r,
+                  backgroundColor: AppColors.greenColor500.withValues(
+                    alpha: .08,
                   ),
-                  horizontalSpace(8),
-                  Icon(
-                    Icons.arrow_forward_ios,
+                  child: Icon(
+                    Icons.done,
                     size: 14.r,
-                    color: AppColors.greyColorE5,
+                    color: AppColors.greenColor500,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

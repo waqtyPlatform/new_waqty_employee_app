@@ -31,7 +31,7 @@ class ProfileUserBranchWidget extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
           final item = items[index];
           return GestureDetector(

@@ -9,9 +9,11 @@ class MyServicesRepo {
 
   MyServicesRepo(this._myServicesService);
 
-  Future<Either<Failure, MyServicesResponseModel>> getAllServices() async {
+  Future<Either<Failure, MyServicesResponseModel>> getAllServices(
+    int page,
+  ) async {
     try {
-      return Right(await _myServicesService.getAllServices());
+      return Right(await _myServicesService.getAllServices(page));
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }

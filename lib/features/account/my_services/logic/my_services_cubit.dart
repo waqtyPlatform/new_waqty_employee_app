@@ -9,20 +9,41 @@ class MyServicesCubit extends Cubit<MyServicesState> {
 
   MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
 
+  ScrollController myServicesScrollController = ScrollController();
   List<MyServiceModel> myServices = [];
+  int myServicesCurrentPage = 1;
+  late int myServicesLastPage;
 
-  Future<void> getAllServices() async {
-    emit(GetAllServicesLoadingState());
+  clearGetAllServices() {
+    myServicesCurrentPage = 1;
+    myServices = [];
+  }
+
+  scrollListenerMyServicesScrollController() {
+    myServicesScrollController.addListener(() {
+      if (myServicesCurrentPage < myServicesLastPage) {
+        if (myServicesScrollController.position.pixels ==
+            myServicesScrollController.position.maxScrollExtent) {
+          myServicesCurrentPage++;
+          getAllServices();
+        }
+      }
+    });
+  }
+
+  getAllServices() {
+    emit(OnGetAllServicesLoadingState());
     _myServicesRepo
-        .getAllServices()
+        .getAllServices(myServicesCurrentPage)
         .then((value) {
           value.fold(
             (l) {
-              emit(GetAllServicesErrorState());
+              emit(GetMyServicesErrorState());
             },
             (r) {
-              myServices = r.data;
-              emit(GetAllServicesSuccessState());
+              myServices.addAll(r.data);
+              myServicesLastPage = r.meta!.pagination.lastPage;
+              emit(OnGetAllServicesSuccessState());
             },
           );
         })

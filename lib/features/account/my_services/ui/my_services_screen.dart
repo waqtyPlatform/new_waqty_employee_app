@@ -11,21 +11,37 @@ import 'package:new_waqty_employee_app/features/account/my_services/logic/my_ser
 
 import 'package:new_waqty_employee_app/features/account/my_services/ui/widgets/profile_service_items_widget.dart';
 
-class MyServicesScreen extends StatelessWidget {
+class MyServicesScreen extends StatefulWidget {
   const MyServicesScreen({super.key});
+
+  @override
+  State<MyServicesScreen> createState() => _MyServicesScreenState();
+}
+
+class _MyServicesScreenState extends State<MyServicesScreen> {
+  void initState() {
+    super.initState();
+    MyServicesCubit.get(context).clearGetAllServices();
+    MyServicesCubit.get(context).getAllServices();
+    MyServicesCubit.get(context).scrollListenerMyServicesScrollController();
+  }
+
+  @override
+  void dispose() {
+    MyServicesCubit.get(context).myServicesScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// HEADER
               Row(
                 children: [
                   Container(
@@ -49,7 +65,7 @@ class MyServicesScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Spacer(flex: 1),
+                  Spacer(),
                   Text(
                     'My Services',
                     style: TextStyles.font18greyColor900Weight600,
@@ -59,33 +75,93 @@ class MyServicesScreen extends StatelessWidget {
               ),
 
               verticalSpace(16),
-              BlocBuilder<MyServicesCubit, MyServicesState>(
-                buildWhen: (previous, current) {
-                  return current is GetAllServicesLoadingState ||
-                      current is GetAllServicesSuccessState ||
-                      current is GetAllServicesErrorState ||
-                      current is GetMyServicesCatchErrorState;
-                },
-                builder: (context, state) {
-                  if (MyServicesCubit.get(context).myServices.isEmpty &&
-                      state is GetAllServicesLoadingState) {
-                    //loading
-                    return Center(child: CircularProgressIndicator());
-                  } else if (MyServicesCubit.get(context).myServices.isEmpty &&
-                      state is! GetAllServicesLoadingState) {
-                    //error
-                    return Center(child: Text('empty'));
-                  } else {
-                    //success
-                    return ProfileServiceItemsWidget(
-                      items: MyServicesCubit.get(context).myServices,
-                    );
-                  }
-                },
-              ),
 
-              //
-              verticalSpace(12),
+              /// LIST
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(
+                      color: AppColors.greyColorFA,
+                      width: 0.8.w,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.greyColor900.withOpacity(0.04),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<MyServicesCubit, MyServicesState>(
+                    buildWhen: (previous, current) =>
+                        current is OnGetAllServicesLoadingState ||
+                        current is OnGetAllServicesSuccessState ||
+                        current is GetMyServicesErrorState ||
+                        current is GetMyServicesCatchErrorState,
+                    builder: (context, state) {
+                      /// Loading أول مرة
+                      if (MyServicesCubit.get(context).myServices.isEmpty &&
+                          state is OnGetAllServicesLoadingState) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.greenColor500,
+                          ),
+                        );
+                      } else if (MyServicesCubit.get(
+                        context,
+                      ).myServices.isEmpty) {
+                        return Center(child: Text('ghjk'));
+                      } else {
+                        return ListView.builder(
+                          controller: MyServicesCubit.get(
+                            context,
+                          ).myServicesScrollController,
+                          itemCount:
+                              MyServicesCubit.get(context).myServices.length +
+                              1,
+                          itemBuilder: (context, index) {
+                            /// Items
+                            if (index <
+                                MyServicesCubit.get(
+                                  context,
+                                ).myServices.length) {
+                              return ProfileServiceItemsWidget(
+                                items: [
+                                  MyServicesCubit.get(
+                                    context,
+                                  ).myServices[index],
+                                ],
+                              );
+                            }
+
+                            /// Loader تحت
+                            return MyServicesCubit.get(
+                                      context,
+                                    ).myServicesCurrentPage <
+                                    MyServicesCubit.get(
+                                      context,
+                                    ).myServicesLastPage
+                                ? Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.greenColor500,
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox();
+                          },
+                        );
+                      }
+
+                      /// Success + Pagination
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),

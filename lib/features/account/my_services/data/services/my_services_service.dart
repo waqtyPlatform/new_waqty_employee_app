@@ -14,9 +14,9 @@ class MyServicesService {
 
   MyServicesService({required this.apiConsumer});
 
-  Future<MyServicesResponseModel> getAllServices() async {
+  Future<MyServicesResponseModel> getAllServices(int page) async {
     final response = await apiConsumer.get(
-      MyServicesApiEndPoints.getAllServices,
+      MyServicesApiEndPoints.getAllServices(page),
       {
         ConstantKeys.appAuthorization:
             "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile/ui/profile_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
 import 'package:new_waqty_employee_app/features/home/ui/home_screen.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/logic/my_booking_cubit.dart';
@@ -72,9 +74,15 @@ class MainNavigationScreenView extends StatelessWidget {
       case 3:
         return const Center(child: Text('Money Screen'));
       case 4:
-        return const Center(child: Text('Account Screen'));
+        return BlocProvider(
+          create: (context) => ProfileCubit(getIt()),
+          child: const ProfileScreen(),
+        );
       default:
-        return const Center(child: Text('Home Screen'));
+        return BlocProvider(
+          create: (context) => HomeCubit(getIt()),
+          child: const HomeScreen(),
+        );
     }
   }
 }

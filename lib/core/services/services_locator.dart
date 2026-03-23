@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
 
 import '../api/api_consumer.dart';
 import '../api/app_interceptor.dart';
@@ -15,8 +17,8 @@ import 'package:new_waqty_employee_app/features/auth/login/data/services/login_s
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_service.dart';
 
-import 'package:new_waqty_employee_app/features/profile/data/repo/profile_repo.dart';
-import 'package:new_waqty_employee_app/features/profile/data/services/profile_service.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
 
 import 'package:new_waqty_employee_app/features/auth/forget_password/data/repo/forget_password_repo.dart';
 import 'package:new_waqty_employee_app/features/auth/forget_password/data/services/forget_password_service.dart';
@@ -114,8 +116,12 @@ class ServicesLocator {
     getIt.registerLazySingleton<MyStatsService>(
       () => MyStatsService(apiConsumer: getIt()),
     );
-    getIt.registerLazySingleton<MyStatsRepo>(
-      () => MyStatsRepo(getIt()),
+    getIt.registerLazySingleton<MyStatsRepo>(() => MyStatsRepo(getIt()));
+
+    /// My Services
+    getIt.registerLazySingleton<MyServicesService>(
+      () => MyServicesService(apiConsumer: getIt()),
     );
+    getIt.registerLazySingleton<MyServicesRepo>(() => MyServicesRepo(getIt()));
   }
 }

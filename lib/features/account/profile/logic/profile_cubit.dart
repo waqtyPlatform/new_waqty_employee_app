@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/profile/data/models/profile_request_model.dart';
-import 'package:new_waqty_employee_app/features/profile/data/repo/profile_repo.dart';
-import 'package:new_waqty_employee_app/features/profile/logic/profile_state.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_request_model.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo _profileRepo;

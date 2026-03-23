@@ -7,4 +7,6 @@ class Routes {
   static const verifyCodeScreen = "/VerifyCodeScreen";
   static const resetPasswordScreen = "/ResetPasswordScreen";
   static const bookingDetailsScreen = "/BookingDetailsScreen";
+  static const myServicesScreen = "/MyServicesScreen";
+  static const profileDetailsScreen = "/ProfileDetailsScreen";
 }

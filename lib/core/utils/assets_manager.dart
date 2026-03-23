@@ -31,4 +31,27 @@ class ImageAsset {
   static const String notesIcon = 'assets/icons/notes_icon.svg';
   static const String uppRowIcon = 'assets/icons/upp_row_icon.svg';
   static const String downRowIcon = 'assets/icons/down_row_icon.svg';
+  static const String profilePersonIcon =
+      'assets/icons/profile_person_icon.svg';
+  static const String profileServiceIcon =
+      'assets/icons/profile_service_icon.svg';
+  static const String profileWorkingHoursIcon =
+      'assets/icons/profile_working_hours_icon.svg';
+  static const String profileChangePasswordIcon =
+      'assets/icons/profile_change_password_icon.svg';
+  static const String profileBiometricIcon =
+      'assets/icons/profile_biometric_icon.svg';
+  static const String profileBranchContactIcon =
+      'assets/icons/profile_branch_contact_icon.svg';
+  static const String profileAttendanceHistoryIcon =
+      'assets/icons/profile_attendance_history_icon.svg';
+  static const String profileNotificationIcon =
+      'assets/icons/profile_notification_icon.svg';
+  static const String languageIcon = 'assets/icons/language_icon.svg';
+  static const String darkModeIcon = 'assets/icons/dark_mode_icon.svg';
+  static const String contactManagerIcon =
+      'assets/icons/contact_manager_icon.svg';
+  static const String helpIcon = 'assets/icons/help_icon.svg';
+  static const String reportBugIcon = 'assets/icons/report_bug_icon.svg';
+  static const String logOutIcon = 'assets/icons/log_out_icon.svg';
 }

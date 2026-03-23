@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
+import 'package:new_waqty_employee_app/features/account/profile_details/logic/profile_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile_details/ui/profile_details_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/login_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
 import 'package:new_waqty_employee_app/features/home/ui/home_screen.dart';
-import 'package:new_waqty_employee_app/features/profile/logic/profile_cubit.dart';
-import 'package:new_waqty_employee_app/features/profile/ui/profile_screen.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile/ui/profile_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/forget_password/logic/forget_password_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/forget_password/ui/forget_password_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/verify_code/logic/verify_code_cubit.dart';
@@ -83,6 +87,22 @@ class RouteGenerator {
           builder: (_) => BlocProvider(
             create: (context) => BookingDetailsCubit(getIt()),
             child: const BookingDetailsScreen(),
+          ),
+        );
+
+      case Routes.myServicesScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => MyServicesCubit(getIt()),
+            child: const MyServicesScreen(),
+          ),
+        );
+
+      case Routes.profileDetailsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => ProfileDetailsCubit(getIt()),
+            child: const ProfileDetailsScreen(),
           ),
         );
 

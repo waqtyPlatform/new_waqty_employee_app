@@ -82,4 +82,7 @@ class AppColors {
   static const Color errorColor2002 = Color(0xffEF4444);
   static const Color errorColor2003 = Color(0xffFEF2F2);
   static const Color errorColor300 = Color(0xff710E21);
+
+  static const Color errorColor20033 = Color(0xffFEE2E2);
+  static const Color errorColor200333 = Color(0xffFCA5A5);
 }

@@ -18,8 +18,8 @@ class ChangeLanguageIconWidget extends StatelessWidget {
         }
       },
       child: Container(
-        width: 64.w,
-        height: 32.h,
+        width: 58.w,
+        height: 30.h,
         decoration: BoxDecoration(
           color: AppColors.greenColor500,
           borderRadius: BorderRadius.circular(20.r),
@@ -33,8 +33,8 @@ class ChangeLanguageIconWidget extends StatelessWidget {
                   ? Alignment.centerLeft
                   : Alignment.centerRight,
               child: Container(
-                width: 28.w,
-                height: 32.h,
+                width: 25.r,
+                height: 25.r,
                 margin: EdgeInsets.symmetric(horizontal: 3.w),
 
                 decoration: BoxDecoration(
@@ -49,7 +49,7 @@ class ChangeLanguageIconWidget extends StatelessWidget {
                   child: Center(
                     child: Text(
                       context.locale == const Locale('en', 'US') ? 'EN' : 'ع',
-                      style: TextStyles.font14Weight700.copyWith(
+                      style: TextStyles.font14Weight600.copyWith(
                         color: context.locale == const Locale('en', 'US')
                             ? AppColors.greenColor500
                             : AppColors.greenColor500,
@@ -61,7 +61,7 @@ class ChangeLanguageIconWidget extends StatelessWidget {
                   child: Center(
                     child: Text(
                       context.locale == const Locale('en', 'US') ? 'ع' : 'EN',
-                      style: TextStyles.font14Weight700.copyWith(
+                      style: TextStyles.font14Weight600.copyWith(
                         color: context.locale == const Locale('en', 'US')
                             ? AppColors.whiteColor
                             : AppColors.whiteColor,

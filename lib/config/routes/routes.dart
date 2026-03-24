@@ -9,4 +9,5 @@ class Routes {
   static const bookingDetailsScreen = "/BookingDetailsScreen";
   static const myServicesScreen = "/MyServicesScreen";
   static const profileDetailsScreen = "/ProfileDetailsScreen";
+  static const workingHoursScreen = "/WorkingHoursScreen";
 }

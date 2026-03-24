@@ -7,6 +7,8 @@ import 'package:new_waqty_employee_app/features/account/my_services/logic/my_ser
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/logic/profile_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/ui/profile_details_screen.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/ui/working_hours_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/login_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
@@ -103,6 +105,14 @@ class RouteGenerator {
           builder: (_) => BlocProvider(
             create: (context) => ProfileDetailsCubit(getIt()),
             child: const ProfileDetailsScreen(),
+          ),
+        );
+
+      case Routes.workingHoursScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => WorkingHoursCubit(getIt()),
+            child: const WorkingHoursScreen(),
           ),
         );
 

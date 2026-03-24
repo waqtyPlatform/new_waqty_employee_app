@@ -22,11 +22,11 @@ class ProfileUserSettingWidget extends StatelessWidget {
       iconPath: ImageAsset.profileNotificationIcon,
       onTap: () {},
     ),
-    ProfileMenuItemData(
-      title: 'Dark Mode',
-      iconPath: ImageAsset.darkModeIcon,
-      onTap: () {},
-    ),
+    // ProfileMenuItemData(
+    //   title: 'Dark Mode',
+    //   iconPath: ImageAsset.darkModeIcon,
+    //   onTap: () {},
+    // ),
   ];
 
   @override
@@ -81,19 +81,19 @@ class ProfileUserSettingWidget extends StatelessWidget {
                       color: AppColors.greyColorE5,
                     ),
 
-                  if (index == 2)
-                    Switch(
-                      value: true,
-                      onChanged: (value) {},
-                      activeColor: AppColors.whiteColor,
-                      activeTrackColor: AppColors.greenColor500,
-                      inactiveThumbColor: AppColors.whiteColor,
-                      inactiveTrackColor: AppColors.greyColorE5,
-                      trackOutlineColor: WidgetStateProperty.all(
-                        Colors.transparent,
-                      ),
-                      splashRadius: 0,
-                    ),
+                  // if (index == 2)
+                  //   Switch(
+                  //     value: true,
+                  //     onChanged: (value) {},
+                  //     activeColor: AppColors.whiteColor,
+                  //     activeTrackColor: AppColors.greenColor500,
+                  //     inactiveThumbColor: AppColors.whiteColor,
+                  //     inactiveTrackColor: AppColors.greyColorE5,
+                  //     trackOutlineColor: WidgetStateProperty.all(
+                  //       Colors.transparent,
+                  //     ),
+                  //     splashRadius: 0,
+                  //   ),
                 ],
               ),
             ),

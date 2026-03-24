@@ -6,6 +6,8 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/data/services/working_hours_service.dart';
 
 import '../api/api_consumer.dart';
 import '../api/app_interceptor.dart';
@@ -123,5 +125,13 @@ class ServicesLocator {
       () => MyServicesService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<MyServicesRepo>(() => MyServicesRepo(getIt()));
+
+    /// Working Hours
+    getIt.registerLazySingleton<WorkingHoursService>(
+      () => WorkingHoursService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<WorkingHoursRepo>(
+      () => WorkingHoursRepo(getIt()),
+    );
   }
 }

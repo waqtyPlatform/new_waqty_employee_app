@@ -6,15 +6,8 @@ class ProfileInitialState extends ProfileState {}
 class GetProfileLoadingState extends ProfileState {}
 
 class GetProfileSuccessState extends ProfileState {
-  final String name;
-  final String email;
-  final String phone;
 
-  GetProfileSuccessState({
-    required this.name,
-    required this.email,
-    required this.phone,
-  });
+
 }
 
 class GetProfileErrorState extends ProfileState {}

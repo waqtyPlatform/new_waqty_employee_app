@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/my_services/ui/widgets/my_services_shimmer_loading.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_state.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/ui/widgets/profile_working_hours_items_widget.dart';
 
 class WorkingHoursScreen extends StatefulWidget {
   const WorkingHoursScreen({super.key});
@@ -13,12 +15,19 @@ class WorkingHoursScreen extends StatefulWidget {
   @override
   State<WorkingHoursScreen> createState() => _WorkingHoursScreenState();
 }
-
 class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
   @override
   void initState() {
     super.initState();
+    WorkingHoursCubit.get(context).clearGetAllWorkingHours();
     WorkingHoursCubit.get(context).getWorkingHours();
+    WorkingHoursCubit.get(context).scrollListenerMyWorkingHoursScrollController();
+  }
+
+  @override
+  void dispose() {
+    WorkingHoursCubit.get(context).myWorkingHoursScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,7 +57,7 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
                           Navigator.pop(context);
                         }
                       },
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
                         color: AppColors.greyColor900,
                       ),
@@ -62,19 +71,90 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
                   const Spacer(flex: 2),
                 ],
               ),
+
               verticalSpace(16),
+
+              /// LIST
               Expanded(
-                child: BlocBuilder<WorkingHoursCubit, WorkingHoursState>(
-                  builder: (context, state) {
-                    if (state is GetWorkingHoursLoadingState) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is GetWorkingHoursErrorState) {
-                      return Center(child: Text(state.message));
-                    } else if (state is GetWorkingHoursSuccessState) {
-                      return const Center(child: Text('Working Hours Data Loaded'));
-                    }
-                    return const SizedBox();
-                  },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(
+                      color: AppColors.greyColorFA,
+                      width: 0.8.w,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.greyColor900.withOpacity(0.04),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<WorkingHoursCubit, WorkingHoursState>(
+                    buildWhen: (previous, current) =>
+                    current is  GetWorkingHoursLoadingState ||
+                        current is GetWorkingHoursSuccessState ||
+                        current is  GetWorkingHoursErrorState ||
+                        current is  GetWorkingHoursCatchErrorState,
+                    builder: (context, state) {
+                      /// Loading أول مرة
+                      if (WorkingHoursCubit.get(context).myWorkingHours.isEmpty &&
+                          state is GetWorkingHoursLoadingState) {
+                        return const MyServicesShimmerLoading();
+                      } else if (WorkingHoursCubit.get(
+                        context,
+                      ).myWorkingHours.isEmpty) {
+                        return   Center(child: Text('No Working Hours Found',style: TextStyles.font16greyColor900Weight400));
+                      } else {
+                        return Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            controller: WorkingHoursCubit.get(
+                              context,
+                            ).myWorkingHoursScrollController,
+                            itemCount:
+                            WorkingHoursCubit.get(context).myWorkingHours.length +
+                                1,
+                            itemBuilder: (context, index) {
+                              /// Items
+                              if (index <
+                                  WorkingHoursCubit.get(
+                                    context,
+                                  ).myWorkingHours.length) {
+                                return ProfileWorkingHoursItemsWidget(
+                                  items:
+                                    WorkingHoursCubit.get(
+                                      context,
+                                    ).myWorkingHours[index],
+
+                                );
+                              }
+
+                              /// Loader تحت
+                              return WorkingHoursCubit.get(
+                                context,
+                              ).myWorkingHoursCurrentPage <
+                                  WorkingHoursCubit.get(
+                                    context,
+                                  ).myWorkingHoursLastPage
+                                  ? Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.greenColor500,
+                                  ),
+                                ),
+                              )
+                                  : const SizedBox();
+                            },
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
             ],
@@ -84,3 +164,4 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
     );
   }
 }
+

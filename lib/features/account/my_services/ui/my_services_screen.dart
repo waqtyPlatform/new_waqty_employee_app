@@ -79,82 +79,86 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
               verticalSpace(16),
 
               /// LIST
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.whiteColor,
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(
-                    color: AppColors.greyColorFA,
-                    width: 0.8.w,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.greyColor900.withOpacity(0.04),
-                      blurRadius: 4,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 1),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(
+                      color: AppColors.greyColorFA,
+                      width: 0.8.w,
                     ),
-                  ],
-                ),
-                child: BlocBuilder<MyServicesCubit, MyServicesState>(
-                  buildWhen: (previous, current) =>
-                      current is OnGetAllServicesLoadingState ||
-                      current is OnGetAllServicesSuccessState ||
-                      current is GetMyServicesErrorState ||
-                      current is GetMyServicesCatchErrorState,
-                  builder: (context, state) {
-                    /// Loading أول مرة
-                    if (MyServicesCubit.get(context).myServices.isEmpty &&
-                        state is OnGetAllServicesLoadingState) {
-                      return const MyServicesShimmerLoading();
-                    } else if (MyServicesCubit.get(
-                      context,
-                    ).myServices.isEmpty) {
-                      return   Center(child: Text('No Services Found',style: TextStyles.font16greyColor900Weight400));
-                    } else {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        controller: MyServicesCubit.get(
-                          context,
-                        ).myServicesScrollController,
-                        itemCount:
-                            MyServicesCubit.get(context).myServices.length +
-                            1,
-                        itemBuilder: (context, index) {
-                          /// Items
-                          if (index <
-                              MyServicesCubit.get(
-                                context,
-                              ).myServices.length) {
-                            return ProfileServiceItemsWidget(
-                              items: [
-                                MyServicesCubit.get(
-                                  context,
-                                ).myServices[index],
-                              ],
-                            );
-                          }
-
-                          /// Loader تحت
-                          return MyServicesCubit.get(
-                                    context,
-                                  ).myServicesCurrentPage <
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.greyColor900.withOpacity(0.04),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<MyServicesCubit, MyServicesState>(
+                    buildWhen: (previous, current) =>
+                        current is OnGetAllServicesLoadingState ||
+                        current is OnGetAllServicesSuccessState ||
+                        current is GetMyServicesErrorState ||
+                        current is GetMyServicesCatchErrorState,
+                    builder: (context, state) {
+                      /// Loading أول مرة
+                      if (MyServicesCubit.get(context).myServices.isEmpty &&
+                          state is OnGetAllServicesLoadingState) {
+                        return const MyServicesShimmerLoading();
+                      } else if (MyServicesCubit.get(
+                        context,
+                      ).myServices.isEmpty) {
+                        return   Center(child: Text('No Services Found',style: TextStyles.font16greyColor900Weight400));
+                      } else {
+                        return Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            controller: MyServicesCubit.get(
+                              context,
+                            ).myServicesScrollController,
+                            itemCount:
+                                MyServicesCubit.get(context).myServices.length +
+                                1,
+                            itemBuilder: (context, index) {
+                              /// Items
+                              if (index <
                                   MyServicesCubit.get(
                                     context,
-                                  ).myServicesLastPage
-                              ? Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.greenColor500,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox();
-                        },
-                      );
-                    }
-                  },
+                                  ).myServices.length) {
+                                return ProfileServiceItemsWidget(
+                                  items:
+                                    MyServicesCubit.get(
+                                      context,
+                                    ).myServices[index],
+
+                                );
+                              }
+
+                              /// Loader تحت
+                              return MyServicesCubit.get(
+                                        context,
+                                      ).myServicesCurrentPage <
+                                      MyServicesCubit.get(
+                                        context,
+                                      ).myServicesLastPage
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.greenColor500,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox();
+                            },
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
             ],

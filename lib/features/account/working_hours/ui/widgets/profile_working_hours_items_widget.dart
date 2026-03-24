@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/data/models/working_hours_response_model.dart';
 
-class ProfileServiceItemsWidget extends StatelessWidget {
-  final MyServiceModel items;
+class ProfileWorkingHoursItemsWidget extends StatelessWidget {
+  final WorkingHoursModel items;
 
-  const ProfileServiceItemsWidget({Key? key, required this.items})
+  const ProfileWorkingHoursItemsWidget({Key? key, required this.items})
     : super(key: key);
 
   @override
@@ -22,28 +23,22 @@ class ProfileServiceItemsWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  items.name,
+                  items.shiftDate,
                   maxLines: 1,
                   style: TextStyles.font14greyColor900Weight500,
                 ),
               ),
               horizontalSpace(8),
-              CircleAvatar(
-                radius: 12.r,
-                backgroundColor: AppColors.greenColor500.withValues(alpha: .08),
-                child: Icon(
-                  Icons.done,
-                  size: 14.r,
-                  color: AppColors.greenColor500,
-                ),
+              Text(
+                '${AppConstant.convertTo12Hour( items.startTime)} - ${AppConstant.convertTo12Hour( items.endTime)}',
+                maxLines: 1,
+                style: TextStyles.font14greyColor900Weight500,
               ),
             ],
           ),
         ),
-        Divider(color: AppColors.greyColor1001.withValues(alpha: .2)),
+        Divider(color: AppColors.greyColor1001.withValues(alpha: .2))
       ],
-    )
-    //
-    ;
+    );
   }
 }

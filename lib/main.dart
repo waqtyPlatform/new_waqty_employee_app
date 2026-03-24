@@ -42,7 +42,7 @@ Future<void> main() async {
       fallbackLocale: const Locale('ar', 'EG'),
       child: MyApp(
         navigateWidget: isLoggedInUser
-            ? Routes.mainNavigationScreen
+            ? Routes.loginScreen
             : Routes.loginScreen,
       ),
     ),

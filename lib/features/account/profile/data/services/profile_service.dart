@@ -6,7 +6,6 @@ import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
-import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_request_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_api_end_points.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_response_model.dart';
 
@@ -20,27 +19,6 @@ class ProfileService {
       ConstantKeys.appAuthorization:
           "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
     });
-
-    if (response.statusCode == StatusCode.ok) {
-      return ProfileResponseModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw ServerException(
-        serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
-      );
-    }
-  }
-
-  Future<ProfileResponseModel> updateProfile(
-    ProfileRequestModel parameter,
-  ) async {
-    final response = await apiConsumer.post(
-      ProfileApiEndPoints.updateProfile,
-      parameter.toJson(),
-      {
-        ConstantKeys.appAuthorization:
-            "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
-      },
-    );
 
     if (response.statusCode == StatusCode.ok) {
       return ProfileResponseModel.fromJson(jsonDecode(response.body));

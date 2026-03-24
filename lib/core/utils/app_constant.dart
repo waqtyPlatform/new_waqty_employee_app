@@ -217,4 +217,18 @@ class AppConstant {
   //     return "${(distanceInMeters).toStringAsFixed(2)}m";
   //   }
   // }
+
+
+
+  static String convertTo12Hour(String time24) {
+    final parts = time24.split(':');
+    int hour = int.parse(parts[0]);
+    String minute = parts[1];
+
+    String period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    hour = hour == 0 ? 12 : hour;
+
+    return "$hour:$minute $period";
+  }
 }

@@ -36,17 +36,40 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpace(16),
-              ProfileUserDataWidget(
-                userName: 'Ahmed Hassan Mohamed',
-                jobTitle: 'Senior Stylist',
-                userCode: 'EMP-0042',
-                branchName: 'Cairo Downtown Branch',
+              BlocBuilder<ProfileCubit, ProfileState>(
+                buildWhen: (previous, current) {
+                  return current is GetProfileLoadingState ||
+                      current is GetProfileSuccessState ||
+                      current is GetProfileErrorState ||
+                      current is GetProfileCatchErrorState;
+                },
+                builder: (context, state) {
+                  if (ProfileCubit.get(context).profileResponseModel == null) {
+                    return ProfileUserDataWidget(
+                      userName: '..................',
+                      jobTitle: '..................',
+                      userCode: '..................',
+                      branchName: '..................',
+                    );
+                  } else {
+                    return ProfileUserDataWidget(
+                      userName: ProfileCubit.get(
+                        context,
+                      ).profileResponseModel!.customer.name,
+                      jobTitle: '',
+                      userCode: '',
+                      branchName: ProfileCubit.get(
+                        context,
+                      ).profileResponseModel!.customer.branchModel.name,
+                    );
+                  }
+                },
               ),
-              verticalSpace(12),
-              ProfileUserWorkTimeWidget(
-                type: 'Clock Out',
-                time: 'Clocked in at 9:02 AM · 8h 12m',
-              ),
+              // verticalSpace(12),
+              // ProfileUserWorkTimeWidget(
+              //   type: 'Clock Out',
+              //   time: 'Clocked in at 9:02 AM · 8h 12m',
+              // ),
               verticalSpace(28),
               Text('MY ACCOUNT', style: TextStyles.font10greyColorA3W600),
               verticalSpace(12),
@@ -55,7 +78,9 @@ class ProfileScreen extends StatelessWidget {
                   ProfileMenuItemData(
                     title: 'Personal Information',
                     iconPath: ImageAsset.profilePersonIcon,
-                    onTap: () {},
+                    onTap: () {
+                      context.pushNamed(Routes.profileDetailsScreen);
+                    },
                   ),
                   ProfileMenuItemData(
                     title: 'My Services',
@@ -67,7 +92,9 @@ class ProfileScreen extends StatelessWidget {
                   ProfileMenuItemData(
                     title: 'My Working Hours',
                     iconPath: ImageAsset.profileWorkingHoursIcon,
-                    onTap: () {},
+                    onTap: () {
+                      context.pushNamed(Routes.workingHoursScreen);
+                    },
                   ),
                   ProfileMenuItemData(
                     title: 'Change PIN',

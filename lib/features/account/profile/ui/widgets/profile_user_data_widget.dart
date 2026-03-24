@@ -42,30 +42,30 @@ class ProfileUserDataWidget extends StatelessWidget {
                 style: TextStyles.font18greyColor900Weight600,
               ),
               verticalSpace(4),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      jobTitle,
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      style: TextStyles.font14greenColor500W500,
-                    ),
-                  ),
-                  horizontalSpace(4),
-                  Icon(Icons.circle, color: AppColors.greyColorA3, size: 5.r),
-                  horizontalSpace(4),
-                  Expanded(
-                    child: Text(
-                      userCode,
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      style: TextStyles.font12greyColorA3W400,
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpace(4),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: Text(
+              //         jobTitle,
+              //         maxLines: 1,
+              //         textAlign: TextAlign.left,
+              //         style: TextStyles.font14greenColor500W500,
+              //       ),
+              //     ),
+              //     horizontalSpace(4),
+              //     Icon(Icons.circle, color: AppColors.greyColorA3, size: 5.r),
+              //     horizontalSpace(4),
+              //     Expanded(
+              //       child: Text(
+              //         userCode,
+              //         maxLines: 1,
+              //         textAlign: TextAlign.left,
+              //         style: TextStyles.font12greyColorA3W400,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // verticalSpace(4),
               Text(
                 branchName,
                 maxLines: 1,

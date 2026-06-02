@@ -41,7 +41,7 @@ class MyBookingCanceledListWidget extends StatelessWidget {
           }
           final booking = bookings[index];
           return MyBookingItemCardWidget(
-            bookingNumber: '${index + 1}',
+            bookingNumber: booking.uuid,
             bookingStatus: booking.status,
             bookingTime: booking.formattedStartTime,
             clientName: booking.customerName.isEmpty

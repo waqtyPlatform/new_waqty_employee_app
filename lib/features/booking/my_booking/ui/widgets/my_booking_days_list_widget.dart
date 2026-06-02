@@ -15,9 +15,9 @@ class MyBookingDaysListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Generate the next 14 days starting from today
+    // Generate the next 365 days starting from today
     final today = DateTime.now();
-    final days = List.generate(14, (index) => today.add(Duration(days: index)));
+    final days = List.generate(30, (index) => today.add(Duration(days: index)));
 
     return SizedBox(
       height: 72.h,

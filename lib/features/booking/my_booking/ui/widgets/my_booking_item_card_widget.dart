@@ -96,7 +96,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
                   height: 80.h,
                   child: CachedNetworkImageWidget(
                     imgUrl:
-                        'https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+                    'https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
                     radius: BorderRadius.circular(8.r),
                   ),
                 ),
@@ -130,6 +130,13 @@ class MyBookingItemCardWidget extends StatelessWidget {
                 ),
               ],
             ),
+            verticalSpace(16),
+
+
+
+
+
+
           ],
         ),
       ),
@@ -186,4 +193,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
         return 'processing';
     }
   }
+
+
+
 }

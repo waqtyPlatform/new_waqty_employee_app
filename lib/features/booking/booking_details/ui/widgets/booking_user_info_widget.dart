@@ -102,6 +102,7 @@ class BookingUserInfoWidget extends StatelessWidget {
       case 'completed':
         return AppColors.greenColor5005;
       case 'canceled':
+      case 'cancelled':
         return AppColors.errorColor2003;
       default:
         return AppColors.greyColor0;
@@ -119,6 +120,7 @@ class BookingUserInfoWidget extends StatelessWidget {
       case 'completed':
         return AppColors.greenColor500;
       case 'canceled':
+      case 'cancelled':
         return AppColors.errorColor2002;
       default:
         return AppColors.warningColor1002;
@@ -136,7 +138,8 @@ class BookingUserInfoWidget extends StatelessWidget {
       case 'completed':
         return 'Completed';
       case 'canceled':
-        return 'Canceled';
+      case 'cancelled':
+        return 'Cancelled';
       default:
         return 'processing';
     }

@@ -12,6 +12,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
   final String bookingTime;
   final String bookingNumber;
   final String bookingStatus;
+  final String bookingUuid;
 
   final String clientName;
   final String serviceName;
@@ -21,6 +22,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
     required this.bookingTime,
     required this.bookingNumber,
     required this.bookingStatus,
+    required this.bookingUuid,
     required this.clientName,
     required this.serviceName,
   });
@@ -29,7 +31,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.pushNamed(Routes.bookingDetailsScreen);
+        _openBookingDetails(context);
       },
       child: Container(
         padding: EdgeInsets.all(14.r),
@@ -161,13 +163,13 @@ class MyBookingItemCardWidget extends StatelessWidget {
                           : AppColors.whiteColor,
                       borderColor: AppColors.greenColor500,
                       onTap: () {
-                        context.pushNamed(Routes.bookingDetailsScreen);
+                        _openBookingDetails(context);
                       },
                     )
                   : _BookingActionsRow(
                       onCancelTap: () {},
                       onViewDetailsTap: () {
-                        context.pushNamed(Routes.bookingDetailsScreen);
+                        _openBookingDetails(context);
                       },
                     ),
             ],
@@ -253,6 +255,13 @@ class MyBookingItemCardWidget extends StatelessWidget {
   }
 
   bool get _hasSingleAction => _isCompleted || _isCanceled;
+
+  void _openBookingDetails(BuildContext context) {
+    context.pushNamed(
+      Routes.bookingDetailsScreen,
+      arguments: {'uuid': bookingUuid},
+    );
+  }
 }
 
 class _BookingActionsRow extends StatelessWidget {

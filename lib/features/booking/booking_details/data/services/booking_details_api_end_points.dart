@@ -1,4 +1,7 @@
+import 'package:new_waqty_employee_app/core/api/end_points.dart';
+
 class BookingDetailsApiEndPoints {
-  // Add Booking Details api endpoints here
-  // static const String getBookingDetails = "/booking/booking-details";
+  static String getBookingDetails(String uuid) {
+    return '${EndPoints.baseUrl}/api/employee/bookings/$uuid';
+  }
 }

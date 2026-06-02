@@ -5,10 +5,13 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BookingCustomerVisitsWidget extends StatelessWidget {
-  // final String notes;
+  final String phone;
+  final String notes;
+
   const BookingCustomerVisitsWidget({
     super.key,
-    // required this.notes
+    required this.phone,
+    required this.notes,
   });
 
   @override
@@ -66,7 +69,7 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                   color: AppColors.greyColorFA,
                 ),
                 child: Text(
-                  '1st visit',
+                  phone.isEmpty ? 'No phone' : phone,
                   style: TextStyles.font12greyColor900Weight500,
                 ),
               ),
@@ -79,7 +82,7 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                   color: AppColors.greyColorFA,
                 ),
                 child: Text(
-                  'First visit',
+                  notes.isEmpty ? 'No notes' : notes,
                   style: TextStyles.font12greyColorA3W400,
                 ),
               ),

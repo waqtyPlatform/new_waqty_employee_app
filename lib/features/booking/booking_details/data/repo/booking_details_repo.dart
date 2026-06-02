@@ -1,3 +1,7 @@
+import 'package:dartz/dartz.dart';
+import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
+import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_details_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/services/booking_details_service.dart';
 
 class BookingDetailsRepo {
@@ -5,12 +9,13 @@ class BookingDetailsRepo {
 
   BookingDetailsRepo(this._bookingDetailsService);
 
-  // Example Repository method
-  // Future<Either<Failure, dynamic>> getBookingDetails() async {
-  //   try {
-  //     return Right(await _bookingDetailsService.getBookingDetails());
-  //   } on ServerException catch (failure) {
-  //     return Left(ServerFailure(message: failure.serverFailure.message));
-  //   }
-  // }
+  Future<Either<Failure, BookingDetailsResponseModel>> getBookingDetails(
+    String uuid,
+  ) async {
+    try {
+      return Right(await _bookingDetailsService.getBookingDetails(uuid));
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
 }

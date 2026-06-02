@@ -5,15 +5,18 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BookingServicesWidget extends StatelessWidget {
-  // final String userName;
-  // final String bookingId;
-  // final String bookingStatus;
+  final String serviceName;
+  final String duration;
+  final String price;
+  final String currency;
+
   const BookingServicesWidget({
-    Key? key,
-    // required this.userName,
-    // required this.bookingId,
-    // required this.bookingStatus,
-  }) : super(key: key);
+    super.key,
+    required this.serviceName,
+    required this.duration,
+    required this.price,
+    required this.currency,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -78,15 +81,18 @@ class BookingServicesWidget extends StatelessWidget {
               horizontalSpace(6),
               Expanded(
                 child: Text(
-                  'Keratin Treatment',
+                  serviceName,
                   maxLines: 1,
                   style: TextStyles.font14greyColor900Weight400,
                 ),
               ),
 
-              Text('90 min', style: TextStyles.font12greyColorA3W400),
+              Text(duration, style: TextStyles.font12greyColorA3W400),
               horizontalSpace(12),
-              Text('EGP 500', style: TextStyles.font14greyColor900Weight600),
+              Text(
+                '$currency $price',
+                style: TextStyles.font14greyColor900Weight600,
+              ),
             ],
           ),
           verticalSpace(12),
@@ -97,7 +103,10 @@ class BookingServicesWidget extends StatelessWidget {
             children: [
               Text('Total', style: TextStyles.font14greyColor900Weight600),
               Spacer(),
-              Text('EGP 500', style: TextStyles.font14greyColor900Weight600),
+              Text(
+                '$currency $price',
+                style: TextStyles.font14greyColor900Weight600,
+              ),
             ],
           ),
         ],

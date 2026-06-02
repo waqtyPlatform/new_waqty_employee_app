@@ -43,6 +43,7 @@ class MyBookingUpcomingListWidget extends StatelessWidget {
           return MyBookingItemCardWidget(
             bookingNumber: booking.uuid,
             bookingStatus: booking.status,
+            bookingUuid: booking.uuid,
             bookingTime: booking.formattedStartTime,
             clientName: booking.customerName.isEmpty
                 ? context.tr('myBooking.walkInCustomer')

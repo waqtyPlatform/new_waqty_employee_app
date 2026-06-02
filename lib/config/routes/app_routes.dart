@@ -85,9 +85,11 @@ class RouteGenerator {
         );
 
       case Routes.bookingDetailsScreen:
+        final uuid = args is Map ? args['uuid']?.toString() ?? '' : '';
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => BookingDetailsCubit(getIt()),
+            create: (context) =>
+                BookingDetailsCubit(getIt())..getBookingDetails(uuid),
             child: const BookingDetailsScreen(),
           ),
         );

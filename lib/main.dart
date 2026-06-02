@@ -23,7 +23,7 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   await ServicesLocator.init();
   // await BluetoothPermissionHandler.init(false);
-
+//
   await CacheHelper.init();
   await MyConnectivity.initialise();
   Bloc.observer = Observer();

@@ -50,5 +50,19 @@
     "dialogSubtitle": "Password has been changed successfully",
     "loginNow": "Login Now",
     "noInternet": "Please check your internet connection"
+  },
+  "myBooking": {
+    "title": "My Booking",
+    "noBookingsFound": "No bookings found",
+    "upcoming": "Upcoming",
+    "completed": "Completed",
+    "canceled": "Canceled",
+    "cancelled": "Cancelled",
+    "processing": "Processing",
+    "confirmed": "Confirmed",
+    "viewDetails": "View Details",
+    "cancelBooking": "Cancel Booking",
+    "walkInCustomer": "Walk-in Customer",
+    "services": "Services"
   }
 }

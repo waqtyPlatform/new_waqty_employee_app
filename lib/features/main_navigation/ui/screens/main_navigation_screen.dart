@@ -63,7 +63,7 @@ class MainNavigationScreenView extends StatelessWidget {
         );
       case 1:
         return BlocProvider(
-          create: (context) => MyBookingCubit(getIt()),
+          create: (context) => MyBookingCubit(getIt())..init(),
           child: const MyBookingScreen(),
         );
       case 2:

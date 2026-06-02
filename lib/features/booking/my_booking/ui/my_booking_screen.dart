@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -24,33 +25,42 @@ class MyBookingScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        title: Text('My Booking', style: TextStyles.font20greyColor900W600),
+        title: Text(
+          context.tr('myBooking.title'),
+          style: TextStyles.font20greyColor900W600,
+        ),
       ),
       body: SafeArea(
         child: BlocBuilder<MyBookingCubit, MyBookingState>(
-          ///build when state is InitialState
-          // buildWhen: (previous, current) => current is InitialState,
           builder: (context, state) {
             final cubit = MyBookingCubit.get(context);
             return Column(
               children: [
                 verticalSpace(16),
-                // Days Horizontal List
                 MyBookingDaysListWidget(
                   selectedDayIndex: cubit.selectedDayIndex,
-                  onDaySelected: (index) => cubit.changeSelectedDay(index),
+                  onDaySelected: cubit.changeSelectedDay,
                 ),
 
                 verticalSpace(16),
 
-                // Tab Bar (Upcoming / Completed / Canceled)
                 MyBookingTabBarWidget(
                   selectedTabIndex: cubit.selectedTabIndex,
-                  onTabSelected: (index) => cubit.changeSelectedTab(index),
+                  onTabSelected: cubit.changeSelectedTab,
                 ),
 
-                // Tab Body
-                Expanded(child: _buildTabBody(cubit.selectedTabIndex)),
+                Expanded(
+                  child: cubit.isBookingsLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : cubit.bookings.isEmpty
+                      ? Center(
+                          child: Text(
+                            context.tr('myBooking.noBookingsFound'),
+                            style: TextStyles.font14greyColor500W500,
+                          ),
+                        )
+                      : _buildTabBody(cubit),
+                ),
               ],
             );
           },
@@ -59,16 +69,36 @@ class MyBookingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTabBody(int tabIndex) {
-    switch (tabIndex) {
+  Widget _buildTabBody(MyBookingCubit cubit) {
+    switch (cubit.selectedTabIndex) {
       case 0:
-        return const MyBookingUpcomingListWidget();
+        return MyBookingUpcomingListWidget(
+          bookings: cubit.bookings,
+          scrollController: cubit.bookingsScrollController,
+          isPaginationLoading: cubit.isBookingsPaginationLoading,
+          onLoadMore: cubit.onBookingsScrollEnd,
+        );
       case 1:
-        return const MyBookingCompletedListWidget();
+        return MyBookingCompletedListWidget(
+          bookings: cubit.bookings,
+          scrollController: cubit.bookingsScrollController,
+          isPaginationLoading: cubit.isBookingsPaginationLoading,
+          onLoadMore: cubit.onBookingsScrollEnd,
+        );
       case 2:
-        return const MyBookingCanceledListWidget();
+        return MyBookingCanceledListWidget(
+          bookings: cubit.bookings,
+          scrollController: cubit.bookingsScrollController,
+          isPaginationLoading: cubit.isBookingsPaginationLoading,
+          onLoadMore: cubit.onBookingsScrollEnd,
+        );
       default:
-        return const MyBookingUpcomingListWidget();
+        return MyBookingUpcomingListWidget(
+          bookings: cubit.bookings,
+          scrollController: cubit.bookingsScrollController,
+          isPaginationLoading: cubit.isBookingsPaginationLoading,
+          onLoadMore: cubit.onBookingsScrollEnd,
+        );
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -16,7 +17,11 @@ class MyBookingTabBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = ['Upcoming', 'Completed', 'Canceled'];
+    final tabs = [
+      context.tr('myBooking.upcoming'),
+      context.tr('myBooking.completed'),
+      context.tr('myBooking.canceled'),
+    ];
 
     return Row(
       children: List.generate(tabs.length, (index) {

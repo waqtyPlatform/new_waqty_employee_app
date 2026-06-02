@@ -50,5 +50,19 @@
     "dialogSubtitle": "تم تغيير كلمة المرور بنجاح",
     "loginNow": "تسجيل الدخول الآن",
     "noInternet": "الرجاء التحقق من اتصالك بالإنترنت"
+  },
+  "myBooking": {
+    "title": "حجوزاتي",
+    "noBookingsFound": "لا توجد حجوزات",
+    "upcoming": "القادمة",
+    "completed": "المكتملة",
+    "canceled": "الملغاة",
+    "cancelled": "ملغي",
+    "processing": "قيد التنفيذ",
+    "confirmed": "مؤكد",
+    "viewDetails": "عرض التفاصيل",
+    "cancelBooking": "إلغاء الحجز",
+    "walkInCustomer": "عميل بدون حجز",
+    "services": "الخدمات"
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -80,7 +81,7 @@ class BookingUserInfoWidget extends StatelessWidget {
               color: _getStatusBgColor(),
             ),
             child: Text(
-              _getStatusLabel(),
+              _getStatusLabel(context),
               style: TextStyles.font12warningColor1001Weight500.copyWith(
                 color: _getStatusTextColor(),
               ),
@@ -127,21 +128,21 @@ class BookingUserInfoWidget extends StatelessWidget {
     }
   }
 
-  String _getStatusLabel() {
+  String _getStatusLabel(BuildContext context) {
     switch (bookingStatus.toLowerCase()) {
       case 'processing':
-        return 'Processing';
+        return context.tr('myBooking.processing');
       case 'upcoming':
-        return 'Upcoming';
+        return context.tr('myBooking.upcoming');
       case 'confirmed':
-        return 'Confirmed';
+        return context.tr('myBooking.confirmed');
       case 'completed':
-        return 'Completed';
+        return context.tr('myBooking.completed');
       case 'canceled':
       case 'cancelled':
-        return 'Cancelled';
+        return context.tr('myBooking.cancelled');
       default:
-        return 'processing';
+        return context.tr('myBooking.processing');
     }
   }
 }

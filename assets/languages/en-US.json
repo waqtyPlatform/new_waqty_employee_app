@@ -51,6 +51,13 @@
     "loginNow": "Login Now",
     "noInternet": "Please check your internet connection"
   },
+  "mainNavigation": {
+    "home": "Home",
+    "booking": "Booking",
+    "stats": "Stats",
+    "money": "Money",
+    "account": "Account"
+  },
   "myBooking": {
     "title": "My Booking",
     "noBookingsFound": "No bookings found",
@@ -64,5 +71,29 @@
     "cancelBooking": "Cancel Booking",
     "walkInCustomer": "Walk-in Customer",
     "services": "Services"
+  },
+  "bookingDetails": {
+    "title": "Booking Details",
+    "notFound": "Booking details not found",
+    "noSpecialNotes": "No special notes",
+    "notes": "Notes",
+    "appointmentInfo": "Appointment Info",
+    "add": "Add",
+    "total": "Total",
+    "customer": "Customer",
+    "noPhone": "No phone",
+    "noNotes": "No notes",
+    "appointmentCompleted": "Appointment completed successfully",
+    "review": "Review",
+    "reviewQuestion": "How was your experience with this client?",
+    "reviewHint": "Add a note about the client (optional)...",
+    "submitReview": "Submit Review",
+    "markAsStarted": "Mark as Started",
+    "markAsNoShow": "Mark as No-Show",
+    "markAsCompleted": "Mark as Completed",
+    "addService": "Add Service",
+    "noServicesFound": "No services found",
+    "minutes": "minutes",
+    "min": "min"
   }
 }

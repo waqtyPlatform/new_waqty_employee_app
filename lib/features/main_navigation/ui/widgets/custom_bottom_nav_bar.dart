@@ -1,19 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/features/main_navigation/ui/widgets/bottom_nav_bar_item_widget.dart';
+import 'package:new_waqty_employee_app/features/main_navigation/ui/widgets/bottom_nav_item_model.dart';
 import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import '../../../../core/utils/app_colors_white_theme.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
   const CustomBottomNavBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
+
+  static const List<BottomNavItemModel> _items = [
+    BottomNavItemModel(
+      icon: ImageAsset.homeIcon,
+      labelKey: 'mainNavigation.home',
+    ),
+    BottomNavItemModel(
+      icon: ImageAsset.bookingIcon,
+      labelKey: 'mainNavigation.booking',
+    ),
+    BottomNavItemModel(
+      icon: ImageAsset.statsIcon,
+      labelKey: 'mainNavigation.stats',
+    ),
+    BottomNavItemModel(
+      icon: ImageAsset.moneyIcon,
+      labelKey: 'mainNavigation.money',
+    ),
+    BottomNavItemModel(
+      icon: ImageAsset.accountIcon,
+      labelKey: 'mainNavigation.account',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +45,7 @@ class CustomBottomNavBar extends StatelessWidget {
         color: AppColors.whiteColor,
         boxShadow: [
           BoxShadow(
-            color: AppColors.greyColor200.withOpacity(0.3),
+            color: AppColors.greyColor200.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -39,48 +62,9 @@ class CustomBottomNavBar extends StatelessWidget {
 
         selectedLabelStyle: TextStyles.font12greenColor500W600,
         unselectedLabelStyle: TextStyles.font12greyColor3003Weight400,
-        items: [
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.homeIcon),
-            activeIcon: SvgPicture.asset(
-              ImageAsset.homeIcon,
-              color: AppColors.greenColor500,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.bookingIcon),
-            activeIcon: SvgPicture.asset(
-              ImageAsset.bookingIcon,
-              color: AppColors.greenColor500,
-            ),
-            label: 'Booking',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.statsIcon),
-            activeIcon: SvgPicture.asset(
-              ImageAsset.statsIcon,
-              color: AppColors.greenColor500,
-            ),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.moneyIcon),
-            activeIcon: SvgPicture.asset(
-              ImageAsset.moneyIcon,
-              color: AppColors.greenColor500,
-            ),
-            label: 'Money',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(ImageAsset.accountIcon),
-            activeIcon: SvgPicture.asset(
-              ImageAsset.accountIcon,
-              color: AppColors.greenColor500,
-            ),
-            label: 'Account',
-          ),
-        ],
+        items: _items
+            .map((item) => BottomNavBarItemWidget.build(context, item))
+            .toList(),
       ),
     );
   }

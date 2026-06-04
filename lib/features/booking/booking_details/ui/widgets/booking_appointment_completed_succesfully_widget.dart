@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -42,7 +43,7 @@ class BookingAppointmentCompletedSuccesfullyWidget extends StatelessWidget {
           ),
           horizontalSpace(8),
           Text(
-            'Appointment completed successfully',
+            context.tr('bookingDetails.appointmentCompleted'),
             style: TextStyles.font14greenColor500Weight600,
           ),
         ],

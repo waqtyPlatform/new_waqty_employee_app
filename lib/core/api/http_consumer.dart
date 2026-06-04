@@ -33,6 +33,20 @@ class HttpConsumer implements ApiConsumer {
   }
 
   @override
+  Future<http.Response> patch(
+    String path,
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+  ) async {
+    final response = await _client.patch(
+      Uri.parse(path),
+      body: json.encode(body),
+      headers: headers,
+    );
+    return response;
+  }
+
+  @override
   Future<http.Response> post(
     String path,
     Map<String, dynamic>? body,

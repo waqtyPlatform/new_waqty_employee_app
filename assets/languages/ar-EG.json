@@ -51,6 +51,13 @@
     "loginNow": "تسجيل الدخول الآن",
     "noInternet": "الرجاء التحقق من اتصالك بالإنترنت"
   },
+  "mainNavigation": {
+    "home": "الرئيسية",
+    "booking": "الحجوزات",
+    "stats": "الإحصائيات",
+    "money": "الأموال",
+    "account": "الحساب"
+  },
   "myBooking": {
     "title": "حجوزاتي",
     "noBookingsFound": "لا توجد حجوزات",
@@ -64,5 +71,29 @@
     "cancelBooking": "إلغاء الحجز",
     "walkInCustomer": "عميل بدون حجز",
     "services": "الخدمات"
+  },
+  "bookingDetails": {
+    "title": "تفاصيل الحجز",
+    "notFound": "لم يتم العثور على تفاصيل الحجز",
+    "noSpecialNotes": "لا توجد ملاحظات خاصة",
+    "notes": "ملاحظات",
+    "appointmentInfo": "معلومات الموعد",
+    "add": "إضافة",
+    "total": "الإجمالي",
+    "customer": "العميل",
+    "noPhone": "لا يوجد هاتف",
+    "noNotes": "لا توجد ملاحظات",
+    "appointmentCompleted": "تم إكمال الموعد بنجاح",
+    "review": "تقييم",
+    "reviewQuestion": "كيف كانت تجربتك مع هذا العميل؟",
+    "reviewHint": "أضف ملاحظة عن العميل (اختياري)...",
+    "submitReview": "إرسال التقييم",
+    "markAsStarted": "بدء الموعد",
+    "markAsNoShow": "تحديد كعدم حضور",
+    "markAsCompleted": "إكمال الموعد",
+    "addService": "إضافة خدمة",
+    "noServicesFound": "لا توجد خدمات",
+    "minutes": "دقيقة",
+    "min": "دقيقة"
   }
 }

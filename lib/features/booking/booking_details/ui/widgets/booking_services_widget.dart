@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -9,6 +10,7 @@ class BookingServicesWidget extends StatelessWidget {
   final String duration;
   final String price;
   final String currency;
+  final VoidCallback onAddTap;
 
   const BookingServicesWidget({
     super.key,
@@ -16,6 +18,7 @@ class BookingServicesWidget extends StatelessWidget {
     required this.duration,
     required this.price,
     required this.currency,
+    required this.onAddTap,
   });
 
   @override
@@ -50,10 +53,13 @@ class BookingServicesWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Services', style: TextStyles.font14greyColor900Weight500),
+              Text(
+                context.tr('myBooking.services'),
+                style: TextStyles.font14greyColor900Weight500,
+              ),
               Spacer(flex: 1),
               GestureDetector(
-                onTap: () {},
+                onTap: onAddTap,
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
@@ -64,7 +70,7 @@ class BookingServicesWidget extends StatelessWidget {
                     color: AppColors.greenColor5005,
                   ),
                   child: Text(
-                    '+ Add',
+                    '+ ${context.tr('bookingDetails.add')}',
                     style: TextStyles.font12greenColor500W600,
                   ),
                 ),
@@ -101,7 +107,10 @@ class BookingServicesWidget extends StatelessWidget {
           verticalSpace(12),
           Row(
             children: [
-              Text('Total', style: TextStyles.font14greyColor900Weight600),
+              Text(
+                context.tr('bookingDetails.total'),
+                style: TextStyles.font14greyColor900Weight600,
+              ),
               Spacer(),
               Text(
                 '$currency $price',

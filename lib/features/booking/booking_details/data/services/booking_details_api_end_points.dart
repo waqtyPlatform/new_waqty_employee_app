@@ -4,4 +4,12 @@ class BookingDetailsApiEndPoints {
   static String getBookingDetails(String uuid) {
     return '${EndPoints.baseUrl}/api/employee/bookings/$uuid';
   }
+
+  static String updateBookingStatus(String uuid) {
+    return '${EndPoints.baseUrl}/api/employee/bookings/$uuid/status';
+  }
+
+  static String getServicesWithPrices(int page) {
+    return '${EndPoints.baseUrl}/api/employee/services/with-prices?page=$page';
+  }
 }

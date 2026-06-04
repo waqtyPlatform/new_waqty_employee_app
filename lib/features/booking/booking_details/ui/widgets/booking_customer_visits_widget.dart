@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -55,7 +56,10 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                 ),
               ),
               horizontalSpace(8),
-              Text('Customer', style: TextStyles.font14greyColor900Weight500),
+              Text(
+                context.tr('bookingDetails.customer'),
+                style: TextStyles.font14greyColor900Weight500,
+              ),
             ],
           ),
           verticalSpace(12),
@@ -69,7 +73,7 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                   color: AppColors.greyColorFA,
                 ),
                 child: Text(
-                  phone.isEmpty ? 'No phone' : phone,
+                  phone.isEmpty ? context.tr('bookingDetails.noPhone') : phone,
                   style: TextStyles.font12greyColor900Weight500,
                 ),
               ),
@@ -82,7 +86,7 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                   color: AppColors.greyColorFA,
                 ),
                 child: Text(
-                  notes.isEmpty ? 'No notes' : notes,
+                  notes.isEmpty ? context.tr('bookingDetails.noNotes') : notes,
                   style: TextStyles.font12greyColorA3W400,
                 ),
               ),

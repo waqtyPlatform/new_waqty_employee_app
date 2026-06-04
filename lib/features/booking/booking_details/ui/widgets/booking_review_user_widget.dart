@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -49,14 +50,14 @@ class BookingReviewUserWidget extends StatelessWidget {
               ),
               horizontalSpace(8),
               Text(
-                'Review $userName',
+                '${context.tr('bookingDetails.review')} $userName',
                 style: TextStyles.font18greyColor900Weight600,
               ),
             ],
           ),
           verticalSpace(12),
           Text(
-            'How was your experience with this client?',
+            context.tr('bookingDetails.reviewQuestion'),
             style: TextStyles.font12greyColor3003Weight400,
           ),
           verticalSpace(12),
@@ -72,7 +73,7 @@ class BookingReviewUserWidget extends StatelessWidget {
           ),
           verticalSpace(12),
           AppTextFormField(
-            hintText: 'Add a note about the client (optional)...',
+            hintText: context.tr('bookingDetails.reviewHint'),
             hintStyle: TextStyles.font14greyColor4002Weight400,
             maxLines: 8,
             contentPadding: EdgeInsets.symmetric(
@@ -99,7 +100,7 @@ class BookingReviewUserWidget extends StatelessWidget {
             ),
             validator: (String? value) {
               if (value == null || value.isEmpty) {
-                return 'Please add a note about the client (optional)...';
+                return context.tr('bookingDetails.reviewHint');
               }
               return null;
             },
@@ -114,7 +115,7 @@ class BookingReviewUserWidget extends StatelessWidget {
             isLoading: false,
             borderRadius: 12,
             buttonHeight: 52.h,
-            buttonText: 'Submit Review',
+            buttonText: context.tr('bookingDetails.submitReview'),
             backGroundColor: AppColors.greenColor500,
             borderColor: AppColors.greenColor500,
             fourGroundColor: AppColors.whiteColor,

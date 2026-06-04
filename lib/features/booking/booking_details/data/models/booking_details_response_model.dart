@@ -60,7 +60,7 @@ class BookingDetailsModel {
     );
   }
 
-  String get bookingNumber =>  uuid;
+  String get bookingNumber => uuid;
 
   String get customerName => user?.name ?? '';
 

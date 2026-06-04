@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
@@ -46,7 +47,7 @@ class BookingAppointmentInfoWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Appointment Info',
+            context.tr('bookingDetails.appointmentInfo'),
             style: TextStyles.font14greyColor900Weight500,
           ),
           verticalSpace(12),

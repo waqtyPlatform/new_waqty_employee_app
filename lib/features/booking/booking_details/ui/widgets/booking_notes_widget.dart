@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -48,7 +49,10 @@ class BookingNotesWidget extends StatelessWidget {
                 child: SvgPicture.asset(ImageAsset.notesIcon),
               ),
               horizontalSpace(8),
-              Text('Notes', style: TextStyles.font14greyColor900Weight500),
+              Text(
+                context.tr('bookingDetails.notes'),
+                style: TextStyles.font14greyColor900Weight500,
+              ),
             ],
           ),
           verticalSpace(8),

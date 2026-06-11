@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:toastification/toastification.dart';
 
 import 'app_colors_white_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 bool isLoggedInUser = false;
 bool isOnBoarding = true;
@@ -138,6 +139,25 @@ class AppConstant {
     String endTime = intl.DateFormat.Hm().format(endDate); // 18:30
 
     return "$dayText $startTime - $endTime";
+  }
+
+
+  static Future<void> openPhoneCall(String phoneNumber) async {
+    final String cleanedPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
+
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: cleanedPhone,
+    );
+
+    if (!await canLaunchUrl(phoneUri)) {
+      throw Exception('Could not open phone dialer');
+    }
+
+    await launchUrl(
+      phoneUri,
+      mode: LaunchMode.externalApplication,
+    );
   }
 
   // static String getMonthName(int monthNumber) {

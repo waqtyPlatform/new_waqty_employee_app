@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/features/account/shared_widgets/account_support_primary_button_widget.dart';
 
 class BranchCallButtonWidget extends StatelessWidget {
@@ -13,7 +14,9 @@ class BranchCallButtonWidget extends StatelessWidget {
       textKey: 'branchContact.callBranch',
       icon: Icons.phone_outlined,
       padding: EdgeInsets.zero,
-      onTap: hasPhone ? () {} : null,
+      onTap: hasPhone ? () {
+        AppConstant.openPhoneCall(phone!);
+      } : null,
     );
   }
 }

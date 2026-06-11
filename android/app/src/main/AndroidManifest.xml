@@ -1,5 +1,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+
+
+    <!-- Required for Android 11 / API 30+ when using canLaunchUrl -->
+    <queries>
+
+        <!-- Call / Phone dialer -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+
+        <!-- SMS -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+
+    </queries>
+
     <application
         android:label="new_waqty_employee_app"
         android:name="${applicationName}"

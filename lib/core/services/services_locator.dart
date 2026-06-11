@@ -4,8 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo/branch_contact_repo.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/data/services/contact_manager_service.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/repo/help_questions_repo.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/services/help_questions_service.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/data/repo/report_bug_repo.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/data/services/report_bug_service.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/services/working_hours_service.dart';
 
@@ -133,5 +141,35 @@ class ServicesLocator {
     getIt.registerLazySingleton<WorkingHoursRepo>(
       () => WorkingHoursRepo(getIt()),
     );
+
+    /// Branch Contact
+    getIt.registerLazySingleton<BranchContactService>(
+      () => BranchContactService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<BranchContactRepo>(
+      () => BranchContactRepo(getIt()),
+    );
+
+    /// Help Questions
+    getIt.registerLazySingleton<HelpQuestionsService>(
+      () => HelpQuestionsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<HelpQuestionsRepo>(
+      () => HelpQuestionsRepo(getIt()),
+    );
+
+    /// Contact Manager
+    getIt.registerLazySingleton<ContactManagerService>(
+      () => ContactManagerService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<ContactManagerRepo>(
+      () => ContactManagerRepo(getIt()),
+    );
+
+    /// Report Bug
+    getIt.registerLazySingleton<ReportBugService>(
+      () => ReportBugService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<ReportBugRepo>(() => ReportBugRepo(getIt()));
   }
 }

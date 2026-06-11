@@ -1,95 +1,47 @@
-class MyServicesResponseModel {
+class ContactManagerResponseModel {
   final bool success;
-  final List<MyServiceModel> data;
-  final MyServicesMetaModel? meta;
+  final ContactManagerMessageModel? data;
 
-  MyServicesResponseModel({
-    required this.success,
-    required this.data,
-    this.meta,
-  });
+  ContactManagerResponseModel({required this.success, required this.data});
 
-  factory MyServicesResponseModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesResponseModel(
+  factory ContactManagerResponseModel.fromJson(Map<String, dynamic> json) {
+    return ContactManagerResponseModel(
       success: json['success'] ?? false,
       data: json['data'] != null
-          ? (json['data'] as List)
-                .map((i) => MyServiceModel.fromJson(i))
-                .toList()
-          : [],
-      meta: json['meta'] != null
-          ? MyServicesMetaModel.fromJson(json['meta'])
+          ? ContactManagerMessageModel.fromJson(json['data'])
           : null,
     );
   }
 }
 
-class MyServiceModel {
+class ContactManagerMessageModel {
   final String uuid;
-  final String subCategoryUuid;
-  final String subCategoryName;
-  final String name;
-  final String description;
-  final String? imageUrl;
-  final int active;
-  final int? estimatedDurationMinutes;
+  final String subject;
+  final String message;
+  final String priority;
+  final String status;
+  final String? resolvedAt;
+  final String createdAt;
 
-  MyServiceModel({
+  ContactManagerMessageModel({
     required this.uuid,
-    required this.subCategoryUuid,
-    required this.subCategoryName,
-    required this.name,
-    required this.description,
-    this.imageUrl,
-    required this.active,
-    this.estimatedDurationMinutes,
+    required this.subject,
+    required this.message,
+    required this.priority,
+    required this.status,
+    this.resolvedAt,
+    required this.createdAt,
   });
 
-  factory MyServiceModel.fromJson(Map<String, dynamic> json) {
-    return MyServiceModel(
+  factory ContactManagerMessageModel.fromJson(Map<String, dynamic> json) {
+    return ContactManagerMessageModel(
       uuid: json['uuid'] ?? '',
-      subCategoryUuid: json['sub_category_uuid'] ?? '',
-      subCategoryName: json['sub_category_name'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      imageUrl: json['image_url'],
-      active: json['active'] ?? 0,
-      estimatedDurationMinutes: json['estimated_duration_minutes'],
-    );
-  }
-}
-
-class MyServicesMetaModel {
-  final MyServicesPaginationModel pagination;
-
-  MyServicesMetaModel({required this.pagination});
-
-  factory MyServicesMetaModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesMetaModel(
-      pagination: MyServicesPaginationModel.fromJson(json['pagination'] ?? {}),
-    );
-  }
-}
-
-class MyServicesPaginationModel {
-  final int currentPage;
-  final int perPage;
-  final int total;
-  final int lastPage;
-
-  MyServicesPaginationModel({
-    required this.currentPage,
-    required this.perPage,
-    required this.total,
-    required this.lastPage,
-  });
-
-  factory MyServicesPaginationModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesPaginationModel(
-      currentPage: json['current_page'] ?? 1,
-      perPage: json['per_page'] ?? 15,
-      total: json['total'] ?? 0,
-      lastPage: json['last_page'] ?? 1,
+      subject: json['subject'] ?? '',
+      message: json['message'] ?? '',
+      priority: json['priority'] ?? '',
+      status: json['status'] ?? '',
+      resolvedAt: json['resolved_at'],
+      createdAt: json['created_at'] ?? '',
     );
   }
 }

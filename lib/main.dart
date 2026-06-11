@@ -43,7 +43,7 @@ Future<void> main() async {
       child: MyApp(
         navigateWidget: isLoggedInUser
             ? Routes.loginScreen
-            : Routes.loginScreen,
+            : Routes.mainNavigationScreen,
       ),
     ),
   );

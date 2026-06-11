@@ -1,19 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/models/help_questions_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/services/help_questions_service.dart';
 
-class MyServicesRepo {
-  final MyServicesService _myServicesService;
+class HelpQuestionsRepo {
+  final HelpQuestionsService _helpQuestionsService;
 
-  MyServicesRepo(this._myServicesService);
+  HelpQuestionsRepo(this._helpQuestionsService);
 
-  Future<Either<Failure, MyServicesResponseModel>> getAllServices(
-    int page,
+  Future<Either<Failure, HelpQuestionsResponseModel>> getFaqs(
+    String languageCode,
   ) async {
     try {
-      return Right(await _myServicesService.getAllServices(page));
+      return Right(await _helpQuestionsService.getFaqs(languageCode));
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }

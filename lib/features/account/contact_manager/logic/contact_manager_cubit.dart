@@ -1,56 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_state.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_state.dart';
 
-class MyServicesCubit extends Cubit<MyServicesState> {
-  final MyServicesRepo _myServicesRepo;
+class ContactManagerCubit extends Cubit<ContactManagerState> {
+  final ContactManagerRepo _contactManagerRepo;
 
-  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
+  ContactManagerCubit(this._contactManagerRepo)
+    : super(ContactManagerInitialState());
 
-  ScrollController myServicesScrollController = ScrollController();
-  List<MyServiceModel> myServices = [];
-  int myServicesCurrentPage = 1;
-  late int myServicesLastPage;
+  final TextEditingController messageController = TextEditingController();
+  String selectedSubject = 'Schedule question';
+  String selectedSubjectKey = 'contactManager.scheduleIssue';
+  String selectedPriority = 'normal';
 
-  clearGetAllServices() {
-    myServicesCurrentPage = 1;
-    myServices = [];
+  void changeSubject({required String subject, required String subjectKey}) {
+    selectedSubject = subject;
+    selectedSubjectKey = subjectKey;
+    emit(ContactManagerSubjectChangedState());
   }
 
-  scrollListenerMyServicesScrollController() {
-    myServicesScrollController.addListener(() {
-      if (myServicesCurrentPage < myServicesLastPage) {
-        if (myServicesScrollController.position.pixels ==
-            myServicesScrollController.position.maxScrollExtent) {
-          myServicesCurrentPage++;
-          getAllServices();
-        }
-      }
-    });
+  void changePriority(String priority) {
+    selectedPriority = priority;
+    emit(ContactManagerPriorityChangedState());
   }
 
-  getAllServices() {
-    emit(OnGetAllServicesLoadingState());
-    _myServicesRepo
-        .getAllServices(myServicesCurrentPage)
+  void sendMessage(String languageCode) {
+    final message = messageController.text.trim();
+    if (message.isEmpty) {
+      emit(SendContactManagerMessageErrorState());
+      return;
+    }
+
+    emit(SendContactManagerMessageLoadingState());
+    _contactManagerRepo
+        .sendMessage(
+          subject: selectedSubject,
+          message: message,
+          priority: selectedPriority,
+          languageCode: languageCode,
+        )
         .then((value) {
-          value.fold(
-            (l) {
-              emit(GetMyServicesErrorState());
-            },
-            (r) {
-              myServices.addAll(r.data);
-              myServicesLastPage = r.meta!.pagination.lastPage;
-              emit(OnGetAllServicesSuccessState());
-            },
-          );
+          value.fold((failure) => emit(SendContactManagerMessageErrorState()), (
+            response,
+          ) {
+            messageController.clear();
+            emit(SendContactManagerMessageSuccessState());
+          });
         })
         .catchError((error) {
-          emit(GetMyServicesCatchErrorState());
+          emit(SendContactManagerMessageCatchErrorState());
         });
   }
 
-  static MyServicesCubit get(context) => BlocProvider.of(context);
+  @override
+  Future<void> close() {
+    messageController.dispose();
+    return super.close();
+  }
+
+  static ContactManagerCubit get(BuildContext context) =>
+      BlocProvider.of(context);
 }

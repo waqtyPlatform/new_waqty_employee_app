@@ -1,56 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_state.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/models/branch_contact_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo/branch_contact_repo.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/logic/branch_contact_state.dart';
 
-class MyServicesCubit extends Cubit<MyServicesState> {
-  final MyServicesRepo _myServicesRepo;
+class BranchContactCubit extends Cubit<BranchContactState> {
+  final BranchContactRepo _branchContactRepo;
 
-  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
+  BranchContactCubit(this._branchContactRepo)
+    : super(BranchContactInitialState());
 
-  ScrollController myServicesScrollController = ScrollController();
-  List<MyServiceModel> myServices = [];
-  int myServicesCurrentPage = 1;
-  late int myServicesLastPage;
+  BranchContactModel? branchContact;
 
-  clearGetAllServices() {
-    myServicesCurrentPage = 1;
-    myServices = [];
-  }
-
-  scrollListenerMyServicesScrollController() {
-    myServicesScrollController.addListener(() {
-      if (myServicesCurrentPage < myServicesLastPage) {
-        if (myServicesScrollController.position.pixels ==
-            myServicesScrollController.position.maxScrollExtent) {
-          myServicesCurrentPage++;
-          getAllServices();
-        }
-      }
-    });
-  }
-
-  getAllServices() {
-    emit(OnGetAllServicesLoadingState());
-    _myServicesRepo
-        .getAllServices(myServicesCurrentPage)
+  void getBranchContact(String languageCode) {
+    emit(GetBranchContactLoadingState());
+    _branchContactRepo
+        .getBranchContact(languageCode)
         .then((value) {
-          value.fold(
-            (l) {
-              emit(GetMyServicesErrorState());
-            },
-            (r) {
-              myServices.addAll(r.data);
-              myServicesLastPage = r.meta!.pagination.lastPage;
-              emit(OnGetAllServicesSuccessState());
-            },
-          );
+          value.fold((failure) => emit(GetBranchContactErrorState()), (
+            response,
+          ) {
+            branchContact = response.data;
+            emit(GetBranchContactSuccessState());
+          });
         })
         .catchError((error) {
-          emit(GetMyServicesCatchErrorState());
+          emit(GetBranchContactCatchErrorState());
         });
   }
 
-  static MyServicesCubit get(context) => BlocProvider.of(context);
+  static BranchContactCubit get(BuildContext context) =>
+      BlocProvider.of(context);
 }

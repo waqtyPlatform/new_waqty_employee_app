@@ -1,12 +1,11 @@
-abstract class MyServicesState {}
+abstract class BranchContactState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class BranchContactInitialState extends BranchContactState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
+class GetBranchContactLoadingState extends BranchContactState {}
 
-class OnGetAllServicesSuccessState extends MyServicesState {}
+class GetBranchContactSuccessState extends BranchContactState {}
 
-class GetMyServicesErrorState extends MyServicesState {}
+class GetBranchContactErrorState extends BranchContactState {}
 
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class GetBranchContactCatchErrorState extends BranchContactState {}

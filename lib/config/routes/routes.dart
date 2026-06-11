@@ -10,4 +10,9 @@ class Routes {
   static const myServicesScreen = "/MyServicesScreen";
   static const profileDetailsScreen = "/ProfileDetailsScreen";
   static const workingHoursScreen = "/WorkingHoursScreen";
+  static const branchContactScreen = "/BranchContactScreen";
+  static const helpQuestionsScreen = "/HelpQuestionsScreen";
+  static const contactManagerScreen = "/ContactManagerScreen";
+  static const reportBugScreen = "/ReportBugScreen";
+  static const notificationSettingScreen = "/NotificationSettingScreen";
 }

@@ -6,25 +6,39 @@ import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_api_end_points.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/data/models/report_bug_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/data/services/report_bug_api_end_points.dart';
 
-class MyServicesService {
-  ApiConsumer apiConsumer;
+class ReportBugService {
+  final ApiConsumer apiConsumer;
 
-  MyServicesService({required this.apiConsumer});
+  ReportBugService({required this.apiConsumer});
 
-  Future<MyServicesResponseModel> getAllServices(int page) async {
-    final response = await apiConsumer.get(
-      MyServicesApiEndPoints.getAllServices(page),
+  Future<ReportBugResponseModel> sendBugReport({
+    required String category,
+    required String description,
+    required String stepsToReproduce,
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.post(
+      ReportBugApiEndPoints.sendBugReport,
+      {
+        'category': category,
+        'description': description,
+        'steps_to_reproduce': stepsToReproduce,
+      },
       {
         ConstantKeys.appAuthorization:
-            "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
+            '${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}',
+        ConstantKeys.acceptLanguage: languageCode,
+        ConstantKeys.contentType: ConstantKeys.applicationJson,
+        ConstantKeys.acceptText: ConstantKeys.applicationJson,
       },
     );
 
-    if (response.statusCode == StatusCode.ok) {
-      return MyServicesResponseModel.fromJson(jsonDecode(response.body));
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      return ReportBugResponseModel.fromJson(jsonDecode(response.body));
     } else {
       throw ServerException(
         serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),

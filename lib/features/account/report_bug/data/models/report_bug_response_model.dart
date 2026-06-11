@@ -1,95 +1,48 @@
-class MyServicesResponseModel {
+class ReportBugResponseModel {
   final bool success;
-  final List<MyServiceModel> data;
-  final MyServicesMetaModel? meta;
+  final ReportBugModel? data;
 
-  MyServicesResponseModel({
-    required this.success,
-    required this.data,
-    this.meta,
-  });
+  ReportBugResponseModel({required this.success, required this.data});
 
-  factory MyServicesResponseModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesResponseModel(
+  factory ReportBugResponseModel.fromJson(Map<String, dynamic> json) {
+    return ReportBugResponseModel(
       success: json['success'] ?? false,
-      data: json['data'] != null
-          ? (json['data'] as List)
-                .map((i) => MyServiceModel.fromJson(i))
-                .toList()
-          : [],
-      meta: json['meta'] != null
-          ? MyServicesMetaModel.fromJson(json['meta'])
-          : null,
+      data: json['data'] != null ? ReportBugModel.fromJson(json['data']) : null,
     );
   }
 }
 
-class MyServiceModel {
+class ReportBugModel {
   final String uuid;
-  final String subCategoryUuid;
-  final String subCategoryName;
-  final String name;
+  final String category;
   final String description;
-  final String? imageUrl;
-  final int active;
-  final int? estimatedDurationMinutes;
+  final String? stepsToReproduce;
+  final String? appVersion;
+  final String status;
+  final String? resolvedAt;
+  final String createdAt;
 
-  MyServiceModel({
+  ReportBugModel({
     required this.uuid,
-    required this.subCategoryUuid,
-    required this.subCategoryName,
-    required this.name,
+    required this.category,
     required this.description,
-    this.imageUrl,
-    required this.active,
-    this.estimatedDurationMinutes,
+    this.stepsToReproduce,
+    this.appVersion,
+    required this.status,
+    this.resolvedAt,
+    required this.createdAt,
   });
 
-  factory MyServiceModel.fromJson(Map<String, dynamic> json) {
-    return MyServiceModel(
+  factory ReportBugModel.fromJson(Map<String, dynamic> json) {
+    return ReportBugModel(
       uuid: json['uuid'] ?? '',
-      subCategoryUuid: json['sub_category_uuid'] ?? '',
-      subCategoryName: json['sub_category_name'] ?? '',
-      name: json['name'] ?? '',
+      category: json['category'] ?? '',
       description: json['description'] ?? '',
-      imageUrl: json['image_url'],
-      active: json['active'] ?? 0,
-      estimatedDurationMinutes: json['estimated_duration_minutes'],
-    );
-  }
-}
-
-class MyServicesMetaModel {
-  final MyServicesPaginationModel pagination;
-
-  MyServicesMetaModel({required this.pagination});
-
-  factory MyServicesMetaModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesMetaModel(
-      pagination: MyServicesPaginationModel.fromJson(json['pagination'] ?? {}),
-    );
-  }
-}
-
-class MyServicesPaginationModel {
-  final int currentPage;
-  final int perPage;
-  final int total;
-  final int lastPage;
-
-  MyServicesPaginationModel({
-    required this.currentPage,
-    required this.perPage,
-    required this.total,
-    required this.lastPage,
-  });
-
-  factory MyServicesPaginationModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesPaginationModel(
-      currentPage: json['current_page'] ?? 1,
-      perPage: json['per_page'] ?? 15,
-      total: json['total'] ?? 0,
-      lastPage: json['last_page'] ?? 1,
+      stepsToReproduce: json['steps_to_reproduce'],
+      appVersion: json['app_version'],
+      status: json['status'] ?? '',
+      resolvedAt: json['resolved_at'],
+      createdAt: json['created_at'] ?? '',
     );
   }
 }

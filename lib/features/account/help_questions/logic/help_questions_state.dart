@@ -1,12 +1,11 @@
-abstract class MyServicesState {}
+abstract class HelpQuestionsState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class HelpQuestionsInitialState extends HelpQuestionsState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
+class GetFaqsLoadingState extends HelpQuestionsState {}
 
-class OnGetAllServicesSuccessState extends MyServicesState {}
+class GetFaqsSuccessState extends HelpQuestionsState {}
 
-class GetMyServicesErrorState extends MyServicesState {}
+class GetFaqsErrorState extends HelpQuestionsState {}
 
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class GetFaqsCatchErrorState extends HelpQuestionsState {}

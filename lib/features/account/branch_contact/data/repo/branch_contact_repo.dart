@@ -1,19 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/models/branch_contact_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
 
-class MyServicesRepo {
-  final MyServicesService _myServicesService;
+class BranchContactRepo {
+  final BranchContactService _branchContactService;
 
-  MyServicesRepo(this._myServicesService);
+  BranchContactRepo(this._branchContactService);
 
-  Future<Either<Failure, MyServicesResponseModel>> getAllServices(
-    int page,
+  Future<Either<Failure, BranchContactResponseModel>> getBranchContact(
+    String languageCode,
   ) async {
     try {
-      return Right(await _myServicesService.getAllServices(page));
+      return Right(await _branchContactService.getBranchContact(languageCode));
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }

@@ -1,56 +1,30 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_state.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/models/help_questions_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/data/repo/help_questions_repo.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_state.dart';
 
-class MyServicesCubit extends Cubit<MyServicesState> {
-  final MyServicesRepo _myServicesRepo;
+class HelpQuestionsCubit extends Cubit<HelpQuestionsState> {
+  final HelpQuestionsRepo _helpQuestionsRepo;
 
-  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
+  HelpQuestionsCubit(this._helpQuestionsRepo)
+      : super(HelpQuestionsInitialState());
 
-  ScrollController myServicesScrollController = ScrollController();
-  List<MyServiceModel> myServices = [];
-  int myServicesCurrentPage = 1;
-  late int myServicesLastPage;
+  List<HelpQuestionModel> faqs = [];
 
-  clearGetAllServices() {
-    myServicesCurrentPage = 1;
-    myServices = [];
-  }
-
-  scrollListenerMyServicesScrollController() {
-    myServicesScrollController.addListener(() {
-      if (myServicesCurrentPage < myServicesLastPage) {
-        if (myServicesScrollController.position.pixels ==
-            myServicesScrollController.position.maxScrollExtent) {
-          myServicesCurrentPage++;
-          getAllServices();
-        }
-      }
+  void getFaqs(String languageCode) {
+    emit(GetFaqsLoadingState());
+    _helpQuestionsRepo.getFaqs(languageCode).then((value) {
+      value.fold(
+        (failure) => emit(GetFaqsErrorState()),
+        (response) {
+          faqs = response.data;
+          emit(GetFaqsSuccessState());
+        },
+      );
+    }).catchError((error) {
+      emit(GetFaqsCatchErrorState());
     });
   }
 
-  getAllServices() {
-    emit(OnGetAllServicesLoadingState());
-    _myServicesRepo
-        .getAllServices(myServicesCurrentPage)
-        .then((value) {
-          value.fold(
-            (l) {
-              emit(GetMyServicesErrorState());
-            },
-            (r) {
-              myServices.addAll(r.data);
-              myServicesLastPage = r.meta!.pagination.lastPage;
-              emit(OnGetAllServicesSuccessState());
-            },
-          );
-        })
-        .catchError((error) {
-          emit(GetMyServicesCatchErrorState());
-        });
-  }
-
-  static MyServicesCubit get(context) => BlocProvider.of(context);
+  static HelpQuestionsCubit get(context) => BlocProvider.of(context);
 }

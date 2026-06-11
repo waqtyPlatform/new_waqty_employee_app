@@ -1,12 +1,15 @@
-abstract class MyServicesState {}
+abstract class ContactManagerState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class ContactManagerInitialState extends ContactManagerState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
+class ContactManagerSubjectChangedState extends ContactManagerState {}
 
-class OnGetAllServicesSuccessState extends MyServicesState {}
+class ContactManagerPriorityChangedState extends ContactManagerState {}
 
-class GetMyServicesErrorState extends MyServicesState {}
+class SendContactManagerMessageLoadingState extends ContactManagerState {}
 
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class SendContactManagerMessageSuccessState extends ContactManagerState {}
+
+class SendContactManagerMessageErrorState extends ContactManagerState {}
+
+class SendContactManagerMessageCatchErrorState extends ContactManagerState {}

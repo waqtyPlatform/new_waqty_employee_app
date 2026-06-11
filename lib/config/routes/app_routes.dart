@@ -1,12 +1,22 @@
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/logic/branch_contact_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/ui/branch_contact_screen.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/contact_manager/ui/contact_manager_screen.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/help_questions/ui/help_questions_screen.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/ui/notification_setting_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/logic/profile_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/ui/profile_details_screen.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/logic/report_bug_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/report_bug/ui/report_bug_screen.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/ui/working_hours_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
@@ -116,6 +126,47 @@ class RouteGenerator {
             create: (context) => WorkingHoursCubit(getIt()),
             child: const WorkingHoursScreen(),
           ),
+        );
+
+      case Routes.branchContactScreen:
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (_) =>
+                BranchContactCubit(getIt())
+                  ..getBranchContact(context.locale.languageCode),
+            child: const BranchContactScreen(),
+          ),
+        );
+
+      case Routes.helpQuestionsScreen:
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (_) =>
+                HelpQuestionsCubit(getIt())
+                  ..getFaqs(context.locale.languageCode),
+            child: const HelpQuestionsScreen(),
+          ),
+        );
+
+      case Routes.contactManagerScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => ContactManagerCubit(getIt()),
+            child: const ContactManagerScreen(),
+          ),
+        );
+
+      case Routes.reportBugScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => ReportBugCubit(getIt()),
+            child: const ReportBugScreen(),
+          ),
+        );
+
+      case Routes.notificationSettingScreen:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationSettingScreen(),
         );
 
       default:

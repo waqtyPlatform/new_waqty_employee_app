@@ -1,12 +1,13 @@
-abstract class MyServicesState {}
+abstract class ReportBugState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class ReportBugInitialState extends ReportBugState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
+class ReportBugCategoryChangedState extends ReportBugState {}
 
-class OnGetAllServicesSuccessState extends MyServicesState {}
+class SendReportBugLoadingState extends ReportBugState {}
 
-class GetMyServicesErrorState extends MyServicesState {}
+class SendReportBugSuccessState extends ReportBugState {}
 
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class SendReportBugErrorState extends ReportBugState {}
+
+class SendReportBugCatchErrorState extends ReportBugState {}

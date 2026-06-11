@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/models/branch_contact_response_model.dart';
@@ -17,6 +18,7 @@ class BranchInfoCardWidget extends StatelessWidget {
     final address = branchContact.address?.trim().isNotEmpty == true
         ? branchContact.address!
         : context.tr('branchContact.noAddress');
+
     final phone = branchContact.phone?.trim().isNotEmpty == true
         ? branchContact.phone!
         : context.tr('branchContact.noPhone');

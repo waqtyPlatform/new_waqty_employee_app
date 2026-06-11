@@ -7,6 +7,7 @@ import 'package:toastification/toastification.dart';
 
 import 'app_colors_white_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geocoding/geocoding.dart';
 
 bool isLoggedInUser = false;
 bool isOnBoarding = true;
@@ -160,6 +161,8 @@ class AppConstant {
     );
   }
 
+
+
   // static String getMonthName(int monthNumber) {
   //    if (monthNumber < 1 || monthNumber > 12) {
   //      return 'Invalid month';
@@ -191,6 +194,33 @@ class AppConstant {
       await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not open the map.';
+    }
+  }
+
+
+  static Future<String?> getAddressFromLatLng({
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final List<Placemark> placemarks =
+      await placemarkFromCoordinates(latitude, longitude);
+
+      if (placemarks.isEmpty) return null;
+
+      final Placemark place = placemarks.first;
+
+      final addressParts = [
+        place.street,
+        place.subLocality,
+        place.locality,
+        place.administrativeArea,
+        place.country,
+      ].where((e) => e != null && e.trim().isNotEmpty).toList();
+
+      return addressParts.join(', ');
+    } catch (e) {
+      return null;
     }
   }
   //

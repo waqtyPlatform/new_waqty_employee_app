@@ -14,9 +14,11 @@ class BranchCallButtonWidget extends StatelessWidget {
       textKey: 'branchContact.callBranch',
       icon: Icons.phone_outlined,
       padding: EdgeInsets.zero,
-      onTap: hasPhone ? () {
-        AppConstant.openPhoneCall(phone!);
-      } : null,
+      onTap: hasPhone
+          ? () {
+              AppConstant.openPhoneCall(phone!);
+            }
+          : null,
     );
   }
 }

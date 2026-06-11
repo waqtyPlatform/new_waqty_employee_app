@@ -22,6 +22,11 @@ class BranchContactModel {
   final String? address;
   final double? latitude;
   final double? longitude;
+  final String? mapUrl;
+  final List<String> workingDays;
+  final String? openTime;
+  final String? closeTime;
+  final String? hoursDisplay;
 
   BranchContactModel({
     required this.uuid,
@@ -31,6 +36,11 @@ class BranchContactModel {
     this.address,
     this.latitude,
     this.longitude,
+    this.mapUrl,
+    this.workingDays = const [],
+    this.openTime,
+    this.closeTime,
+    this.hoursDisplay,
   });
 
   factory BranchContactModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +52,15 @@ class BranchContactModel {
       address: json['address'],
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
+      mapUrl: json['map_url'],
+      workingDays:
+          (json['working_days'] as List?)
+              ?.map((day) => day.toString())
+              .toList() ??
+          [],
+      openTime: json['open_time'],
+      closeTime: json['close_time'],
+      hoursDisplay: json['hours_display'],
     );
   }
 }

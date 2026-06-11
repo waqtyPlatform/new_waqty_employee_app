@@ -9,3 +9,7 @@ class GetFaqsSuccessState extends HelpQuestionsState {}
 class GetFaqsErrorState extends HelpQuestionsState {}
 
 class GetFaqsCatchErrorState extends HelpQuestionsState {}
+
+class HelpFaqSearchChangedState extends HelpQuestionsState {}
+
+class HelpFaqExpandedChangedState extends HelpQuestionsState {}

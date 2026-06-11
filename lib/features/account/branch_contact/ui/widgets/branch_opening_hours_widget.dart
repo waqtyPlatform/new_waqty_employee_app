@@ -4,19 +4,31 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/branch_contact/data/models/branch_contact_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/shared_widgets/account_support_card_widget.dart';
 
 class BranchOpeningHoursWidget extends StatelessWidget {
-  const BranchOpeningHoursWidget({super.key});
+  final BranchContactModel branchContact;
 
-  static const List<_OpeningHourData> _hours = [
-    _OpeningHourData('branchContact.monThu', 'branchContact.monThuTime'),
-    _OpeningHourData('branchContact.friSat', 'branchContact.friSatTime'),
-    _OpeningHourData('branchContact.sunday', 'branchContact.closed'),
+  const BranchOpeningHoursWidget({super.key, required this.branchContact});
+
+  static const List<_BranchDayData> _days = [
+    _BranchDayData(code: 'sun', nameKey: 'branchContact.sun'),
+    _BranchDayData(code: 'mon', nameKey: 'branchContact.mon'),
+    _BranchDayData(code: 'tue', nameKey: 'branchContact.tue'),
+    _BranchDayData(code: 'wed', nameKey: 'branchContact.wed'),
+    _BranchDayData(code: 'thu', nameKey: 'branchContact.thu'),
+    _BranchDayData(code: 'fri', nameKey: 'branchContact.fri'),
+    _BranchDayData(code: 'sat', nameKey: 'branchContact.sat'),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final workingDays = branchContact.workingDays.toSet();
+    final hoursDisplay = branchContact.hoursDisplay?.trim().isNotEmpty == true
+        ? branchContact.hoursDisplay!
+        : context.tr('branchContact.closed');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,12 +40,16 @@ class BranchOpeningHoursWidget extends StatelessWidget {
         AccountSupportCardWidget(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           child: Column(
-            children: List.generate(_hours.length, (index) {
-              final item = _hours[index];
+            children: List.generate(_days.length, (index) {
+              final day = _days[index];
+              final isWorkingDay = workingDays.contains(day.code);
               return _OpeningHourRow(
-                day: context.tr(item.dayKey),
-                time: context.tr(item.timeKey),
-                showDivider: index != _hours.length - 1,
+                day: context.tr(day.nameKey),
+                time: isWorkingDay
+                    ? hoursDisplay
+                    : context.tr('branchContact.closed'),
+                isClosed: !isWorkingDay,
+                showDivider: index != _days.length - 1,
               );
             }),
           ),
@@ -46,11 +62,13 @@ class BranchOpeningHoursWidget extends StatelessWidget {
 class _OpeningHourRow extends StatelessWidget {
   final String day;
   final String time;
+  final bool isClosed;
   final bool showDivider;
 
   const _OpeningHourRow({
     required this.day,
     required this.time,
+    required this.isClosed,
     required this.showDivider,
   });
 
@@ -69,9 +87,7 @@ class _OpeningHourRow extends StatelessWidget {
           Text(
             time,
             style: TextStyles.font14greyColor900Weight500.copyWith(
-              color: time == context.tr('branchContact.closed')
-                  ? AppColors.greyColorA3
-                  : AppColors.greyColor900,
+              color: isClosed ? AppColors.greyColorA3 : AppColors.greyColor900,
             ),
           ),
         ],
@@ -80,9 +96,9 @@ class _OpeningHourRow extends StatelessWidget {
   }
 }
 
-class _OpeningHourData {
-  final String dayKey;
-  final String timeKey;
+class _BranchDayData {
+  final String code;
+  final String nameKey;
 
-  const _OpeningHourData(this.dayKey, this.timeKey);
+  const _BranchDayData({required this.code, required this.nameKey});
 }

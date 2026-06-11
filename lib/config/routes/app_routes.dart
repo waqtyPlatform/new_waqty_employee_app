@@ -140,10 +140,8 @@ class RouteGenerator {
 
       case Routes.helpQuestionsScreen:
         return MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (_) =>
-                HelpQuestionsCubit(getIt())
-                  ..getFaqs(context.locale.languageCode),
+          builder: (_) => BlocProvider(
+            create: (_) => HelpQuestionsCubit(getIt()),
             child: const HelpQuestionsScreen(),
           ),
         );

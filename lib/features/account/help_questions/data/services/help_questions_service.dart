@@ -15,16 +15,13 @@ class HelpQuestionsService {
   HelpQuestionsService({required this.apiConsumer});
 
   Future<HelpQuestionsResponseModel> getFaqs(String languageCode) async {
-    final response = await apiConsumer.get(
-      HelpQuestionsApiEndPoints.getFaqs,
-      {
-        ConstantKeys.appAuthorization:
-            '${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}',
-        ConstantKeys.acceptLanguage: languageCode,
-        ConstantKeys.contentType: ConstantKeys.applicationJson,
-        ConstantKeys.acceptText: ConstantKeys.applicationJson,
-      },
-    );
+    final response = await apiConsumer.get(HelpQuestionsApiEndPoints.getFaqs, {
+      ConstantKeys.appAuthorization:
+          '${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}',
+      ConstantKeys.acceptLanguage: languageCode,
+      ConstantKeys.contentType: ConstantKeys.applicationJson,
+      ConstantKeys.acceptText: ConstantKeys.applicationJson,
+    });
 
     if (response.statusCode == StatusCode.ok) {
       return HelpQuestionsResponseModel.fromJson(jsonDecode(response.body));

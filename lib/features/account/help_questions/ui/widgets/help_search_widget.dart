@@ -6,7 +6,14 @@ import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
 class HelpSearchWidget extends StatelessWidget {
-  const HelpSearchWidget({super.key});
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  const HelpSearchWidget({
+    super.key,
+    required this.controller,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +30,16 @@ class HelpSearchWidget extends StatelessWidget {
           Icon(Icons.search, size: 24.r, color: AppColors.greyColor300),
           horizontalSpace(12),
           Expanded(
-            child: Text(
-              context.tr('helpFaq.search'),
-              style: TextStyles.font14greyColorA3W400,
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+                hintText: context.tr('helpFaq.search'),
+                hintStyle: TextStyles.font14greyColorA3W400,
+              ),
+              style: TextStyles.font14greyColor900Weight400,
             ),
           ),
           Container(

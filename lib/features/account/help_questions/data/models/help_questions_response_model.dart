@@ -7,7 +7,8 @@ class HelpQuestionsResponseModel {
   factory HelpQuestionsResponseModel.fromJson(Map<String, dynamic> json) {
     return HelpQuestionsResponseModel(
       success: json['success'] ?? false,
-      data: (json['data'] as List?)
+      data:
+          (json['data'] as List?)
               ?.map((item) => HelpQuestionModel.fromJson(item))
               .toList() ??
           [],

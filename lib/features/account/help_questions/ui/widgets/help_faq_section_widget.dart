@@ -9,11 +9,13 @@ import 'package:new_waqty_employee_app/features/account/shared_widgets/account_s
 class HelpFaqSectionWidget extends StatelessWidget {
   final String titleKey;
   final List<HelpFaqItemData> questions;
+  final ValueChanged<String> onQuestionTap;
 
   const HelpFaqSectionWidget({
     super.key,
     required this.titleKey,
     required this.questions,
+    required this.onQuestionTap,
   });
 
   @override
@@ -36,6 +38,7 @@ class HelpFaqSectionWidget extends StatelessWidget {
               return HelpFaqItemWidget(
                 item: questions[index],
                 showDivider: index != questions.length - 1,
+                onTap: () => onQuestionTap(questions[index].uuid),
               );
             }),
           ),
@@ -48,47 +51,52 @@ class HelpFaqSectionWidget extends StatelessWidget {
 class HelpFaqItemWidget extends StatelessWidget {
   final HelpFaqItemData item;
   final bool showDivider;
+  final VoidCallback onTap;
 
   const HelpFaqItemWidget({
     super.key,
     required this.item,
     required this.showDivider,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: SizedBox(
-            height: 53.h,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.tr(item.questionKey),
-                    style: TextStyles.font14greyColor900Weight500,
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: SizedBox(
+              height: 53.h,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.question,
+                      style: TextStyles.font14greyColor900Weight500,
+                    ),
                   ),
-                ),
-                Icon(
-                  item.isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: AppColors.greyColorE5,
-                  size: 18.r,
-                ),
-              ],
+                  Icon(
+                    item.isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: AppColors.greyColorE5,
+                    size: 18.r,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-        if (item.isExpanded && item.answerKey != null)
+        if (item.isExpanded)
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
             color: AppColors.greyColorFA,
             child: Text(
-              context.tr(item.answerKey!),
+              item.answer,
               style: TextStyles.font12greyColorA3W400.copyWith(height: 1.35),
             ),
           ),
@@ -100,13 +108,15 @@ class HelpFaqItemWidget extends StatelessWidget {
 }
 
 class HelpFaqItemData {
-  final String questionKey;
-  final String? answerKey;
+  final String uuid;
+  final String question;
+  final String answer;
   final bool isExpanded;
 
   const HelpFaqItemData({
-    required this.questionKey,
-    this.answerKey,
+    required this.uuid,
+    required this.question,
+    required this.answer,
     this.isExpanded = false,
   });
 }

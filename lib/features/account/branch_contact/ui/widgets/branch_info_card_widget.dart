@@ -22,6 +22,8 @@ class BranchInfoCardWidget extends StatelessWidget {
     final phone = branchContact.phone?.trim().isNotEmpty == true
         ? branchContact.phone!
         : context.tr('branchContact.noPhone');
+    final mapUrl = branchContact.mapUrl?.trim();
+    final hasMapUrl = mapUrl != null && mapUrl.isNotEmpty;
 
     return AccountSupportCardWidget(
       child: Column(
@@ -41,9 +43,29 @@ class BranchInfoCardWidget extends StatelessWidget {
             ],
           ),
           verticalSpace(14),
-          _InfoRow(icon: Icons.location_on_outlined, text: address),
+          _InfoRow(
+            icon: Icons.location_on_outlined,
+            text: address,
+            onTap: hasMapUrl
+                ? () => AppConstant.openUrl(mapUrl)
+                : branchContact.latitude != null &&
+                      branchContact.longitude != null
+                ? () => AppConstant.openMap(
+                    branchContact.latitude!,
+                    branchContact.longitude!,
+                  )
+                : null,
+          ),
           verticalSpace(10),
           _InfoRow(icon: Icons.phone_outlined, text: phone),
+          if (hasMapUrl) ...[
+            verticalSpace(10),
+            _InfoRow(
+              icon: Icons.map_outlined,
+              text: context.tr('branchContact.openGoogleMap'),
+              onTap: () => AppConstant.openUrl(mapUrl),
+            ),
+          ],
         ],
       ),
     );
@@ -53,24 +75,29 @@ class BranchInfoCardWidget extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
+  final VoidCallback? onTap;
 
-  const _InfoRow({required this.icon, required this.text});
+  const _InfoRow({required this.icon, required this.text, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16.r, color: AppColors.greyColorA3),
-        horizontalSpace(8),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyles.font12greyColorA3W400,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6.r),
+      child: Row(
+        children: [
+          Icon(icon, size: 16.r, color: AppColors.greyColorA3),
+          horizontalSpace(8),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.font12greyColorA3W400,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

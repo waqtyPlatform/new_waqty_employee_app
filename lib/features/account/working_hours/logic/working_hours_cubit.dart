@@ -9,20 +9,23 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
 
   WorkingHoursCubit(this._workingHoursRepo) : super(WorkingHoursInitialState());
 
-  static WorkingHoursCubit get(context) => BlocProvider.of(context);
-
+  static WorkingHoursCubit get(BuildContext context) =>
+      BlocProvider.of(context);
 
   ScrollController myWorkingHoursScrollController = ScrollController();
   List<WorkingHoursModel> myWorkingHours = [];
   int myWorkingHoursCurrentPage = 1;
-  late int myWorkingHoursLastPage;
+  int myWorkingHoursLastPage = 1;
+  String? expandedWorkingHourUuid;
 
-  clearGetAllWorkingHours() {
+  void clearGetAllWorkingHours() {
     myWorkingHoursCurrentPage = 1;
     myWorkingHours = [];
+    myWorkingHoursLastPage = 1;
+    expandedWorkingHourUuid = null;
   }
 
-  scrollListenerMyWorkingHoursScrollController() {
+  void scrollListenerMyWorkingHoursScrollController() {
     myWorkingHoursScrollController.addListener(() {
       if (myWorkingHoursCurrentPage < myWorkingHoursLastPage) {
         if (myWorkingHoursScrollController.position.pixels ==
@@ -34,25 +37,32 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
     });
   }
 
-  getWorkingHours() {
+  void getWorkingHours() {
     emit(GetWorkingHoursLoadingState());
     _workingHoursRepo
         .getWorkingHours(myWorkingHoursCurrentPage)
         .then((value) {
-      value.fold(
+          value.fold(
             (l) {
-          emit(GetWorkingHoursErrorState());
-        },
+              emit(GetWorkingHoursErrorState());
+            },
             (r) {
               myWorkingHours.addAll(r.data);
-              myWorkingHoursLastPage = r.meta!.pagination.lastPage;
-          emit(GetWorkingHoursSuccessState());
-        },
-      );
-    })
+              myWorkingHoursLastPage = r.meta.pagination.lastPage;
+              expandedWorkingHourUuid ??= myWorkingHours.isNotEmpty
+                  ? myWorkingHours.first.uuid
+                  : null;
+              emit(GetWorkingHoursSuccessState());
+            },
+          );
+        })
         .catchError((error) {
-      emit(GetWorkingHoursCatchErrorState());
-    });
+          emit(GetWorkingHoursCatchErrorState());
+        });
   }
 
+  void toggleWorkingHour(String uuid) {
+    expandedWorkingHourUuid = expandedWorkingHourUuid == uuid ? null : uuid;
+    emit(WorkingHoursExpandedChangedState());
+  }
 }

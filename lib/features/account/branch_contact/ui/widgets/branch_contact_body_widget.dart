@@ -54,7 +54,7 @@ class BranchContactBodyWidget extends StatelessWidget {
               children: [
                 BranchInfoCardWidget(branchContact: branchContact),
                 verticalSpace(12),
-                const BranchOpeningHoursWidget(),
+                BranchOpeningHoursWidget(branchContact: branchContact),
                 verticalSpace(12),
                 BranchCallButtonWidget(phone: branchContact.phone),
               ],

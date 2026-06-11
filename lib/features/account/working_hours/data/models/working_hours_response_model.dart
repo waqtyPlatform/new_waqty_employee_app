@@ -12,7 +12,8 @@ class WorkingHoursResponseModel {
   factory WorkingHoursResponseModel.fromJson(Map<String, dynamic> json) {
     return WorkingHoursResponseModel(
       success: json['success'] ?? false,
-      data: (json['data'] as List?)
+      data:
+          (json['data'] as List?)
               ?.map((e) => WorkingHoursModel.fromJson(e))
               .toList() ??
           [],
@@ -60,6 +61,41 @@ class WorkingHoursModel {
       provider: Provider.fromJson(json['provider'] ?? {}),
     );
   }
+
+  int get shiftMinutes => _durationMinutes(startTime, endTime);
+
+  int get breakMinutes {
+    if (breakStart == null || breakEnd == null) {
+      return 0;
+    }
+    return _durationMinutes(breakStart!, breakEnd!);
+  }
+
+  int get netMinutes =>
+      (shiftMinutes - breakMinutes).clamp(0, shiftMinutes).toInt();
+}
+
+int _durationMinutes(String start, String end) {
+  final startMinutes = _timeToMinutes(start);
+  final endMinutes = _timeToMinutes(end);
+  if (startMinutes == null || endMinutes == null) {
+    return 0;
+  }
+  final duration = endMinutes - startMinutes;
+  return duration < 0 ? duration + (24 * 60) : duration;
+}
+
+int? _timeToMinutes(String value) {
+  final parts = value.split(':');
+  if (parts.length < 2) {
+    return null;
+  }
+  final hour = int.tryParse(parts[0]);
+  final minute = int.tryParse(parts[1]);
+  if (hour == null || minute == null) {
+    return null;
+  }
+  return (hour * 60) + minute;
 }
 
 class Shift {
@@ -67,11 +103,7 @@ class Shift {
   final String title;
   final String? notes;
 
-  Shift({
-    required this.uuid,
-    required this.title,
-    this.notes,
-  });
+  Shift({required this.uuid, required this.title, this.notes});
 
   factory Shift.fromJson(Map<String, dynamic> json) {
     return Shift(
@@ -86,16 +118,10 @@ class Branch {
   final String uuid;
   final String name;
 
-  Branch({
-    required this.uuid,
-    required this.name,
-  });
+  Branch({required this.uuid, required this.name});
 
   factory Branch.fromJson(Map<String, dynamic> json) {
-    return Branch(
-      uuid: json['uuid'] ?? '',
-      name: json['name'] ?? '',
-    );
+    return Branch(uuid: json['uuid'] ?? '', name: json['name'] ?? '');
   }
 }
 
@@ -103,16 +129,10 @@ class Provider {
   final String uuid;
   final String name;
 
-  Provider({
-    required this.uuid,
-    required this.name,
-  });
+  Provider({required this.uuid, required this.name});
 
   factory Provider.fromJson(Map<String, dynamic> json) {
-    return Provider(
-      uuid: json['uuid'] ?? '',
-      name: json['name'] ?? '',
-    );
+    return Provider(uuid: json['uuid'] ?? '', name: json['name'] ?? '');
   }
 }
 
@@ -122,9 +142,7 @@ class Meta {
   Meta({required this.pagination});
 
   factory Meta.fromJson(Map<String, dynamic> json) {
-    return Meta(
-      pagination: Pagination.fromJson(json['pagination'] ?? {}),
-    );
+    return Meta(pagination: Pagination.fromJson(json['pagination'] ?? {}));
   }
 }
 

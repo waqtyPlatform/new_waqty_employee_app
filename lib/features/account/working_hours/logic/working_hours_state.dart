@@ -4,14 +4,10 @@ class WorkingHoursInitialState extends WorkingHoursState {}
 
 class GetWorkingHoursLoadingState extends WorkingHoursState {}
 
-class GetWorkingHoursSuccessState extends WorkingHoursState {
+class GetWorkingHoursSuccessState extends WorkingHoursState {}
 
-}
+class GetWorkingHoursErrorState extends WorkingHoursState {}
 
-class GetWorkingHoursErrorState extends WorkingHoursState {
+class GetWorkingHoursCatchErrorState extends WorkingHoursState {}
 
-}
-
-class GetWorkingHoursCatchErrorState extends WorkingHoursState {
-
-}
+class WorkingHoursExpandedChangedState extends WorkingHoursState {}

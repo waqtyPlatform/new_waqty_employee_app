@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
@@ -14,20 +15,20 @@ class ProfileUserSettingWidget extends StatelessWidget {
 
   List<ProfileMenuItemData> get items => [
     ProfileMenuItemData(
-      title: 'Language',
+      title: 'profile.language',
       iconPath: ImageAsset.languageIcon,
       onTap: () {},
     ),
     ProfileMenuItemData(
-      title: 'Notification',
+      title: 'profile.notifications',
       iconPath: ImageAsset.profileNotificationIcon,
       onTap: () {},
     ),
-    // ProfileMenuItemData(
-    //   title: 'Dark Mode',
-    //   iconPath: ImageAsset.darkModeIcon,
-    //   onTap: () {},
-    // ),
+    ProfileMenuItemData(
+      title: 'profile.darkMode',
+      iconPath: ImageAsset.darkModeIcon,
+      onTap: () {},
+    ),
   ];
 
   @override
@@ -72,7 +73,7 @@ class ProfileUserSettingWidget extends StatelessWidget {
                   horizontalSpace(8),
                   Expanded(
                     child: Text(
-                      item.title,
+                      context.tr(item.title),
                       maxLines: 1,
                       style: TextStyles.font14greyColor900Weight500,
                     ),
@@ -86,20 +87,7 @@ class ProfileUserSettingWidget extends StatelessWidget {
                       size: 14.r,
                       color: AppColors.greyColorE5,
                     ),
-
-                  // if (index == 2)
-                  //   Switch(
-                  //     value: true,
-                  //     onChanged: (value) {},
-                  //     activeColor: AppColors.whiteColor,
-                  //     activeTrackColor: AppColors.greenColor500,
-                  //     inactiveThumbColor: AppColors.whiteColor,
-                  //     inactiveTrackColor: AppColors.greyColorE5,
-                  //     trackOutlineColor: WidgetStateProperty.all(
-                  //       Colors.transparent,
-                  //     ),
-                  //     splashRadius: 0,
-                  //   ),
+                  if (index == 2) const _ProfileDarkModeToggleWidget(),
                 ],
               ),
             ),
@@ -108,6 +96,39 @@ class ProfileUserSettingWidget extends StatelessWidget {
         separatorBuilder: (context, index) =>
             Divider(color: AppColors.greyColor1001.withValues(alpha: .2)),
         itemCount: items.length,
+      ),
+    );
+  }
+}
+
+class _ProfileDarkModeToggleWidget extends StatelessWidget {
+  const _ProfileDarkModeToggleWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 58.67.w,
+      height: 32.h,
+      padding: EdgeInsets.all(2.67.r),
+      decoration: BoxDecoration(
+        color: AppColors.greyColor50,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        width: 26.67.r,
+        height: 26.67.r,
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.greyColor900.withValues(alpha: .1),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
       ),
     );
   }

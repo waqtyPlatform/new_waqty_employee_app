@@ -10,12 +10,12 @@ class ProfileUserDataWidget extends StatelessWidget {
   final String userCode;
   final String branchName;
   const ProfileUserDataWidget({
-    Key? key,
+    super.key,
     required this.userName,
     required this.jobTitle,
     required this.userCode,
     required this.branchName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,30 +42,32 @@ class ProfileUserDataWidget extends StatelessWidget {
                 style: TextStyles.font18greyColor900Weight600,
               ),
               verticalSpace(4),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: Text(
-              //         jobTitle,
-              //         maxLines: 1,
-              //         textAlign: TextAlign.left,
-              //         style: TextStyles.font14greenColor500W500,
-              //       ),
-              //     ),
-              //     horizontalSpace(4),
-              //     Icon(Icons.circle, color: AppColors.greyColorA3, size: 5.r),
-              //     horizontalSpace(4),
-              //     Expanded(
-              //       child: Text(
-              //         userCode,
-              //         maxLines: 1,
-              //         textAlign: TextAlign.left,
-              //         style: TextStyles.font12greyColorA3W400,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // verticalSpace(4),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      jobTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.font14greenColor500W500,
+                    ),
+                  ),
+                  if (jobTitle.isNotEmpty && userCode.isNotEmpty) ...[
+                    horizontalSpace(4),
+                    Icon(Icons.circle, color: AppColors.greyColorA3, size: 4.r),
+                    horizontalSpace(4),
+                  ],
+                  Flexible(
+                    child: Text(
+                      userCode,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyles.font12greyColorA3W400,
+                    ),
+                  ),
+                ],
+              ),
+              verticalSpace(4),
               Text(
                 branchName,
                 maxLines: 1,

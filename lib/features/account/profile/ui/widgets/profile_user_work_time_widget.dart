@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -9,10 +10,10 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
   final String time;
 
   const ProfileUserWorkTimeWidget({
-    Key? key,
+    super.key,
     required this.type,
     required this.time,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,13 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
         color: AppColors.errorColor2003,
         borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: AppColors.errorColor20033, width: 0.8.w),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.greyColor900.withValues(alpha: .04),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -39,10 +47,13 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(type, style: TextStyles.font14greyColor900Weight600),
+                Text(
+                  context.tr(type),
+                  style: TextStyles.font14greyColor900Weight600,
+                ),
                 verticalSpace(2),
                 Text(
-                  time,
+                  context.tr(time),
                   style: TextStyles.font12greyColorA3W400,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

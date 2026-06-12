@@ -1,12 +1,5 @@
-abstract class MyServicesState {}
+abstract class AttendanceState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class AttendanceInitialState extends AttendanceState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
-
-class OnGetAllServicesSuccessState extends MyServicesState {}
-
-class GetMyServicesErrorState extends MyServicesState {}
-
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class AttendanceHistoryLoadedState extends AttendanceState {}

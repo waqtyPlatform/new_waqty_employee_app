@@ -1,12 +1,24 @@
-abstract class MyServicesState {}
+abstract class NotificationSettingState {}
 
-class MyServicesInitialState extends MyServicesState {}
+class NotificationSettingInitialState extends NotificationSettingState {}
 
-// Get All Services States
-class OnGetAllServicesLoadingState extends MyServicesState {}
+class GetNotificationSettingLoadingState extends NotificationSettingState {}
 
-class OnGetAllServicesSuccessState extends MyServicesState {}
+class GetNotificationSettingSuccessState extends NotificationSettingState {}
 
-class GetMyServicesErrorState extends MyServicesState {}
+class GetNotificationSettingErrorState extends NotificationSettingState {}
 
-class GetMyServicesCatchErrorState extends MyServicesState {}
+class GetNotificationSettingCatchErrorState extends NotificationSettingState {}
+
+class UpdateNotificationSettingLoadingState extends NotificationSettingState {
+  final String key;
+
+  UpdateNotificationSettingLoadingState(this.key);
+}
+
+class UpdateNotificationSettingSuccessState extends NotificationSettingState {}
+
+class UpdateNotificationSettingErrorState extends NotificationSettingState {}
+
+class UpdateNotificationSettingCatchErrorState
+    extends NotificationSettingState {}

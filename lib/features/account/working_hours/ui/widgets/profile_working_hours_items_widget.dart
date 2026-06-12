@@ -6,6 +6,7 @@ import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/models/working_hours_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/ui/widgets/working_hours_duration_formatter.dart';
 
 class ProfileWorkingHoursItemsWidget extends StatelessWidget {
   final WorkingHoursModel items;
@@ -26,6 +27,7 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
     final hasShift = items.startTime.isNotEmpty && items.endTime.isNotEmpty;
     final dayName = _dayName(context, items.shiftDate);
     final dayShort = _dayShort(context, items.shiftDate);
+    final shiftDate = _formatShiftDate(items.shiftDate);
     final timeRange = hasShift
         ? '${_formatTime(items.startTime)} - ${_formatTime(items.endTime)}'
         : context.tr('workingHours.noScheduledShift');
@@ -46,7 +48,7 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        dayName,
+                        '$dayName  •  $shiftDate',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyles.font14greyColor900Weight500,
@@ -124,7 +126,7 @@ class _NetHoursWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          _formatDuration(minutes),
+          WorkingHoursDurationFormatter.format(minutes),
           style: TextStyles.font14greyColor900Weight500.copyWith(
             color: AppColors.greenColor500,
             fontWeight: FontWeight.w600,
@@ -185,7 +187,9 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
               Expanded(
                 child: _BreakdownCardWidget(
                   title: context.tr('workingHours.breakLabel'),
-                  value: _formatDuration(items.breakMinutes),
+                  value: WorkingHoursDurationFormatter.format(
+                    items.breakMinutes,
+                  ),
                   icon: Icons.timer_outlined,
                   color: AppColors.warningColor1001,
                   backgroundColor: AppColors.warningColor0,
@@ -196,7 +200,9 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
               Expanded(
                 child: _BreakdownCardWidget(
                   title: context.tr('workingHours.shift'),
-                  value: _formatDuration(items.shiftMinutes),
+                  value: WorkingHoursDurationFormatter.format(
+                    items.shiftMinutes,
+                  ),
                   icon: Icons.schedule_outlined,
                   color: AppColors.greyColorA3,
                   backgroundColor: AppColors.whiteColor,
@@ -207,7 +213,7 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
               Expanded(
                 child: _BreakdownCardWidget(
                   title: context.tr('workingHours.net'),
-                  value: _formatDuration(items.netMinutes),
+                  value: WorkingHoursDurationFormatter.format(items.netMinutes),
                   icon: Icons.check,
                   color: AppColors.greenColor500,
                   backgroundColor: AppColors.greenColor5005,
@@ -400,17 +406,8 @@ String _formatTime(String value) {
   return AppConstant.convertTo12Hour(value);
 }
 
-String _formatDuration(int minutes) {
-  final safeMinutes = minutes < 0 ? 0 : minutes;
-  final hours = safeMinutes ~/ 60;
-  final restMinutes = safeMinutes % 60;
-  if (restMinutes == 0) {
-    return '${hours}h';
-  }
-  if (hours == 0) {
-    return '${restMinutes}m';
-  }
-  return '${hours}h ${restMinutes}m';
+String _formatShiftDate(String value) {
+  return value.trim().isEmpty ? '--' : value;
 }
 
 String _dayName(BuildContext context, String date) {

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/attendance/ui/attendance_screen.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/logic/branch_contact_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/ui/branch_contact_screen.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_cubit.dart';
@@ -12,6 +14,7 @@ import 'package:new_waqty_employee_app/features/account/help_questions/logic/hel
 import 'package:new_waqty_employee_app/features/account/help_questions/ui/help_questions_screen.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/ui/notification_setting_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/logic/profile_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/ui/profile_details_screen.dart';
@@ -128,6 +131,14 @@ class RouteGenerator {
           ),
         );
 
+      case Routes.attendanceScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => AttendanceCubit(),
+            child: const AttendanceScreen(),
+          ),
+        );
+
       case Routes.branchContactScreen:
         return MaterialPageRoute(
           builder: (context) => BlocProvider(
@@ -164,7 +175,12 @@ class RouteGenerator {
 
       case Routes.notificationSettingScreen:
         return MaterialPageRoute(
-          builder: (_) => const NotificationSettingScreen(),
+          builder: (context) => BlocProvider(
+            create: (_) =>
+                NotificationSettingCubit(getIt())
+                  ..getNotificationSettings(context.locale.languageCode),
+            child: const NotificationSettingScreen(),
+          ),
         );
 
       default:

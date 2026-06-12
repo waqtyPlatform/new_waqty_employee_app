@@ -126,7 +126,9 @@ class ProfileScreen extends StatelessWidget {
                   ProfileMenuItemData(
                     title: 'Attendance History',
                     iconPath: ImageAsset.profileAttendanceHistoryIcon,
-                    onTap: () {},
+                    onTap: () {
+                      context.pushNamed(Routes.attendanceScreen);
+                    },
                   ),
                 ],
               ),

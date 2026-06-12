@@ -1,56 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_state.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/models/notification_setting_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/repo/notification_setting_repo.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_state.dart';
 
-class MyServicesCubit extends Cubit<MyServicesState> {
-  final MyServicesRepo _myServicesRepo;
+class NotificationSettingCubit extends Cubit<NotificationSettingState> {
+  final NotificationSettingRepo _notificationSettingRepo;
 
-  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
+  NotificationSettingCubit(this._notificationSettingRepo)
+    : super(NotificationSettingInitialState());
 
-  ScrollController myServicesScrollController = ScrollController();
-  List<MyServiceModel> myServices = [];
-  int myServicesCurrentPage = 1;
-  late int myServicesLastPage;
+  NotificationSettingsModel? notificationSettings;
+  String? updatingKey;
+  String languageCode = 'en';
 
-  clearGetAllServices() {
-    myServicesCurrentPage = 1;
-    myServices = [];
-  }
-
-  scrollListenerMyServicesScrollController() {
-    myServicesScrollController.addListener(() {
-      if (myServicesCurrentPage < myServicesLastPage) {
-        if (myServicesScrollController.position.pixels ==
-            myServicesScrollController.position.maxScrollExtent) {
-          myServicesCurrentPage++;
-          getAllServices();
-        }
-      }
-    });
-  }
-
-  getAllServices() {
-    emit(OnGetAllServicesLoadingState());
-    _myServicesRepo
-        .getAllServices(myServicesCurrentPage)
+  void getNotificationSettings(String languageCode) {
+    this.languageCode = languageCode;
+    emit(GetNotificationSettingLoadingState());
+    _notificationSettingRepo
+        .getNotificationSettings(languageCode)
         .then((value) {
-          value.fold(
-            (l) {
-              emit(GetMyServicesErrorState());
+          value.fold((failure) => emit(GetNotificationSettingErrorState()), (
+            response,
+          ) {
+            notificationSettings = response.data;
+            emit(GetNotificationSettingSuccessState());
+          });
+        })
+        .catchError((error) {
+          emit(GetNotificationSettingCatchErrorState());
+        });
+  }
+
+  void updateNotificationSetting(String key, bool value) {
+    final oldSettings = notificationSettings;
+    if (oldSettings == null) {
+      return;
+    }
+
+    updatingKey = key;
+    notificationSettings = oldSettings.copyWithKey(key, value);
+    emit(UpdateNotificationSettingLoadingState(key));
+
+    _notificationSettingRepo
+        .updateNotificationSettings(
+          body: notificationSettings!.toJson(),
+          languageCode: languageCode,
+        )
+        .then((response) {
+          response.fold(
+            (failure) {
+              notificationSettings = oldSettings;
+              updatingKey = null;
+              emit(UpdateNotificationSettingErrorState());
             },
-            (r) {
-              myServices.addAll(r.data);
-              myServicesLastPage = r.meta!.pagination.lastPage;
-              emit(OnGetAllServicesSuccessState());
+            (successResponse) {
+              notificationSettings = successResponse.data;
+              updatingKey = null;
+              emit(UpdateNotificationSettingSuccessState());
             },
           );
         })
         .catchError((error) {
-          emit(GetMyServicesCatchErrorState());
+          notificationSettings = oldSettings;
+          updatingKey = null;
+          emit(UpdateNotificationSettingCatchErrorState());
         });
   }
 
-  static MyServicesCubit get(context) => BlocProvider.of(context);
+  static NotificationSettingCubit get(BuildContext context) =>
+      BlocProvider.of(context);
 }

@@ -12,6 +12,8 @@ import 'package:new_waqty_employee_app/features/account/help_questions/data/repo
 import 'package:new_waqty_employee_app/features/account/help_questions/data/services/help_questions_service.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/repo/notification_setting_repo.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/services/notification_setting_service.dart';
 import 'package:new_waqty_employee_app/features/account/report_bug/data/repo/report_bug_repo.dart';
 import 'package:new_waqty_employee_app/features/account/report_bug/data/services/report_bug_service.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
@@ -171,5 +173,13 @@ class ServicesLocator {
       () => ReportBugService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<ReportBugRepo>(() => ReportBugRepo(getIt()));
+
+    /// Notification Setting
+    getIt.registerLazySingleton<NotificationSettingService>(
+      () => NotificationSettingService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<NotificationSettingRepo>(
+      () => NotificationSettingRepo(getIt()),
+    );
   }
 }

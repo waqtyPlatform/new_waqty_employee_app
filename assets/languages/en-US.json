@@ -55,6 +55,12 @@
     "optional": "Optional",
     "sendMessage": "Send Message"
   },
+  "logout": {
+    "title": "Logout",
+    "confirmMessage": "Are you sure want to Logout?",
+    "cancel": "Cancel",
+    "logout": "Logout"
+  },
   "branchContact": {
     "title": "Branch Contact",
     "branchName": "Cairo Downtown",
@@ -177,6 +183,16 @@
     "fridayShort": "FRI",
     "saturdayShort": "SAT",
     "sundayShort": "SUN"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "present": "Present",
+    "late": "Late",
+    "absent": "Absent",
+    "early": "Early",
+    "earlyLeave": "Early Leave",
+    "today": "Today",
+    "noShift": "No shift"
   },
   "mainNavigation": {
     "home": "Home",

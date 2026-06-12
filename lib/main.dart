@@ -23,7 +23,7 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
   await ServicesLocator.init();
   // await BluetoothPermissionHandler.init(false);
-//
+  //
   await CacheHelper.init();
   await MyConnectivity.initialise();
   Bloc.observer = Observer();
@@ -42,14 +42,14 @@ Future<void> main() async {
       fallbackLocale: const Locale('ar', 'EG'),
       child: MyApp(
         navigateWidget: isLoggedInUser
-            ? Routes.loginScreen
-            : Routes.mainNavigationScreen,
+            ? Routes.mainNavigationScreen
+            : Routes.loginScreen,
       ),
     ),
   );
 }
 
-checkIfLoggedInUser() async {
+Future<void> checkIfLoggedInUser() async {
   String? userToken = await CacheHelper.getSecuredString(
     ConstantKeys.saveTokenToShared,
   );

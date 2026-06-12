@@ -30,6 +30,8 @@ class WorkingHoursModel {
   final String? breakStart;
   final String? breakEnd;
   final bool active;
+  final int? plannedMinutes;
+  final double? plannedHours;
   final Shift shift;
   final Branch branch;
   final Provider provider;
@@ -42,6 +44,8 @@ class WorkingHoursModel {
     this.breakStart,
     this.breakEnd,
     required this.active,
+    this.plannedMinutes,
+    this.plannedHours,
     required this.shift,
     required this.branch,
     required this.provider,
@@ -56,6 +60,8 @@ class WorkingHoursModel {
       breakStart: json['break_start'],
       breakEnd: json['break_end'],
       active: json['active'] ?? false,
+      plannedMinutes: _parseInt(json['planned_minutes']),
+      plannedHours: _parseDouble(json['planned_hours']),
       shift: Shift.fromJson(json['shift'] ?? {}),
       branch: Branch.fromJson(json['branch'] ?? {}),
       provider: Provider.fromJson(json['provider'] ?? {}),
@@ -72,7 +78,32 @@ class WorkingHoursModel {
   }
 
   int get netMinutes =>
+      plannedMinutes ??
+      (plannedHours != null ? (plannedHours! * 60).round() : null) ??
       (shiftMinutes - breakMinutes).clamp(0, shiftMinutes).toInt();
+}
+
+int? _parseInt(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.round();
+  }
+  return int.tryParse(value.toString());
+}
+
+double? _parseDouble(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is num) {
+    return value.toDouble();
+  }
+  return double.tryParse(value.toString());
 }
 
 int _durationMinutes(String start, String end) {
@@ -160,11 +191,17 @@ class Pagination {
   });
 
   factory Pagination.fromJson(Map<String, dynamic> json) {
+    final int perPage = json['per_page'] ?? 15;
+    final int total = json['total'] ?? 0;
+    final calculatedLastPage = perPage > 0 ? (total / perPage).ceil() : 1;
+
     return Pagination(
       currentPage: json['current_page'] ?? 1,
-      perPage: json['per_page'] ?? 15,
-      total: json['total'] ?? 0,
-      lastPage: json['last_page'] ?? 1,
+      perPage: perPage,
+      total: total,
+      lastPage: calculatedLastPage > 0
+          ? calculatedLastPage
+          : json['last_page'] ?? 1,
     );
   }
 }

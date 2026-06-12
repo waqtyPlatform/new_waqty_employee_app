@@ -1,95 +1,91 @@
-class MyServicesResponseModel {
+class NotificationSettingResponseModel {
   final bool success;
-  final List<MyServiceModel> data;
-  final MyServicesMetaModel? meta;
+  final NotificationSettingsModel data;
 
-  MyServicesResponseModel({
+  const NotificationSettingResponseModel({
     required this.success,
     required this.data,
-    this.meta,
   });
 
-  factory MyServicesResponseModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesResponseModel(
+  factory NotificationSettingResponseModel.fromJson(Map<String, dynamic> json) {
+    return NotificationSettingResponseModel(
       success: json['success'] ?? false,
-      data: json['data'] != null
-          ? (json['data'] as List)
-                .map((i) => MyServiceModel.fromJson(i))
-                .toList()
-          : [],
-      meta: json['meta'] != null
-          ? MyServicesMetaModel.fromJson(json['meta'])
-          : null,
+      data: NotificationSettingsModel.fromJson(
+        json['data']?['notification_settings'] ?? {},
+      ),
     );
   }
 }
 
-class MyServiceModel {
-  final String uuid;
-  final String subCategoryUuid;
-  final String subCategoryName;
-  final String name;
-  final String description;
-  final String? imageUrl;
-  final int active;
-  final int? estimatedDurationMinutes;
+class NotificationSettingsModel {
+  final bool newBookingsAssigned;
+  final bool bookingCancellations;
+  final bool appointmentReminders;
+  final bool shiftStartReminders;
+  final bool newReviews;
+  final bool payslipAvailable;
+  final bool managerAnnouncements;
 
-  MyServiceModel({
-    required this.uuid,
-    required this.subCategoryUuid,
-    required this.subCategoryName,
-    required this.name,
-    required this.description,
-    this.imageUrl,
-    required this.active,
-    this.estimatedDurationMinutes,
+  const NotificationSettingsModel({
+    required this.newBookingsAssigned,
+    required this.bookingCancellations,
+    required this.appointmentReminders,
+    required this.shiftStartReminders,
+    required this.newReviews,
+    required this.payslipAvailable,
+    required this.managerAnnouncements,
   });
 
-  factory MyServiceModel.fromJson(Map<String, dynamic> json) {
-    return MyServiceModel(
-      uuid: json['uuid'] ?? '',
-      subCategoryUuid: json['sub_category_uuid'] ?? '',
-      subCategoryName: json['sub_category_name'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      imageUrl: json['image_url'],
-      active: json['active'] ?? 0,
-      estimatedDurationMinutes: json['estimated_duration_minutes'],
+  factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
+    return NotificationSettingsModel(
+      newBookingsAssigned: json['new_bookings_assigned'] ?? false,
+      bookingCancellations: json['booking_cancellations'] ?? false,
+      appointmentReminders: json['appointment_reminders'] ?? false,
+      shiftStartReminders: json['shift_start_reminders'] ?? false,
+      newReviews: json['new_reviews'] ?? false,
+      payslipAvailable: json['payslip_available'] ?? false,
+      managerAnnouncements: json['manager_announcements'] ?? false,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      NotificationSettingKey.newBookingsAssigned: newBookingsAssigned,
+      NotificationSettingKey.bookingCancellations: bookingCancellations,
+      NotificationSettingKey.appointmentReminders: appointmentReminders,
+      NotificationSettingKey.shiftStartReminders: shiftStartReminders,
+      NotificationSettingKey.newReviews: newReviews,
+      NotificationSettingKey.payslipAvailable: payslipAvailable,
+      NotificationSettingKey.managerAnnouncements: managerAnnouncements,
+    };
+  }
+
+  bool valueOf(String key) {
+    return switch (key) {
+      NotificationSettingKey.newBookingsAssigned => newBookingsAssigned,
+      NotificationSettingKey.bookingCancellations => bookingCancellations,
+      NotificationSettingKey.appointmentReminders => appointmentReminders,
+      NotificationSettingKey.shiftStartReminders => shiftStartReminders,
+      NotificationSettingKey.newReviews => newReviews,
+      NotificationSettingKey.payslipAvailable => payslipAvailable,
+      NotificationSettingKey.managerAnnouncements => managerAnnouncements,
+      _ => false,
+    };
+  }
+
+  NotificationSettingsModel copyWithKey(String key, bool value) {
+    return NotificationSettingsModel.fromJson({...toJson(), key: value});
   }
 }
 
-class MyServicesMetaModel {
-  final MyServicesPaginationModel pagination;
+class NotificationSettingKey {
+  const NotificationSettingKey._();
 
-  MyServicesMetaModel({required this.pagination});
-
-  factory MyServicesMetaModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesMetaModel(
-      pagination: MyServicesPaginationModel.fromJson(json['pagination'] ?? {}),
-    );
-  }
-}
-
-class MyServicesPaginationModel {
-  final int currentPage;
-  final int perPage;
-  final int total;
-  final int lastPage;
-
-  MyServicesPaginationModel({
-    required this.currentPage,
-    required this.perPage,
-    required this.total,
-    required this.lastPage,
-  });
-
-  factory MyServicesPaginationModel.fromJson(Map<String, dynamic> json) {
-    return MyServicesPaginationModel(
-      currentPage: json['current_page'] ?? 1,
-      perPage: json['per_page'] ?? 15,
-      total: json['total'] ?? 0,
-      lastPage: json['last_page'] ?? 1,
-    );
-  }
+  static const newBookingsAssigned = 'new_bookings_assigned';
+  static const bookingCancellations = 'booking_cancellations';
+  static const appointmentReminders = 'appointment_reminders';
+  static const shiftStartReminders = 'shift_start_reminders';
+  static const newReviews = 'new_reviews';
+  static const payslipAvailable = 'payslip_available';
+  static const managerAnnouncements = 'manager_announcements';
 }

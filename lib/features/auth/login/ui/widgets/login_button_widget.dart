@@ -27,8 +27,9 @@ class LoginButtonWidget extends StatelessWidget {
       listener: (context, state) {
         if (state is OnLoginSuccessState) {
           AppConstant.toast(state.message, true, context);
-          context.pushNamed(
+          context.pushNamedAndRemoveUntil(
             Routes.mainNavigationScreen,
+            predicate: (route) => false,
           ); // Assuming home screen is the destination
         } else if (state is OnLoginErrorState) {
           AppConstant.toast(state.message, false, context);

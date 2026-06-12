@@ -6,29 +6,62 @@ import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/models/my_services_response_model.dart';
-import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_api_end_points.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/models/notification_setting_response_model.dart';
+import 'package:new_waqty_employee_app/features/account/notification_setting/data/services/notification_setting_api_end_points.dart';
 
-class MyServicesService {
-  ApiConsumer apiConsumer;
+class NotificationSettingService {
+  final ApiConsumer apiConsumer;
 
-  MyServicesService({required this.apiConsumer});
+  NotificationSettingService({required this.apiConsumer});
 
-  Future<MyServicesResponseModel> getAllServices(int page) async {
+  Future<NotificationSettingResponseModel> getNotificationSettings(
+    String languageCode,
+  ) async {
     final response = await apiConsumer.get(
-      MyServicesApiEndPoints.getAllServices(page),
-      {
-        ConstantKeys.appAuthorization:
-            "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
-      },
+      NotificationSettingApiEndPoints.notificationSettings,
+      await _headers(languageCode),
     );
 
     if (response.statusCode == StatusCode.ok) {
-      return MyServicesResponseModel.fromJson(jsonDecode(response.body));
+      return NotificationSettingResponseModel.fromJson(
+        jsonDecode(response.body),
+      );
     } else {
       throw ServerException(
         serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
       );
     }
+  }
+
+  Future<NotificationSettingResponseModel> updateNotificationSettings({
+    required Map<String, dynamic> body,
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.patch(
+      NotificationSettingApiEndPoints.notificationSettings,
+      body,
+      await _headers(languageCode),
+    );
+
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      return NotificationSettingResponseModel.fromJson(
+        jsonDecode(response.body),
+      );
+    } else {
+      throw ServerException(
+        serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
+      );
+    }
+  }
+
+  Future<Map<String, String>> _headers(String languageCode) async {
+    return {
+      ConstantKeys.appAuthorization:
+          '${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}',
+      ConstantKeys.acceptLanguage: languageCode,
+      ConstantKeys.contentType: ConstantKeys.applicationJson,
+      ConstantKeys.acceptText: ConstantKeys.applicationJson,
+    };
   }
 }

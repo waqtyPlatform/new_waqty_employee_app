@@ -55,6 +55,12 @@
     "optional": "اختياري",
     "sendMessage": "إرسال الرسالة"
   },
+  "logout": {
+    "title": "تسجيل الخروج",
+    "confirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "cancel": "إلغاء",
+    "logout": "تسجيل الخروج"
+  },
   "branchContact": {
     "title": "تواصل مع الفرع",
     "branchName": "وسط القاهرة",
@@ -177,6 +183,16 @@
     "fridayShort": "جمع",
     "saturdayShort": "سبت",
     "sundayShort": "أحد"
+  },
+  "attendance": {
+    "title": "الحضور",
+    "present": "حاضر",
+    "late": "متأخر",
+    "absent": "غائب",
+    "early": "مبكر",
+    "earlyLeave": "انصراف مبكر",
+    "today": "اليوم",
+    "noShift": "لا يوجد شيفت"
   },
   "mainNavigation": {
     "home": "الرئيسية",

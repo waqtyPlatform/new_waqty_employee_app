@@ -11,9 +11,15 @@ class WorkingHoursRepo {
 
   Future<Either<Failure, WorkingHoursResponseModel>> getWorkingHours(
     int page,
+    String languageCode,
   ) async {
     try {
-      return Right(await _workingHoursService.getWorkingHours(page));
+      return Right(
+        await _workingHoursService.getWorkingHours(
+          page: page,
+          languageCode: languageCode,
+        ),
+      );
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }

@@ -25,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: SafeArea(
-        top:false,
+        top: false,
         child: Stack(
           children: [
             Positioned(
@@ -55,10 +55,7 @@ class ProfileScreen extends StatelessWidget {
                   SafeArea(child: const _ProfileHeaderSectionWidget()),
 
                   verticalSpace(12),
-                  const ProfileUserWorkTimeWidget(
-                    type: 'profile.clockOut',
-                    time: 'profile.clockedInInfo',
-                  ),
+                  const ProfileUserWorkTimeWidget(isClockedIn: true),
                   verticalSpace(20),
                   Text(
                     context.tr('profile.myAccount'),

@@ -129,12 +129,12 @@ class ProfileScreen extends StatelessWidget {
       ProfileMenuItemData(
         title: context.tr('profile.changePin'),
         iconPath: ImageAsset.profileChangePasswordIcon,
-        onTap: () {},
+        onTap: () => context.pushNamed(Routes.securitySettingsScreen),
       ),
       ProfileMenuItemData(
         title: context.tr('profile.biometricLogin'),
         iconPath: ImageAsset.profileBiometricIcon,
-        onTap: () {},
+        onTap: () => context.pushNamed(Routes.biometricLoginScreen),
       ),
     ];
   }

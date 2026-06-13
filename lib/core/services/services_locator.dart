@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo/branch_contact_repo.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
@@ -75,6 +76,7 @@ class ServicesLocator {
     ///shared secure
     FlutterSecureStorage secureStorage = FlutterSecureStorage();
     getIt.registerLazySingleton(() => secureStorage);
+    getIt.registerLazySingleton<AppPinService>(() => AppPinService(getIt()));
 
     /// Login
     getIt.registerLazySingleton<LoginService>(

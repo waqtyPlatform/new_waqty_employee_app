@@ -54,12 +54,13 @@ class ProfileUserSettingWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
           return GestureDetector(
-            onTap: index == 1
-                ? () => Navigator.pushNamed(
-                    context,
-                    Routes.notificationSettingScreen,
-                  )
-                : item.onTap,
+            onTap: () {
+              if (index == 1) {
+                Navigator.pushNamed(context, Routes.notificationSettingScreen);
+                return;
+              }
+              item.onTap();
+            },
 
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),

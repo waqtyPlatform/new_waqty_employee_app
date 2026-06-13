@@ -4,10 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/logic/app_pin_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_app_pin_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/create_pin_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/disable_app_pin_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/enter_pin_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/security_settings_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/splash_screen.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/ui/attendance_screen.dart';
+import 'package:new_waqty_employee_app/features/account/biometric_login/ui/biometric_login_screen.dart';
+import 'package:new_waqty_employee_app/features/account/biometric_login/ui/widgets/biometric_login_view_data.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/logic/branch_contact_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/ui/branch_contact_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_pin_screen.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/ui/widgets/change_pin_step_data.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/ui/contact_manager_screen.dart';
 import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_cubit.dart';
@@ -44,8 +56,31 @@ class RouteGenerator {
     final dynamic args = settings.arguments ?? <String, dynamic>{};
 
     switch (settings.name) {
+      case Routes.splashScreen:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+
       case Routes.mainNavigationScreen:
-        return MaterialPageRoute(builder: (_) => const MainNavigationScreen());
+        final isPinVerified = args is Map && args['pinVerified'] == true;
+        return MaterialPageRoute(
+          builder: (_) => FutureBuilder<bool>(
+            future: getIt<AppPinService>().isPinEnabled(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const SplashScreen();
+              }
+
+              final isPinEnabled = snapshot.data ?? false;
+              if (isPinEnabled && !isPinVerified) {
+                return BlocProvider(
+                  create: (_) => AppPinCubit(getIt()),
+                  child: const EnterPinScreen(),
+                );
+              }
+
+              return const MainNavigationScreen();
+            },
+          ),
+        );
       case Routes.homeScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
@@ -180,6 +215,98 @@ class RouteGenerator {
                 NotificationSettingCubit(getIt())
                   ..getNotificationSettings(context.locale.languageCode),
             child: const NotificationSettingScreen(),
+          ),
+        );
+
+      case Routes.changePinCurrentScreen:
+        return MaterialPageRoute(
+          builder: (_) => const ChangePinScreen(step: ChangePinStep.currentPin),
+        );
+
+      case Routes.changePinNewScreen:
+        return MaterialPageRoute(
+          builder: (_) => const ChangePinScreen(step: ChangePinStep.newPin),
+        );
+
+      case Routes.changePinConfirmScreen:
+        return MaterialPageRoute(
+          builder: (_) => const ChangePinScreen(step: ChangePinStep.confirmPin),
+        );
+
+      case Routes.biometricLoginScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              const BiometricLoginScreen(view: BiometricLoginView.intro),
+        );
+
+      case Routes.biometricLoginScanningScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              const BiometricLoginScreen(view: BiometricLoginView.scanning),
+        );
+
+      case Routes.biometricLoginVerifiedScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              const BiometricLoginScreen(view: BiometricLoginView.verified),
+        );
+
+      case Routes.biometricLoginActiveScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              const BiometricLoginScreen(view: BiometricLoginView.active),
+        );
+
+      case Routes.biometricLoginConfirmPinScreen:
+        return MaterialPageRoute(
+          builder: (_) => const BiometricLoginScreen(
+            view: BiometricLoginView.confirmDisablePin,
+          ),
+        );
+
+      case Routes.biometricLoginDisabledScreen:
+        return MaterialPageRoute(
+          builder: (_) =>
+              const BiometricLoginScreen(view: BiometricLoginView.disabled),
+        );
+
+      case Routes.securitySettingsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt())..loadPinStatus(),
+            child: const SecuritySettingsScreen(),
+          ),
+        );
+
+      case Routes.enterAppPinScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt()),
+            child: const EnterPinScreen(),
+          ),
+        );
+
+      case Routes.createAppPinScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt()),
+            child: const CreatePinScreen(),
+          ),
+        );
+
+      case Routes.changeAppPinScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt()),
+            child: const ChangeAppPinScreen(),
+          ),
+        );
+
+      case Routes.disableAppPinScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt()),
+            child: const DisableAppPinScreen(),
           ),
         );
 

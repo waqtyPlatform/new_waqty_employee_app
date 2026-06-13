@@ -1,4 +1,5 @@
 class Routes {
+  static const splashScreen = "/SplashScreen";
   static const mainNavigationScreen = "/MainNavigationScreen";
   static const loginScreen = "/LoginScreen";
   static const homeScreen = "/HomeScreen";
@@ -16,4 +17,19 @@ class Routes {
   static const contactManagerScreen = "/ContactManagerScreen";
   static const reportBugScreen = "/ReportBugScreen";
   static const notificationSettingScreen = "/NotificationSettingScreen";
+  static const changePinCurrentScreen = "/ChangePinCurrentScreen";
+  static const changePinNewScreen = "/ChangePinNewScreen";
+  static const changePinConfirmScreen = "/ChangePinConfirmScreen";
+  static const biometricLoginScreen = "/BiometricLoginScreen";
+  static const biometricLoginScanningScreen = "/BiometricLoginScanningScreen";
+  static const biometricLoginVerifiedScreen = "/BiometricLoginVerifiedScreen";
+  static const biometricLoginActiveScreen = "/BiometricLoginActiveScreen";
+  static const biometricLoginConfirmPinScreen =
+      "/BiometricLoginConfirmPinScreen";
+  static const biometricLoginDisabledScreen = "/BiometricLoginDisabledScreen";
+  static const securitySettingsScreen = "/SecuritySettingsScreen";
+  static const enterAppPinScreen = "/EnterAppPinScreen";
+  static const createAppPinScreen = "/CreateAppPinScreen";
+  static const changeAppPinScreen = "/ChangeAppPinScreen";
+  static const disableAppPinScreen = "/DisableAppPinScreen";
 }

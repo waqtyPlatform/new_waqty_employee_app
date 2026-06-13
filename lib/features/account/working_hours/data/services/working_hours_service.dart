@@ -51,7 +51,7 @@ class _CurrentMonthRange {
 
   factory _CurrentMonthRange.now() {
     final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month -1);
+    final firstDay = DateTime(now.year, now.month );
     final lastDay = DateTime(now.year, now.month + 1, 0);
 
     return _CurrentMonthRange(

@@ -15,10 +15,10 @@ class ProfileService {
   ProfileService({required this.apiConsumer});
 
   Future<ProfileResponseModel> getProfile() async {
-    final response = await apiConsumer.get(ProfileApiEndPoints.getProfile, {
-      ConstantKeys.appAuthorization:
-          "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
-    });
+    final response = await apiConsumer.get(
+      ProfileApiEndPoints.getProfile,
+      await _headers(),
+    );
 
     if (response.statusCode == StatusCode.ok) {
       return ProfileResponseModel.fromJson(jsonDecode(response.body));
@@ -27,5 +27,31 @@ class ProfileService {
         serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
       );
     }
+  }
+
+  Future<bool> checkCurrentAttendance() async {
+    final response = await apiConsumer.get(
+      ProfileApiEndPoints.currentAttendance,
+      await _headers(),
+    );
+
+    if (response.statusCode != StatusCode.ok) {
+      return false;
+    }
+
+    final responseBody = jsonDecode(response.body);
+    if (responseBody is Map<String, dynamic>) {
+      return responseBody['success'] == true;
+    }
+    return false;
+  }
+
+  Future<Map<String, String>> _headers() async {
+    return {
+      ConstantKeys.appAuthorization:
+          "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
+      ConstantKeys.contentType: ConstantKeys.applicationJson,
+      ConstantKeys.acceptText: ConstantKeys.applicationJson,
+    };
   }
 }

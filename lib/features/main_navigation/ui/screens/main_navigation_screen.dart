@@ -75,7 +75,7 @@ class MainNavigationScreenView extends StatelessWidget {
         return const Center(child: Text('Money Screen'));
       case 4:
         return BlocProvider(
-          create: (context) => ProfileCubit(getIt())..getProfile(),
+          create: (context) => ProfileCubit(getIt())..init(),
           child: const ProfileScreen(),
         );
       default:

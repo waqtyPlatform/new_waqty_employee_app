@@ -8,8 +8,13 @@ import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profi
 
 class ProfileUserWorkTimeWidget extends StatelessWidget {
   final bool isClockedIn;
+  final bool isLoading;
 
-  const ProfileUserWorkTimeWidget({super.key, required this.isClockedIn});
+  const ProfileUserWorkTimeWidget({
+    super.key,
+    required this.isClockedIn,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +36,12 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
         : AppColors.greenColor50055;
 
     return GestureDetector(
-      onTap: () => ProfileClockActionDialogWidget.show(
-        context,
-        isClockedIn: isClockedIn,
-      ),
+      onTap: isLoading
+          ? null
+          : () => ProfileClockActionDialogWidget.show(
+              context,
+              isClockedIn: isClockedIn,
+            ),
       child: Container(
         height: 74.6.h,
         padding: EdgeInsets.symmetric(horizontal: 16.8.w),
@@ -55,7 +62,16 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
             CircleAvatar(
               radius: 20.r,
               backgroundColor: iconBackgroundColor,
-              child: Icon(Icons.timer_outlined, color: accentColor, size: 20.r),
+              child: isLoading
+                  ? SizedBox(
+                      width: 16.r,
+                      height: 16.r,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.w,
+                        color: accentColor,
+                      ),
+                    )
+                  : Icon(Icons.timer_outlined, color: accentColor, size: 20.r),
             ),
             horizontalSpace(8),
             Expanded(

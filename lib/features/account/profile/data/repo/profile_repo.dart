@@ -16,4 +16,12 @@ class ProfileRepo {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }
   }
+
+  Future<Either<Failure, bool>> checkCurrentAttendance() async {
+    try {
+      return Right(await _profileService.checkCurrentAttendance());
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
 }

@@ -46,55 +46,61 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  verticalSpace(16),
-                  SafeArea(child: const _ProfileHeaderSectionWidget()),
+            RefreshIndicator(
+              color: AppColors.greenColor500,
+              backgroundColor: AppColors.whiteColor,
+              onRefresh: () => ProfileCubit.get(context).init(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    verticalSpace(16),
+                    SafeArea(child: const _ProfileHeaderSectionWidget()),
 
-                  verticalSpace(12),
-                  const ProfileUserWorkTimeWidget(isClockedIn: true),
-                  verticalSpace(20),
-                  Text(
-                    context.tr('profile.myAccount'),
-                    style: TextStyles.font10greyColorA3W600,
-                  ),
-                  verticalSpace(12),
-                  ProfileUserMyAccountWidget(items: _myAccountItems(context)),
-                  verticalSpace(12),
-                  Text(
-                    context.tr('profile.branch'),
-                    style: TextStyles.font10greyColorA3W600,
-                  ),
-                  verticalSpace(12),
-                  ProfileUserBranchWidget(items: _branchItems(context)),
-                  verticalSpace(12),
-                  Text(
-                    context.tr('profile.attendance'),
-                    style: TextStyles.font10greyColorA3W600,
-                  ),
-                  verticalSpace(12),
-                  ProfileUserBranchWidget(items: _attendanceItems(context)),
-                  verticalSpace(12),
-                  Text(
-                    context.tr('profile.settings'),
-                    style: TextStyles.font10greyColorA3W600,
-                  ),
-                  verticalSpace(12),
-                  const ProfileUserSettingWidget(),
-                  verticalSpace(12),
-                  Text(
-                    context.tr('profile.support'),
-                    style: TextStyles.font10greyColorA3W600,
-                  ),
-                  verticalSpace(12),
-                  ProfileUserBranchWidget(items: _supportItems(context)),
-                  verticalSpace(12),
-                  const ProfileUserLogOutWidget(),
-                  verticalSpace(12),
-                ],
+                    verticalSpace(12),
+                    const _ProfileClockSectionWidget(),
+                    verticalSpace(20),
+                    Text(
+                      context.tr('profile.myAccount'),
+                      style: TextStyles.font10greyColorA3W600,
+                    ),
+                    verticalSpace(12),
+                    ProfileUserMyAccountWidget(items: _myAccountItems(context)),
+                    verticalSpace(12),
+                    Text(
+                      context.tr('profile.branch'),
+                      style: TextStyles.font10greyColorA3W600,
+                    ),
+                    verticalSpace(12),
+                    ProfileUserBranchWidget(items: _branchItems(context)),
+                    verticalSpace(12),
+                    Text(
+                      context.tr('profile.attendance'),
+                      style: TextStyles.font10greyColorA3W600,
+                    ),
+                    verticalSpace(12),
+                    ProfileUserBranchWidget(items: _attendanceItems(context)),
+                    verticalSpace(12),
+                    Text(
+                      context.tr('profile.settings'),
+                      style: TextStyles.font10greyColorA3W600,
+                    ),
+                    verticalSpace(12),
+                    const ProfileUserSettingWidget(),
+                    verticalSpace(12),
+                    Text(
+                      context.tr('profile.support'),
+                      style: TextStyles.font10greyColorA3W600,
+                    ),
+                    verticalSpace(12),
+                    ProfileUserBranchWidget(items: _supportItems(context)),
+                    verticalSpace(12),
+                    const ProfileUserLogOutWidget(),
+                    verticalSpace(12),
+                  ],
+                ),
               ),
             ),
           ],
@@ -201,6 +207,29 @@ class _ProfileHeaderSectionWidget extends StatelessWidget {
           jobTitle: context.tr('profile.jobTitle'),
           userCode: context.tr('profile.employeeCode'),
           branchName: profile.customer.branchModel.name,
+        );
+      },
+    );
+  }
+}
+
+class _ProfileClockSectionWidget extends StatelessWidget {
+  const _ProfileClockSectionWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      buildWhen: (previous, current) {
+        return current is CheckCurrentAttendanceLoadingState ||
+            current is CheckCurrentAttendanceSuccessState ||
+            current is CheckCurrentAttendanceErrorState ||
+            current is CheckCurrentAttendanceCatchErrorState;
+      },
+      builder: (context, state) {
+        final cubit = ProfileCubit.get(context);
+        return ProfileUserWorkTimeWidget(
+          isClockedIn: cubit.isClockedIn,
+          isLoading: cubit.isCurrentAttendanceLoading,
         );
       },
     );

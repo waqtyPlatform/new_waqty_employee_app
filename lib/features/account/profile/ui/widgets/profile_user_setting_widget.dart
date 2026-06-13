@@ -24,11 +24,11 @@ class ProfileUserSettingWidget extends StatelessWidget {
       iconPath: ImageAsset.profileNotificationIcon,
       onTap: () {},
     ),
-    ProfileMenuItemData(
-      title: 'profile.darkMode',
-      iconPath: ImageAsset.darkModeIcon,
-      onTap: () {},
-    ),
+    // ProfileMenuItemData(
+    //   title: 'profile.darkMode',
+    //   iconPath: ImageAsset.darkModeIcon,
+    //   onTap: () {},
+    // ),
   ];
 
   @override

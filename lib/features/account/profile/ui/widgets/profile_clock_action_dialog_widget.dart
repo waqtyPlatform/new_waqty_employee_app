@@ -11,10 +11,19 @@ import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profi
 
 class ProfileClockActionDialogWidget extends StatelessWidget {
   final bool isClockedIn;
+  final bool isOnBreak;
 
-  const ProfileClockActionDialogWidget({super.key, required this.isClockedIn});
+  const ProfileClockActionDialogWidget({
+    super.key,
+    required this.isClockedIn,
+    this.isOnBreak = false,
+  });
 
-  static Future<void> show(BuildContext context, {required bool isClockedIn}) {
+  static Future<void> show(
+    BuildContext context, {
+    required bool isClockedIn,
+    bool isOnBreak = false,
+  }) {
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -24,7 +33,10 @@ class ProfileClockActionDialogWidget extends StatelessWidget {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
           child: Center(
-            child: ProfileClockActionDialogWidget(isClockedIn: isClockedIn),
+            child: ProfileClockActionDialogWidget(
+              isClockedIn: isClockedIn,
+              isOnBreak: isOnBreak,
+            ),
           ),
         );
       },
@@ -87,18 +99,43 @@ class ProfileClockActionDialogWidget extends StatelessWidget {
             const _ClockBranchInfoWidget(),
             verticalSpace(12),
             _BranchRangeWidget(color: actionColor),
+            if (isClockedIn) ...[
+              verticalSpace(12),
+              _ClockDurationWidget(isOnBreak: isOnBreak),
+            ],
             verticalSpace(12),
             _ClockActionButtonWidget(
               title: context.tr(actionKey),
               color: actionColor,
               onTap: () {
+                final navigator = Navigator.of(context);
+                final parentContext = navigator.context;
                 Navigator.pop(context);
                 ProfileClockSuccessDialogWidget.show(
-                  context,
-                  isClockIn: !isClockedIn,
+                  parentContext,
+                  type: isClockedIn
+                      ? ProfileClockSuccessType.clockedOut
+                      : ProfileClockSuccessType.clockedIn,
                 );
               },
             ),
+            if (isClockedIn) ...[
+              verticalSpace(12),
+              _ClockBreakButtonWidget(
+                isOnBreak: isOnBreak,
+                onTap: () {
+                  final navigator = Navigator.of(context);
+                  final parentContext = navigator.context;
+                  Navigator.pop(context);
+                  ProfileClockSuccessDialogWidget.show(
+                    parentContext,
+                    type: isOnBreak
+                        ? ProfileClockSuccessType.breakEnded
+                        : ProfileClockSuccessType.breakStarted,
+                  );
+                },
+              ),
+            ],
           ],
         ),
       ),
@@ -260,6 +297,100 @@ class _ClockActionButtonWidget extends StatelessWidget {
           ],
         ),
         child: Text(title, style: TextStyles.font16whiteColorWeight600),
+      ),
+    );
+  }
+}
+
+class _ClockDurationWidget extends StatelessWidget {
+  final bool isOnBreak;
+
+  const _ClockDurationWidget({required this.isOnBreak});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 12.8.h, horizontal: .8.w),
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: AppColors.greyColorFA, width: .8.w),
+      ),
+      child: Column(
+        children: [
+          Text(
+            context.tr('profile.duration'),
+            textAlign: TextAlign.center,
+            style: TextStyles.font12greyColorA3W400,
+          ),
+          verticalSpace(4),
+          Text(
+            '2h 39m',
+            textAlign: TextAlign.center,
+            style: TextStyles.font24greyColor900Weight600,
+          ),
+          if (isOnBreak) ...[
+            verticalSpace(4),
+            Text(
+              context.tr('profile.onBreakSince'),
+              textAlign: TextAlign.center,
+              style: TextStyles.font12greyColorA3W400.copyWith(
+                color: AppColors.warningColor1001,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ClockBreakButtonWidget extends StatelessWidget {
+  final bool isOnBreak;
+  final VoidCallback onTap;
+
+  const _ClockBreakButtonWidget({required this.isOnBreak, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final titleKey = isOnBreak ? 'profile.endBreak' : 'profile.takeBreak';
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 48.h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.warningColor1002,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: AppColors.warningColor1001, width: 1.w),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.greyColor900.withValues(alpha: .06),
+              blurRadius: 1,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.free_breakfast_outlined,
+              size: 20.r,
+              color: AppColors.warningColor1001,
+            ),
+            horizontalSpace(8),
+            Text(
+              context.tr(titleKey),
+              style: TextStyles.font16whiteColorWeight600.copyWith(
+                color: AppColors.warningColor1001,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

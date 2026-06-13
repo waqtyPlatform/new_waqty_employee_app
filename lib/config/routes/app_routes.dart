@@ -73,7 +73,7 @@ class RouteGenerator {
       case Routes.profileScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => ProfileCubit(getIt()),
+            create: (context) => ProfileCubit(getIt())..init(),
             child: const ProfileScreen(),
           ),
         );

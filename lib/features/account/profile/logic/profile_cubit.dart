@@ -9,27 +9,53 @@ class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit(this._profileRepo) : super(ProfileInitialState());
 
   ProfileResponseModel? profileResponseModel;
+  bool isClockedIn = false;
+  bool isCurrentAttendanceLoading = false;
 
+  Future<void> init() async {
+    await Future.wait([getProfile(), checkCurrentAttendance()]);
+  }
 
   Future<void> getProfile() async {
     emit(GetProfileLoadingState());
-    _profileRepo
-        .getProfile()
-        .then((value) {
+    try {
+      final value = await _profileRepo.getProfile();
       value.fold(
-            (l) {
+        (l) {
           emit(GetProfileErrorState());
         },
-            (r) {
+        (r) {
           profileResponseModel = r;
-          emit(GetProfileSuccessState( ));
+          emit(GetProfileSuccessState());
         },
       );
-    })
-        .catchError((error) {
+    } catch (error) {
       emit(GetProfileCatchErrorState());
-    });
+    }
   }
 
-  static ProfileCubit get(context) => BlocProvider.of(context);
+  Future<void> checkCurrentAttendance() async {
+    isCurrentAttendanceLoading = true;
+    emit(CheckCurrentAttendanceLoadingState());
+    try {
+      final value = await _profileRepo.checkCurrentAttendance();
+      isCurrentAttendanceLoading = false;
+      value.fold(
+        (l) {
+          isClockedIn = false;
+          emit(CheckCurrentAttendanceErrorState());
+        },
+        (r) {
+          isClockedIn = r;
+          emit(CheckCurrentAttendanceSuccessState());
+        },
+      );
+    } catch (error) {
+      isCurrentAttendanceLoading = false;
+      isClockedIn = false;
+      emit(CheckCurrentAttendanceCatchErrorState());
+    }
+  }
+
+  static ProfileCubit get(dynamic context) => BlocProvider.of(context);
 }

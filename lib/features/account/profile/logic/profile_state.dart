@@ -5,14 +5,19 @@ class ProfileInitialState extends ProfileState {}
 // Get Profile States
 class GetProfileLoadingState extends ProfileState {}
 
-class GetProfileSuccessState extends ProfileState {
-
-
-}
+class GetProfileSuccessState extends ProfileState {}
 
 class GetProfileErrorState extends ProfileState {}
 
 class GetProfileCatchErrorState extends ProfileState {}
+
+class CheckCurrentAttendanceLoadingState extends ProfileState {}
+
+class CheckCurrentAttendanceSuccessState extends ProfileState {}
+
+class CheckCurrentAttendanceErrorState extends ProfileState {}
+
+class CheckCurrentAttendanceCatchErrorState extends ProfileState {}
 
 // Update Profile States
 class UpdateProfileLoadingState extends ProfileState {}

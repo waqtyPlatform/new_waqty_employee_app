@@ -8,17 +8,22 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
+enum ProfileClockSuccessType { clockedIn, clockedOut, breakStarted, breakEnded }
+
 class ProfileClockSuccessDialogWidget extends StatelessWidget {
-  final bool isClockIn;
+  final ProfileClockSuccessType type;
   final DateTime actionTime;
 
   const ProfileClockSuccessDialogWidget({
     super.key,
-    required this.isClockIn,
+    required this.type,
     required this.actionTime,
   });
 
-  static Future<void> show(BuildContext context, {required bool isClockIn}) {
+  static Future<void> show(
+    BuildContext context, {
+    required ProfileClockSuccessType type,
+  }) {
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -29,7 +34,7 @@ class ProfileClockSuccessDialogWidget extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
           child: Center(
             child: ProfileClockSuccessDialogWidget(
-              isClockIn: isClockIn,
+              type: type,
               actionTime: DateTime.now(),
             ),
           ),
@@ -40,9 +45,7 @@ class ProfileClockSuccessDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleKey = isClockIn
-        ? 'profile.clockedInSuccessfully'
-        : 'profile.clockedOutSuccessfully';
+    final data = _ProfileClockSuccessData.fromType(type);
 
     return Material(
       color: Colors.transparent,
@@ -63,37 +66,27 @@ class ProfileClockSuccessDialogWidget extends StatelessWidget {
                   width: 80.r,
                   height: 80.r,
                   decoration: BoxDecoration(
-                    color: AppColors.successColor0,
+                    color: data.outerColor,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.successColor0,
-                      width: 16.r,
-                    ),
+                    border: Border.all(color: data.outerColor, width: 16.r),
                   ),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: AppColors.successColor100,
+                    decoration: BoxDecoration(
+                      color: data.innerColor,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.check,
-                      color: AppColors.whiteColor,
-                      size: 40.r,
-                    ),
+                    child: Icon(data.icon, color: data.iconColor, size: 40.r),
                   ),
                 ),
                 verticalSpace(24),
                 Text(
-                  context.tr(titleKey),
+                  context.tr(data.titleKey),
                   textAlign: TextAlign.center,
                   style: TextStyles.font18greyColor900Weight600,
                 ),
                 verticalSpace(8),
                 Text(
-                  intl.DateFormat(
-                    'h:mm a',
-                    context.locale.toString(),
-                  ).format(actionTime),
+                  data.message(context, actionTime),
                   textAlign: TextAlign.center,
                   style: TextStyles.font14greyColorA3W400,
                 ),
@@ -116,5 +109,74 @@ class ProfileClockSuccessDialogWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _ProfileClockSuccessData {
+  final String titleKey;
+  final IconData icon;
+  final Color outerColor;
+  final Color innerColor;
+  final Color iconColor;
+  final String Function(BuildContext context, DateTime actionTime) message;
+
+  const _ProfileClockSuccessData({
+    required this.titleKey,
+    required this.icon,
+    required this.outerColor,
+    required this.innerColor,
+    required this.iconColor,
+    required this.message,
+  });
+
+  factory _ProfileClockSuccessData.fromType(ProfileClockSuccessType type) {
+    switch (type) {
+      case ProfileClockSuccessType.breakStarted:
+        return _ProfileClockSuccessData(
+          titleKey: 'profile.breakStarted',
+          icon: Icons.free_breakfast_outlined,
+          outerColor: AppColors.warningColor1002,
+          innerColor: const Color(0xffFEF9C3),
+          iconColor: AppColors.warningColor1001,
+          message: _timeMessage,
+        );
+      case ProfileClockSuccessType.breakEnded:
+        return _ProfileClockSuccessData(
+          titleKey: 'profile.breakEnded',
+          icon: Icons.check,
+          outerColor: AppColors.successColor0,
+          innerColor: AppColors.successColor100,
+          iconColor: AppColors.whiteColor,
+          message: _timeMessage,
+        );
+      case ProfileClockSuccessType.clockedIn:
+        return _ProfileClockSuccessData(
+          titleKey: 'profile.clockedInSuccessfully',
+          icon: Icons.check,
+          outerColor: AppColors.successColor0,
+          innerColor: AppColors.successColor100,
+          iconColor: AppColors.whiteColor,
+          message: _timeMessage,
+        );
+      case ProfileClockSuccessType.clockedOut:
+        return _ProfileClockSuccessData(
+          titleKey: 'profile.clockedOutSuccessfully',
+          icon: Icons.check,
+          outerColor: AppColors.successColor0,
+          innerColor: AppColors.successColor100,
+          iconColor: AppColors.whiteColor,
+          message: (context, actionTime) {
+            final time = _timeMessage(context, actionTime);
+            return '$time\n${context.tr('profile.clockedOutMessage')}';
+          },
+        );
+    }
+  }
+
+  static String _timeMessage(BuildContext context, DateTime actionTime) {
+    return intl.DateFormat(
+      'h:mm a',
+      context.locale.toString(),
+    ).format(actionTime);
   }
 }

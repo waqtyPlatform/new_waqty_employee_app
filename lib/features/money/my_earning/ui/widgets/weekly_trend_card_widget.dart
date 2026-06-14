@@ -3,10 +3,11 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class WeeklyTrendCardWidget extends StatelessWidget {
   const WeeklyTrendCardWidget({super.key});
@@ -41,14 +42,25 @@ class WeeklyTrendCardWidget extends StatelessWidget {
                   style: TextStyles.font14greyColor900Weight600,
                 ),
               ),
-              Text(
-                context.tr('myEarning.details'),
-                style: TextStyles.font12greenColor500W600,
-              ),
-              Icon(
-                Icons.chevron_right,
-                size: 16.r,
-                color: AppColors.greenColor500,
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  Routes.earningTrendDetailsScreen,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.tr('myEarning.details'),
+                      style: TextStyles.font12greenColor500W600,
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 16.r,
+                      color: AppColors.greenColor500,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

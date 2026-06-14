@@ -1,0 +1,3 @@
+class DeductionsService {
+  const DeductionsService();
+}

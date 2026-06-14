@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/data/repo/my_earning_repo.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/data/services/my_earning_service.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/commission_target_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/estimated_pay_card_widget.dart';
@@ -19,7 +21,7 @@ class MyEarningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => MyEarningCubit(),
+      create: (_) => MyEarningCubit(const MyEarningRepo(MyEarningService())),
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         body: SafeArea(

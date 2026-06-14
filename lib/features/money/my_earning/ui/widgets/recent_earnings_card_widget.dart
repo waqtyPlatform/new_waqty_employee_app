@@ -1,11 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/my_earning/data/models/recent_earning_model.dart';
-import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/data/models/recent_earning_model.dart';
+import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class RecentEarningsCardWidget extends StatelessWidget {
   const RecentEarningsCardWidget({super.key});
@@ -74,47 +75,63 @@ class _RecentEarningItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 54.h,
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.greyColor100.withValues(alpha: .1),
-            width: .8.w,
+    return GestureDetector(
+      onTap: item.amount == null
+          ? null
+          : () => Navigator.pushNamed(
+              context,
+              Routes.dailyEarningDetailsScreen,
+              arguments: {
+                'dateKey': item.dateKey,
+                'appointmentsKey': item.appointmentsKey,
+                'amount': item.amount,
+              },
+            ),
+      child: Container(
+        height: 54.h,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.greyColor100.withValues(alpha: .1),
+              width: .8.w,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('myEarning.${item.dateKey}'),
-                  style: TextStyles.font14greyColor900Weight500,
-                ),
-                verticalSpace(2),
-                Text(
-                  context.tr('myEarning.${item.appointmentsKey}'),
-                  style: TextStyles.font12greyColorA3W400,
-                ),
-              ],
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('myEarning.${item.dateKey}'),
+                    style: TextStyles.font14greyColor900Weight500,
+                  ),
+                  verticalSpace(2),
+                  Text(
+                    context.tr('myEarning.${item.appointmentsKey}'),
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (item.amount == null)
-            Text('-', style: TextStyles.font14greyColorA3W400)
-          else ...[
-            Text(item.amount!, style: TextStyles.font14greenColor500Weight600),
-            horizontalSpace(8),
-            Icon(
-              Icons.chevron_right,
-              color: AppColors.greenColor500,
-              size: 16.r,
-            ),
+            if (item.amount == null)
+              Text('-', style: TextStyles.font14greyColorA3W400)
+            else ...[
+              Text(
+                item.amount!,
+                style: TextStyles.font14greenColor500Weight600,
+              ),
+              horizontalSpace(8),
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.greenColor500,
+                size: 16.r,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

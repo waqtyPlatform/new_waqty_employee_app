@@ -29,4 +29,10 @@ class Routes {
   static const biometricLockScreen = "/BiometricLockScreen";
   static const enableBiometricScreen = "/EnableBiometricScreen";
   static const disableBiometricScreen = "/DisableBiometricScreen";
+  static const earningTrendDetailsScreen = "/EarningTrendDetailsScreen";
+  static const dailyEarningDetailsScreen = "/DailyEarningDetailsScreen";
+  static const payslipsScreen = "/PayslipsScreen";
+  static const payslipDetailsScreen = "/PayslipDetailsScreen";
+  static const bonusesScreen = "/BonusesScreen";
+  static const deductionsScreen = "/DeductionsScreen";
 }

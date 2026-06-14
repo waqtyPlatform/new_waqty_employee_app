@@ -51,6 +51,32 @@ import 'package:new_waqty_employee_app/features/auth/reset_password/ui/reset_pas
 import 'package:new_waqty_employee_app/features/main_navigation/ui/screens/main_navigation_screen.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/logic/booking_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/booking_details_screen.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/data/repo/bonuses_repo.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/data/services/bonuses_service.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/ui/bonuses_screen.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/models/daily_earning_details_args.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/repo/daily_earning_details_repo.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/services/daily_earning_details_service.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/logic/daily_earning_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/ui/daily_earning_details_screen.dart';
+import 'package:new_waqty_employee_app/features/money/deductions/data/repo/deductions_repo.dart';
+import 'package:new_waqty_employee_app/features/money/deductions/data/services/deductions_service.dart';
+import 'package:new_waqty_employee_app/features/money/deductions/logic/deductions_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/deductions/ui/deductions_screen.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/data/repo/earning_trend_repo.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/data/services/earning_trend_service.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/logic/earning_trend_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/ui/earning_trend_details_screen.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/data/repo/payslip_details_repo.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/data/services/payslip_details_service.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/ui/payslip_details_screen.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/data/models/payslip_model.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/data/repo/payslips_repo.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/data/services/payslips_service.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/logic/payslips_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/ui/payslips_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -295,6 +321,75 @@ class RouteGenerator {
             create: (_) =>
                 AppPinCubit(getIt(), getIt())..loadSecuritySettings(),
             child: const DisableBiometricScreen(),
+          ),
+        );
+
+      case Routes.earningTrendDetailsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => EarningTrendCubit(
+              const EarningTrendRepo(EarningTrendService()),
+            ),
+            child: const EarningTrendDetailsScreen(),
+          ),
+        );
+
+      case Routes.dailyEarningDetailsScreen:
+        final dailyArgs = args is Map
+            ? DailyEarningDetailsArgs.fromMap(args)
+            : const DailyEarningDetailsArgs(
+                dateKey: 'recentTue3Mar',
+                appointmentsKey: 'appointments7',
+                amount: 'EGP 680',
+              );
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => DailyEarningDetailsCubit(
+              const DailyEarningDetailsRepo(DailyEarningDetailsService()),
+            ),
+            child: DailyEarningDetailsScreen(args: dailyArgs),
+          ),
+        );
+
+      case Routes.payslipsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => PayslipsCubit(const PayslipsRepo(PayslipsService())),
+            child: const PayslipsScreen(),
+          ),
+        );
+
+      case Routes.payslipDetailsScreen:
+        final payslipArgs = args is Map
+            ? PayslipDetailsArgs.fromMap(args)
+            : const PayslipDetailsArgs(
+                monthKey: 'payslipFebruary2026',
+                amount: 'EGP 5,120',
+                isPaid: true,
+              );
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => PayslipDetailsCubit(
+              const PayslipDetailsRepo(PayslipDetailsService()),
+            ),
+            child: PayslipDetailsScreen(args: payslipArgs),
+          ),
+        );
+
+      case Routes.bonusesScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => BonusesCubit(const BonusesRepo(BonusesService())),
+            child: const BonusesScreen(),
+          ),
+        );
+
+      case Routes.deductionsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) =>
+                DeductionsCubit(const DeductionsRepo(DeductionsService())),
+            child: const DeductionsScreen(),
           ),
         );
 

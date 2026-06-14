@@ -1,0 +1,3 @@
+class MyEarningService {
+  const MyEarningService();
+}

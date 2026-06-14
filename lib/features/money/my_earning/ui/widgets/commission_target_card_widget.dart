@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class CommissionTargetCardWidget extends StatelessWidget {
   const CommissionTargetCardWidget({super.key});

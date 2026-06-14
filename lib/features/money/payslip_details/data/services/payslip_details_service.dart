@@ -1,0 +1,3 @@
+class PayslipDetailsService {
+  const PayslipDetailsService();
+}

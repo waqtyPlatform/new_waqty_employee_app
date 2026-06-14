@@ -62,37 +62,32 @@ class ProfileScreen extends StatelessWidget {
                     verticalSpace(12),
                     const _ProfileClockSectionWidget(),
                     verticalSpace(20),
-                    Text(
-                      context.tr('profile.myAccount'),
-                      style: TextStyles.font10greyColorA3W600,
+                    const _ProfileSectionTitleWidget(
+                      titleKey: 'profile.sections.myAccount',
                     ),
                     verticalSpace(12),
                     ProfileUserMyAccountWidget(items: _myAccountItems(context)),
                     verticalSpace(12),
-                    Text(
-                      context.tr('profile.branch'),
-                      style: TextStyles.font10greyColorA3W600,
+                    const _ProfileSectionTitleWidget(
+                      titleKey: 'profile.sections.branch',
                     ),
                     verticalSpace(12),
                     ProfileUserBranchWidget(items: _branchItems(context)),
                     verticalSpace(12),
-                    Text(
-                      context.tr('profile.attendance'),
-                      style: TextStyles.font10greyColorA3W600,
+                    const _ProfileSectionTitleWidget(
+                      titleKey: 'profile.sections.attendance',
                     ),
                     verticalSpace(12),
                     ProfileUserBranchWidget(items: _attendanceItems(context)),
                     verticalSpace(12),
-                    Text(
-                      context.tr('profile.settings'),
-                      style: TextStyles.font10greyColorA3W600,
+                    const _ProfileSectionTitleWidget(
+                      titleKey: 'profile.sections.settings',
                     ),
                     verticalSpace(12),
-                    const ProfileUserSettingWidget(),
+                    ProfileUserSettingWidget(locale: context.locale),
                     verticalSpace(12),
-                    Text(
-                      context.tr('profile.support'),
-                      style: TextStyles.font10greyColorA3W600,
+                    const _ProfileSectionTitleWidget(
+                      titleKey: 'profile.sections.support',
                     ),
                     verticalSpace(12),
                     ProfileUserBranchWidget(items: _supportItems(context)),
@@ -134,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
       ProfileMenuItemData(
         title: context.tr('profile.biometricLogin'),
         iconPath: ImageAsset.profileBiometricIcon,
-        onTap: () => context.pushNamed(Routes.biometricLoginScreen),
+        onTap: () => context.pushNamed(Routes.biometricSettingsScreen),
       ),
     ];
   }
@@ -177,6 +172,17 @@ class ProfileScreen extends StatelessWidget {
         onTap: () => context.pushNamed(Routes.reportBugScreen),
       ),
     ];
+  }
+}
+
+class _ProfileSectionTitleWidget extends StatelessWidget {
+  final String titleKey;
+
+  const _ProfileSectionTitleWidget({required this.titleKey});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.tr(titleKey), style: TextStyles.font10greyColorA3W600);
   }
 }
 

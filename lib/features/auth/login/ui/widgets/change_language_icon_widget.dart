@@ -10,11 +10,11 @@ class ChangeLanguageIconWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (context.locale == const Locale('en', 'US')) {
-          context.setLocale(const Locale('ar', 'EG'));
+          await context.setLocale(const Locale('ar', 'EG'));
         } else {
-          context.setLocale(const Locale('en', 'US'));
+          await context.setLocale(const Locale('en', 'US'));
         }
       },
       child: Container(

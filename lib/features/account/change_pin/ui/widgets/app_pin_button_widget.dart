@@ -9,6 +9,7 @@ class AppPinButtonWidget extends StatelessWidget {
   final bool isLoading;
   final Color backgroundColor;
   final Color textColor;
+  final Color? borderColor;
 
   const AppPinButtonWidget({
     super.key,
@@ -17,6 +18,7 @@ class AppPinButtonWidget extends StatelessWidget {
     this.isLoading = false,
     this.backgroundColor = AppColors.greenColor500,
     this.textColor = AppColors.whiteColor,
+    this.borderColor,
   });
 
   @override
@@ -29,7 +31,7 @@ class AppPinButtonWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: backgroundColor),
+          border: Border.all(color: borderColor ?? backgroundColor),
         ),
         child: Center(
           child: isLoading

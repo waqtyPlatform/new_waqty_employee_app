@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/biometric/ui/biometric_lock_screen.dart';
+import 'package:new_waqty_employee_app/features/account/biometric/ui/biometric_settings_screen.dart';
+import 'package:new_waqty_employee_app/features/account/biometric/ui/disable_biometric_screen.dart';
+import 'package:new_waqty_employee_app/features/account/biometric/ui/enable_biometric_screen.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/logic/app_pin_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_app_pin_screen.dart';
@@ -14,8 +18,6 @@ import 'package:new_waqty_employee_app/features/account/change_pin/ui/security_s
 import 'package:new_waqty_employee_app/features/account/change_pin/ui/splash_screen.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/ui/attendance_screen.dart';
-import 'package:new_waqty_employee_app/features/account/biometric_login/ui/biometric_login_screen.dart';
-import 'package:new_waqty_employee_app/features/account/biometric_login/ui/widgets/biometric_login_view_data.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/logic/branch_contact_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/ui/branch_contact_screen.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_pin_screen.dart';
@@ -61,24 +63,12 @@ class RouteGenerator {
 
       case Routes.mainNavigationScreen:
         final isPinVerified = args is Map && args['pinVerified'] == true;
+        final isSecurityVerified =
+            args is Map && args['securityVerified'] == true;
         return MaterialPageRoute(
-          builder: (_) => FutureBuilder<bool>(
-            future: getIt<AppPinService>().isPinEnabled(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const SplashScreen();
-              }
-
-              final isPinEnabled = snapshot.data ?? false;
-              if (isPinEnabled && !isPinVerified) {
-                return BlocProvider(
-                  create: (_) => AppPinCubit(getIt()),
-                  child: const EnterPinScreen(),
-                );
-              }
-
-              return const MainNavigationScreen();
-            },
+          builder: (_) => _MainNavigationGate(
+            isPinVerified: isPinVerified,
+            isSecurityVerified: isSecurityVerified,
           ),
         );
       case Routes.homeScreen:
@@ -233,47 +223,11 @@ class RouteGenerator {
           builder: (_) => const ChangePinScreen(step: ChangePinStep.confirmPin),
         );
 
-      case Routes.biometricLoginScreen:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const BiometricLoginScreen(view: BiometricLoginView.intro),
-        );
-
-      case Routes.biometricLoginScanningScreen:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const BiometricLoginScreen(view: BiometricLoginView.scanning),
-        );
-
-      case Routes.biometricLoginVerifiedScreen:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const BiometricLoginScreen(view: BiometricLoginView.verified),
-        );
-
-      case Routes.biometricLoginActiveScreen:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const BiometricLoginScreen(view: BiometricLoginView.active),
-        );
-
-      case Routes.biometricLoginConfirmPinScreen:
-        return MaterialPageRoute(
-          builder: (_) => const BiometricLoginScreen(
-            view: BiometricLoginView.confirmDisablePin,
-          ),
-        );
-
-      case Routes.biometricLoginDisabledScreen:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const BiometricLoginScreen(view: BiometricLoginView.disabled),
-        );
-
       case Routes.securitySettingsScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => AppPinCubit(getIt())..loadPinStatus(),
+            create: (_) =>
+                AppPinCubit(getIt(), getIt())..loadSecuritySettings(),
             child: const SecuritySettingsScreen(),
           ),
         );
@@ -281,7 +235,7 @@ class RouteGenerator {
       case Routes.enterAppPinScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => AppPinCubit(getIt()),
+            create: (_) => AppPinCubit(getIt(), getIt()),
             child: const EnterPinScreen(),
           ),
         );
@@ -289,7 +243,7 @@ class RouteGenerator {
       case Routes.createAppPinScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => AppPinCubit(getIt()),
+            create: (_) => AppPinCubit(getIt(), getIt()),
             child: const CreatePinScreen(),
           ),
         );
@@ -297,7 +251,7 @@ class RouteGenerator {
       case Routes.changeAppPinScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => AppPinCubit(getIt()),
+            create: (_) => AppPinCubit(getIt(), getIt()),
             child: const ChangeAppPinScreen(),
           ),
         );
@@ -305,13 +259,122 @@ class RouteGenerator {
       case Routes.disableAppPinScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => AppPinCubit(getIt()),
+            create: (_) => AppPinCubit(getIt(), getIt()),
             child: const DisableAppPinScreen(),
+          ),
+        );
+
+      case Routes.biometricSettingsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) =>
+                AppPinCubit(getIt(), getIt())..loadSecuritySettings(),
+            child: const BiometricSettingsScreen(),
+          ),
+        );
+
+      case Routes.biometricLockScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt(), getIt()),
+            child: const BiometricLockScreen(),
+          ),
+        );
+
+      case Routes.enableBiometricScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => AppPinCubit(getIt(), getIt()),
+            child: const EnableBiometricScreen(),
+          ),
+        );
+
+      case Routes.disableBiometricScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) =>
+                AppPinCubit(getIt(), getIt())..loadSecuritySettings(),
+            child: const DisableBiometricScreen(),
           ),
         );
 
       default:
         return null;
     }
+  }
+}
+
+class _MainNavigationGate extends StatefulWidget {
+  final bool isPinVerified;
+  final bool isSecurityVerified;
+
+  const _MainNavigationGate({
+    required this.isPinVerified,
+    required this.isSecurityVerified,
+  });
+
+  @override
+  State<_MainNavigationGate> createState() => _MainNavigationGateState();
+}
+
+class _MainNavigationGateState extends State<_MainNavigationGate> {
+  AppLockDestination? _destination;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDestination();
+  }
+
+  Future<void> _loadDestination() async {
+    final destination = await getIt<AppPinService>().decideAppLockDestination();
+    if (!mounted) return;
+    setState(() {
+      _destination = destination;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) return const _RouteLoadingScreen();
+
+    final destination = _destination ?? AppLockDestination.login;
+    if (destination == AppLockDestination.login) {
+      return BlocProvider(
+        create: (context) => LoginCubit(getIt()),
+        child: const LoginScreen(),
+      );
+    }
+
+    final isVerified = widget.isSecurityVerified || widget.isPinVerified;
+    if (destination == AppLockDestination.biometric && !isVerified) {
+      return BlocProvider(
+        create: (_) => AppPinCubit(getIt(), getIt()),
+        child: const BiometricLockScreen(),
+      );
+    }
+
+    if (destination == AppLockDestination.pin && !isVerified) {
+      return BlocProvider(
+        create: (_) => AppPinCubit(getIt(), getIt()),
+        child: const EnterPinScreen(),
+      );
+    }
+
+    return const MainNavigationScreen();
+  }
+}
+
+class _RouteLoadingScreen extends StatelessWidget {
+  const _RouteLoadingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }

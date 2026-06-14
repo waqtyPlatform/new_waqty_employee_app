@@ -6,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_storage_keys.dart';
 
+enum AppLockDestination { login, biometric, pin, home }
+
 class AppPinService {
   final FlutterSecureStorage _secureStorage;
 
@@ -23,6 +25,77 @@ class AppPinService {
       key: AppPinStorageKeys.appPinEnabled,
     );
     return enabled == 'true';
+  }
+
+  Future<bool> isBiometricEnabled() async {
+    final enabled = await _secureStorage.read(
+      key: AppPinStorageKeys.biometricEnabled,
+    );
+    return enabled == 'true';
+  }
+
+  Future<void> setBiometricEnabled(bool enabled) async {
+    await _secureStorage.write(
+      key: AppPinStorageKeys.biometricEnabled,
+      value: enabled.toString(),
+    );
+    if (enabled) {
+      final now = DateTime.now().toIso8601String();
+      await _secureStorage.write(
+        key: AppPinStorageKeys.biometricEnabledAt,
+        value: now,
+      );
+      await _secureStorage.write(
+        key: AppPinStorageKeys.biometricLastUsedAt,
+        value: now,
+      );
+    } else {
+      await _secureStorage.delete(key: AppPinStorageKeys.biometricEnabledAt);
+      await _secureStorage.delete(key: AppPinStorageKeys.biometricLastUsedAt);
+    }
+  }
+
+  Future<void> saveBiometricLastUsedNow() async {
+    await _secureStorage.write(
+      key: AppPinStorageKeys.biometricLastUsedAt,
+      value: DateTime.now().toIso8601String(),
+    );
+  }
+
+  Future<DateTime?> getBiometricEnabledAt() {
+    return _readDateTime(AppPinStorageKeys.biometricEnabledAt);
+  }
+
+  Future<DateTime?> getBiometricLastUsedAt() {
+    return _readDateTime(AppPinStorageKeys.biometricLastUsedAt);
+  }
+
+  Future<bool> hasLoginToken() async {
+    final token = await _secureStorage.read(
+      key: ConstantKeys.saveTokenToShared,
+    );
+    return token != null && token.isNotEmpty;
+  }
+
+  Future<AppLockDestination> decideAppLockDestination() async {
+    final isLoggedIn = await hasLoginToken();
+
+    if (!isLoggedIn) {
+      return AppLockDestination.login;
+    }
+
+    final biometricEnabled = await isBiometricEnabled();
+    final pinEnabled = await isPinEnabled();
+
+    if (biometricEnabled) {
+      return AppLockDestination.biometric;
+    }
+
+    if (pinEnabled) {
+      return AppLockDestination.pin;
+    }
+
+    return AppLockDestination.home;
   }
 
   Future<void> setPin(String pin) async {
@@ -94,6 +167,20 @@ class AppPinService {
     await resetFailedAttempts();
   }
 
+  Future<void> clearBiometricData() async {
+    await _secureStorage.delete(key: AppPinStorageKeys.biometricEnabled);
+    await _secureStorage.delete(key: AppPinStorageKeys.biometricEnabledAt);
+    await _secureStorage.delete(key: AppPinStorageKeys.biometricLastUsedAt);
+  }
+
+  Future<void> clearSecurityData() async {
+    await _secureStorage.delete(key: AppPinStorageKeys.appPinHash);
+    await _secureStorage.delete(key: AppPinStorageKeys.appPinSalt);
+    await _secureStorage.delete(key: AppPinStorageKeys.appPinEnabled);
+    await clearBiometricData();
+    await resetFailedAttempts();
+  }
+
   Future<int> increaseFailedAttempts() async {
     final currentAttempts = await getFailedAttempts();
     final nextAttempts = currentAttempts + 1;
@@ -157,9 +244,19 @@ class AppPinService {
     await _secureStorage.delete(key: ConstantKeys.saveTokenToShared);
   }
 
-  Future<void> forgotPin() async {
+  Future<void> logoutAndClearSecurityData() async {
     await clearLoginToken();
-    await clearPinData();
+    await clearSecurityData();
+  }
+
+  Future<void> forgotPin() async {
+    await logoutAndClearSecurityData();
+  }
+
+  Future<DateTime?> _readDateTime(String key) async {
+    final rawValue = await _secureStorage.read(key: key);
+    if (rawValue == null || rawValue.isEmpty) return null;
+    return DateTime.tryParse(rawValue);
   }
 
   Future<List<int>> _hashPin({

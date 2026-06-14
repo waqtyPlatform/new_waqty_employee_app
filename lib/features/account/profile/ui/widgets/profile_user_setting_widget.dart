@@ -11,7 +11,9 @@ import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profi
 import 'package:new_waqty_employee_app/features/auth/login/ui/widgets/change_language_icon_widget.dart';
 
 class ProfileUserSettingWidget extends StatelessWidget {
-  const ProfileUserSettingWidget({super.key});
+  final Locale locale;
+
+  const ProfileUserSettingWidget({super.key, required this.locale});
 
   List<ProfileMenuItemData> get items => [
     ProfileMenuItemData(
@@ -33,7 +35,9 @@ class ProfileUserSettingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentLocale = locale;
     return Container(
+      key: ValueKey(currentLocale.toLanguageTag()),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(10.r),

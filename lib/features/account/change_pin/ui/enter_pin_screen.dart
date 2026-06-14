@@ -23,6 +23,7 @@ class EnterPinScreen extends StatefulWidget {
 
 class _EnterPinScreenState extends State<EnterPinScreen> {
   final TextEditingController _pinController = TextEditingController();
+  bool _didNavigate = false;
 
   @override
   void dispose() {
@@ -102,14 +103,18 @@ class _EnterPinScreenState extends State<EnterPinScreen> {
 
   void _listener(BuildContext context, AppPinState state) {
     if (state is AppPinVerifiedState) {
+      if (_didNavigate) return;
+      _didNavigate = true;
       context.pushNamedAndRemoveUntil(
         Routes.mainNavigationScreen,
-        arguments: {'pinVerified': true},
+        arguments: {'securityVerified': true, 'pinVerified': true},
         predicate: (route) => false,
       );
     } else if (state is AppPinErrorState) {
       AppConstant.toast(context.tr(state.messageKey), false, context);
     } else if (state is AppPinForceLogoutState) {
+      if (_didNavigate) return;
+      _didNavigate = true;
       context.pushNamedAndRemoveUntil(
         Routes.loginScreen,
         predicate: (route) => false,

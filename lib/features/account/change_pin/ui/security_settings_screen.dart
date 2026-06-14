@@ -43,6 +43,10 @@ class SecuritySettingsScreen extends StatelessWidget {
                 children: [
                   AppPinHeaderWidget(title: context.tr('profile.changePin')),
                   verticalSpace(24),
+                  _SecuritySectionTitleWidget(
+                    title: context.tr('appPin.pinSection'),
+                  ),
+                  verticalSpace(8),
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.whiteColor,
@@ -96,6 +100,20 @@ class SecuritySettingsScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SecuritySectionTitleWidget extends StatelessWidget {
+  final String title;
+
+  const _SecuritySectionTitleWidget({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Text(title, style: TextStyles.font10greyColorA3W600),
     );
   }
 }

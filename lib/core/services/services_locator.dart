@@ -1,9 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:local_auth/local_auth.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo/branch_contact_repo.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
@@ -76,7 +79,14 @@ class ServicesLocator {
     ///shared secure
     FlutterSecureStorage secureStorage = FlutterSecureStorage();
     getIt.registerLazySingleton(() => secureStorage);
+    getIt.registerLazySingleton<LocalAuthentication>(
+      () => LocalAuthentication(),
+    );
+    getIt.registerLazySingleton<DeviceInfoPlugin>(() => DeviceInfoPlugin());
     getIt.registerLazySingleton<AppPinService>(() => AppPinService(getIt()));
+    getIt.registerLazySingleton<BiometricAuthService>(
+      () => BiometricAuthService(getIt(), getIt()),
+    );
 
     /// Login
     getIt.registerLazySingleton<LoginService>(

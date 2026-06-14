@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
-import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 
@@ -16,6 +14,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _didRoute = false;
+
   @override
   void initState() {
     super.initState();
@@ -23,25 +23,25 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _routeUser() async {
-    final String token = await CacheHelper.getSecuredString(
-      ConstantKeys.saveTokenToShared,
-    );
+    if (_didRoute) return;
+    _didRoute = true;
+
+    final destination = await getIt<AppPinService>().decideAppLockDestination();
     if (!mounted) return;
 
-    if (token.isEmpty) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(Routes.loginScreen, (route) => false);
-      return;
-    }
-
-    final isPinEnabled = await getIt<AppPinService>().isPinEnabled();
-    if (!mounted) return;
+    final routeName = switch (destination) {
+      AppLockDestination.login => Routes.loginScreen,
+      AppLockDestination.biometric => Routes.biometricLockScreen,
+      AppLockDestination.pin => Routes.enterAppPinScreen,
+      AppLockDestination.home => Routes.mainNavigationScreen,
+    };
 
     Navigator.of(context).pushNamedAndRemoveUntil(
-      isPinEnabled ? Routes.enterAppPinScreen : Routes.mainNavigationScreen,
+      routeName,
       (route) => false,
-      arguments: isPinEnabled ? null : {'pinVerified': true},
+      arguments: routeName == Routes.mainNavigationScreen
+          ? {'securityVerified': true, 'pinVerified': true}
+          : null,
     );
   }
 

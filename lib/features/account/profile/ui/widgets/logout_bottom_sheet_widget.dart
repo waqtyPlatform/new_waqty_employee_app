@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
-import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 
 class LogoutBottomSheetWidget extends StatelessWidget {
   const LogoutBottomSheetWidget({super.key});
@@ -83,7 +83,7 @@ class LogoutBottomSheetWidget extends StatelessWidget {
   }
 
   Future<void> _logout(BuildContext context) async {
-    await CacheHelper.removeSecureData(ConstantKeys.saveTokenToShared);
+    await getIt<AppPinService>().logoutAndClearSecurityData();
     if (!context.mounted) {
       return;
     }

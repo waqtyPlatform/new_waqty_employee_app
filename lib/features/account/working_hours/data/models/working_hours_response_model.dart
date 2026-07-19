@@ -25,13 +25,23 @@ class WorkingHoursResponseModel {
 class WorkingHoursModel {
   final String uuid;
   final String shiftDate;
+  final int? dayOfWeek;
+  final String dayName;
   final String startTime;
   final String endTime;
   final String? breakStart;
   final String? breakEnd;
   final bool active;
+  final bool isDayOff;
+  final int? apiShiftMinutes;
+  final double? apiShiftHours;
+  final int? apiBreakMinutes;
+  final double? apiBreakHours;
+  final int? apiNetMinutes;
+  final double? apiNetHours;
   final int? plannedMinutes;
   final double? plannedHours;
+  final List<WorkingHoursPeriod> periods;
   final Shift shift;
   final Branch branch;
   final Provider provider;
@@ -39,13 +49,23 @@ class WorkingHoursModel {
   WorkingHoursModel({
     required this.uuid,
     required this.shiftDate,
+    this.dayOfWeek,
+    required this.dayName,
     required this.startTime,
     required this.endTime,
     this.breakStart,
     this.breakEnd,
     required this.active,
+    required this.isDayOff,
+    this.apiShiftMinutes,
+    this.apiShiftHours,
+    this.apiBreakMinutes,
+    this.apiBreakHours,
+    this.apiNetMinutes,
+    this.apiNetHours,
     this.plannedMinutes,
     this.plannedHours,
+    required this.periods,
     required this.shift,
     required this.branch,
     required this.provider,
@@ -55,22 +75,47 @@ class WorkingHoursModel {
     return WorkingHoursModel(
       uuid: json['uuid'] ?? '',
       shiftDate: json['shift_date'] ?? '',
+      dayOfWeek: _parseInt(json['day_of_week']),
+      dayName: json['day_name']?.toString() ?? '',
       startTime: json['start_time'] ?? '',
       endTime: json['end_time'] ?? '',
       breakStart: json['break_start'],
       breakEnd: json['break_end'],
       active: json['active'] ?? false,
+      isDayOff: json['is_day_off'] ?? false,
+      apiShiftMinutes: _parseInt(json['shift_minutes']),
+      apiShiftHours: _parseDouble(json['shift_hours']),
+      apiBreakMinutes: _parseInt(json['break_minutes']),
+      apiBreakHours: _parseDouble(json['break_hours']),
+      apiNetMinutes: _parseInt(json['net_minutes']),
+      apiNetHours: _parseDouble(json['net_hours']),
       plannedMinutes: _parseInt(json['planned_minutes']),
       plannedHours: _parseDouble(json['planned_hours']),
+      periods:
+          (json['periods'] as List?)
+              ?.map((e) => WorkingHoursPeriod.fromJson(e))
+              .toList() ??
+          [],
       shift: Shift.fromJson(json['shift'] ?? {}),
       branch: Branch.fromJson(json['branch'] ?? {}),
       provider: Provider.fromJson(json['provider'] ?? {}),
     );
   }
 
-  int get shiftMinutes => _durationMinutes(startTime, endTime);
+  String get expandKey => '$uuid-$shiftDate';
+
+  int get shiftMinutes =>
+      apiShiftMinutes ??
+      (apiShiftHours != null ? (apiShiftHours! * 60).round() : null) ??
+      _durationMinutes(startTime, endTime);
 
   int get breakMinutes {
+    if (apiBreakMinutes != null) {
+      return apiBreakMinutes!;
+    }
+    if (apiBreakHours != null) {
+      return (apiBreakHours! * 60).round();
+    }
     if (breakStart == null || breakEnd == null) {
       return 0;
     }
@@ -78,9 +123,40 @@ class WorkingHoursModel {
   }
 
   int get netMinutes =>
+      apiNetMinutes ??
+      (apiNetHours != null ? (apiNetHours! * 60).round() : null) ??
       plannedMinutes ??
       (plannedHours != null ? (plannedHours! * 60).round() : null) ??
       (shiftMinutes - breakMinutes).clamp(0, shiftMinutes).toInt();
+}
+
+class WorkingHoursPeriod {
+  final String startTime;
+  final String endTime;
+  final bool endsNextDay;
+  final int shiftMinutes;
+  final int breakMinutes;
+  final int netMinutes;
+
+  WorkingHoursPeriod({
+    required this.startTime,
+    required this.endTime,
+    required this.endsNextDay,
+    required this.shiftMinutes,
+    required this.breakMinutes,
+    required this.netMinutes,
+  });
+
+  factory WorkingHoursPeriod.fromJson(Map<String, dynamic> json) {
+    return WorkingHoursPeriod(
+      startTime: json['start_time'] ?? '',
+      endTime: json['end_time'] ?? '',
+      endsNextDay: json['ends_next_day'] ?? false,
+      shiftMinutes: _parseInt(json['shift_minutes']) ?? 0,
+      breakMinutes: _parseInt(json['break_minutes']) ?? 0,
+      netMinutes: _parseInt(json['net_minutes']) ?? 0,
+    );
+  }
 }
 
 int? _parseInt(dynamic value) {
@@ -191,17 +267,17 @@ class Pagination {
   });
 
   factory Pagination.fromJson(Map<String, dynamic> json) {
-    final int perPage = json['per_page'] ?? 15;
-    final int total = json['total'] ?? 0;
+    final int perPage = _parseInt(json['per_page']) ?? 15;
+    final int total = _parseInt(json['total']) ?? 0;
     final calculatedLastPage = perPage > 0 ? (total / perPage).ceil() : 1;
 
     return Pagination(
-      currentPage: json['current_page'] ?? 1,
+      currentPage: _parseInt(json['current_page']) ?? 1,
       perPage: perPage,
       total: total,
       lastPage: calculatedLastPage > 0
           ? calculatedLastPage
-          : json['last_page'] ?? 1,
+          : _parseInt(json['last_page']) ?? 1,
     );
   }
 }

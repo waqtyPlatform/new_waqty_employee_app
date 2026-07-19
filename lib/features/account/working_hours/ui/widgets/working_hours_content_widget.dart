@@ -44,7 +44,9 @@ class WorkingHoursContentWidget extends StatelessWidget {
           color: AppColors.greenColor500,
           onRefresh: () async {
             cubit.clearGetAllWorkingHours();
-            cubit.getWorkingHours(languageCode: context.locale.languageCode);
+            await cubit.getWorkingHours(
+              languageCode: context.locale.languageCode,
+            );
           },
           child: Column(
             children: [

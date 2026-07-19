@@ -46,7 +46,7 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
     });
   }
 
-  void getWorkingHours({String? languageCode}) {
+  Future<void> getWorkingHours({String? languageCode}) async {
     if (languageCode != null) {
       this.languageCode = languageCode;
     }
@@ -56,58 +56,50 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
     final requestedPage = myWorkingHoursCurrentPage;
     isGettingWorkingHours = true;
     emit(GetWorkingHoursLoadingState());
-    _workingHoursRepo
-        .getWorkingHours(myWorkingHoursCurrentPage, this.languageCode)
-        .then((value) {
-          value.fold(
-            (l) {
-              _rollbackPageOnFailure(requestedPage);
-              isGettingWorkingHours = false;
-              emit(GetWorkingHoursErrorState());
-            },
-            (r) {
-              myWorkingHours.addAll(r.data);
-              // await _calculateWorkingHoursSummary();
-              myWorkingHoursLastPage = r.meta.pagination.lastPage;
-              expandedWorkingHourUuid ??= myWorkingHours.isNotEmpty
-                  ? myWorkingHours.first.uuid
-                  : null;
-              isGettingWorkingHours = false;
-
-
-              for (final item in r.data) {
-                totalShiftMinutes += item.shiftMinutes;
-                totalBreakMinutes += item.breakMinutes;
-                totalNetMinutes += item.netMinutes;
-              }
-
-              emit(GetWorkingHoursSuccessState());
-            },
-          );
-        })
-        .catchError((error) {
+    try {
+      final value = await _workingHoursRepo.getWorkingHours(
+        myWorkingHoursCurrentPage,
+        this.languageCode,
+      );
+      value.fold(
+        (l) {
           _rollbackPageOnFailure(requestedPage);
           isGettingWorkingHours = false;
-          emit(GetWorkingHoursCatchErrorState());
-        });
+          emit(GetWorkingHoursErrorState());
+        },
+        (r) {
+          myWorkingHours.addAll(r.data);
+          myWorkingHoursLastPage = r.meta.pagination.lastPage;
+          expandedWorkingHourUuid ??= myWorkingHours.isNotEmpty
+              ? myWorkingHours.first.expandKey
+              : null;
+          _calculateWorkingHoursSummary();
+          isGettingWorkingHours = false;
+          emit(GetWorkingHoursSuccessState());
+        },
+      );
+    } catch (error) {
+      _rollbackPageOnFailure(requestedPage);
+      isGettingWorkingHours = false;
+      emit(GetWorkingHoursCatchErrorState());
+    }
   }
 
-  void toggleWorkingHour(String uuid) {
-    expandedWorkingHourUuid = expandedWorkingHourUuid == uuid ? null : uuid;
+  void toggleWorkingHour(String key) {
+    expandedWorkingHourUuid = expandedWorkingHourUuid == key ? null : key;
     emit(WorkingHoursExpandedChangedState());
   }
 
-  // Future<void> _calculateWorkingHoursSummary() async{
-  //   // totalShiftMinutes = 0;
-  //   // totalBreakMinutes = 0;
-  //   // totalNetMinutes = 0;
-  //
-  //   for (final item in myWorkingHours) {
-  //     totalShiftMinutes += item.shiftMinutes;
-  //     totalBreakMinutes += item.breakMinutes;
-  //     totalNetMinutes += item.netMinutes;
-  //   }
-  // }
+  void _calculateWorkingHoursSummary() {
+    totalShiftMinutes = 0;
+    totalBreakMinutes = 0;
+    totalNetMinutes = 0;
+    for (final item in myWorkingHours) {
+      totalShiftMinutes += item.shiftMinutes;
+      totalBreakMinutes += item.breakMinutes;
+      totalNetMinutes += item.netMinutes;
+    }
+  }
 
   void _rollbackPageOnFailure(int requestedPage) {
     if (requestedPage > 1 && myWorkingHoursCurrentPage == requestedPage) {

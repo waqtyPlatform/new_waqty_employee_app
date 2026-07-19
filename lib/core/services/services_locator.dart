@@ -8,6 +8,8 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
+import 'package:new_waqty_employee_app/features/account/attendance/data/repo/attendance_repo.dart';
+import 'package:new_waqty_employee_app/features/account/attendance/data/services/attendance_service.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo/branch_contact_repo.dart';
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
@@ -155,6 +157,12 @@ class ServicesLocator {
     getIt.registerLazySingleton<WorkingHoursRepo>(
       () => WorkingHoursRepo(getIt()),
     );
+
+    /// Attendance
+    getIt.registerLazySingleton<AttendanceService>(
+      () => AttendanceService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<AttendanceRepo>(() => AttendanceRepo(getIt()));
 
     /// Branch Contact
     getIt.registerLazySingleton<BranchContactService>(

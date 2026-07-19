@@ -53,7 +53,9 @@
   },
   "common": {
     "optional": "Optional",
-    "sendMessage": "Send Message"
+    "sendMessage": "Send Message",
+    "errorMessage": "Something went wrong",
+    "retry": "Retry"
   },
   "logout": {
     "title": "Logout",
@@ -346,8 +348,10 @@
     "absent": "Absent",
     "early": "Early",
     "earlyLeave": "Early Leave",
+    "dayOff": "Day off",
     "today": "Today",
-    "noShift": "No shift"
+    "noShift": "No shift",
+    "noRecords": "No attendance records"
   },
   "myEarning": {
     "title": "My Earnings",

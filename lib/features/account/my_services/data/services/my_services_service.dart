@@ -22,7 +22,6 @@ class MyServicesService {
             "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
       },
     );
-
     if (response.statusCode == StatusCode.ok) {
       return MyServicesResponseModel.fromJson(jsonDecode(response.body));
     } else {

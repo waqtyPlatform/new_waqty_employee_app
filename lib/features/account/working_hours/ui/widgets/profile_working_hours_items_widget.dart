@@ -24,7 +24,10 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasShift = items.startTime.isNotEmpty && items.endTime.isNotEmpty;
+    final hasShift =
+        !items.isDayOff &&
+        items.startTime.isNotEmpty &&
+        items.endTime.isNotEmpty;
     final dayName = _dayName(context, items.shiftDate);
     final dayShort = _dayShort(context, items.shiftDate);
     final shiftDate = _formatShiftDate(items.shiftDate);
@@ -48,7 +51,7 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '$dayName  •  $shiftDate',
+                        '$dayName - $shiftDate',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyles.font14greyColor900Weight500,

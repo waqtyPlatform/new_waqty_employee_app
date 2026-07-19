@@ -43,9 +43,9 @@ class WorkingHoursListWidget extends StatelessWidget {
             final item = items[index];
             return ProfileWorkingHoursItemsWidget(
               items: item,
-              isExpanded: cubit.expandedWorkingHourUuid == item.uuid,
+              isExpanded: cubit.expandedWorkingHourUuid == item.expandKey,
               showDivider: index != items.length - 1,
-              onTap: () => cubit.toggleWorkingHour(item.uuid),
+              onTap: () => cubit.toggleWorkingHour(item.expandKey),
             );
           }
 

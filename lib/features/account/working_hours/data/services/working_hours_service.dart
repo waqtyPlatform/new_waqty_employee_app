@@ -17,13 +17,8 @@ class WorkingHoursService {
     required int page,
     required String languageCode,
   }) async {
-    final currentMonthRange = _CurrentMonthRange.now();
     final response = await apiConsumer.get(
-      WorkingHoursApiEndPoints.getWorkingHours(
-        page: page,
-        dateFrom: currentMonthRange.dateFrom,
-        dateTo: currentMonthRange.dateTo,
-      ),
+      WorkingHoursApiEndPoints.getWorkingHours(page: page),
       {
         ConstantKeys.appAuthorization:
             "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
@@ -40,29 +35,5 @@ class WorkingHoursService {
         serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
       );
     }
-  }
-}
-
-class _CurrentMonthRange {
-  final String dateFrom;
-  final String dateTo;
-
-  _CurrentMonthRange({required this.dateFrom, required this.dateTo});
-
-  factory _CurrentMonthRange.now() {
-    final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month );
-    final lastDay = DateTime(now.year, now.month + 1, 0);
-
-    return _CurrentMonthRange(
-      dateFrom: _formatDate(firstDay),
-      dateTo: _formatDate(lastDay),
-    );
-  }
-
-  static String _formatDate(DateTime date) {
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}-$month-$day';
   }
 }

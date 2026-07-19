@@ -18,10 +18,16 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
+  bool _didLoadAttendance = false;
+
   @override
-  void initState() {
-    super.initState();
-    AttendanceCubit.get(context).loadAttendanceHistory();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didLoadAttendance) return;
+    _didLoadAttendance = true;
+    AttendanceCubit.get(
+      context,
+    ).loadAttendanceHistory(languageCode: context.locale.languageCode);
   }
 
   @override
@@ -38,21 +44,42 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               Expanded(
                 child: BlocBuilder<AttendanceCubit, AttendanceState>(
                   buildWhen: (previous, current) =>
-                      current is AttendanceHistoryLoadedState,
+                      current is AttendanceHistoryLoadingState ||
+                      current is AttendanceHistoryLoadedState ||
+                      current is AttendanceHistoryErrorState,
                   builder: (context, state) {
                     final cubit = AttendanceCubit.get(context);
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _AttendanceSummaryWidget(summary: cubit.summary),
-                          verticalSpace(16),
-                          _AttendanceCalendarWidget(
-                            month: cubit.month,
-                            days: cubit.days,
-                          ),
-                          verticalSpace(16),
-                          _AttendanceListWidget(days: cubit.days),
-                        ],
+                    if (state is AttendanceHistoryLoadingState &&
+                        cubit.days.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is AttendanceHistoryErrorState &&
+                        cubit.days.isEmpty) {
+                      return _AttendanceErrorWidget(
+                        onRetry: () => cubit.loadAttendanceHistory(
+                          languageCode: context.locale.languageCode,
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => cubit.loadAttendanceHistory(
+                        languageCode: context.locale.languageCode,
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          children: [
+                            _AttendanceSummaryWidget(summary: cubit.summary),
+                            verticalSpace(16),
+                            _AttendanceCalendarWidget(
+                              month: cubit.month,
+                              days: cubit.days,
+                            ),
+                            verticalSpace(16),
+                            _AttendanceListWidget(days: cubit.days),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -337,6 +364,17 @@ class _AttendanceListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (days.isEmpty) {
+      return _AttendanceCardWidget(
+        child: Center(
+          child: Text(
+            context.tr('attendance.noRecords'),
+            style: TextStyles.font14greyColor900Weight500,
+          ),
+        ),
+      );
+    }
+
     return _AttendanceCardWidget(
       padding: EdgeInsets.zero,
       child: Column(
@@ -363,7 +401,7 @@ class _AttendanceHistoryItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateText = intl.DateFormat('MMM d').format(item.date);
-    final timeText = item.status == AttendanceStatus.absent
+    final timeText = !item.hasAttendance
         ? context.tr('attendance.noShift')
         : '${item.checkIn} - ${item.checkOut} · ${_formatDuration(item.workedMinutes)}';
 
@@ -479,6 +517,32 @@ class _LegendItemWidget extends StatelessWidget {
   }
 }
 
+class _AttendanceErrorWidget extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _AttendanceErrorWidget({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.tr('common.errorMessage'),
+            style: TextStyles.font14greyColor900Weight500,
+          ),
+          verticalSpace(12),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(context.tr('common.retry')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LegendData {
   final String label;
   final Color color;
@@ -496,6 +560,8 @@ Color _statusColor(AttendanceStatus? status) {
       return AppColors.errorColor2002;
     case AttendanceStatus.earlyLeave:
       return AppColors.blueColor506;
+    case AttendanceStatus.dayOff:
+      return AppColors.greyColor300;
     case AttendanceStatus.today:
       return AppColors.greyColor900;
     case null:
@@ -513,6 +579,8 @@ Color _statusBgColor(AttendanceStatus status) {
       return AppColors.errorColor2003;
     case AttendanceStatus.earlyLeave:
       return AppColors.blueColor5055;
+    case AttendanceStatus.dayOff:
+      return AppColors.greyColor25;
     case AttendanceStatus.today:
       return AppColors.greyColor25;
   }
@@ -528,6 +596,8 @@ String _statusLabel(BuildContext context, AttendanceStatus status) {
       return context.tr('attendance.absent');
     case AttendanceStatus.earlyLeave:
       return context.tr('attendance.earlyLeave');
+    case AttendanceStatus.dayOff:
+      return context.tr('attendance.dayOff');
     case AttendanceStatus.today:
       return context.tr('attendance.today');
   }

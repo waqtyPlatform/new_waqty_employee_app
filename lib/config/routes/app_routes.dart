@@ -185,7 +185,7 @@ class RouteGenerator {
       case Routes.attendanceScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => AttendanceCubit(),
+            create: (context) => AttendanceCubit(getIt()),
             child: const AttendanceScreen(),
           ),
         );

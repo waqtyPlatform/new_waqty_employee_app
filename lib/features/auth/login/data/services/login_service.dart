@@ -22,12 +22,8 @@ class LoginService {
         email: parameter.email,
         password: parameter.password,
       ).toJson(),
-      {
-        ConstantKeys.appAuthorization:
-            "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
-      },
+   null
     );
-
     if (response.statusCode == StatusCode.ok) {
       return LoginResponseModel.fromJson(jsonDecode(response.body));
     } else {

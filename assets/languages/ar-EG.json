@@ -53,7 +53,9 @@
   },
   "common": {
     "optional": "اختياري",
-    "sendMessage": "إرسال الرسالة"
+    "sendMessage": "إرسال الرسالة",
+    "errorMessage": "حدث خطأ ما",
+    "retry": "إعادة المحاولة"
   },
   "logout": {
     "title": "تسجيل الخروج",
@@ -346,8 +348,10 @@
     "absent": "غائب",
     "early": "مبكر",
     "earlyLeave": "انصراف مبكر",
+    "dayOff": "يوم عطلة",
     "today": "اليوم",
-    "noShift": "لا يوجد شيفت"
+    "noShift": "لا يوجد شيفت",
+    "noRecords": "لا توجد سجلات حضور"
   },
   "myEarning": {
     "title": "أرباحي",

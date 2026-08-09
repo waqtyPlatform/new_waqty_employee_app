@@ -43,9 +43,8 @@ class MyBookingUpcomingListWidget extends StatelessWidget {
           final cubit = MyBookingCubit.get(context);
           final booking = bookings[index];
           return MyBookingItemCardWidget(
-            bookingNumber: booking.reference.isNotEmpty
-                ? booking.reference
-                : booking.uuid,
+            key: ValueKey(booking.visitUuid),
+            dailyQueueNumber: booking.dailyQueueNumber,
             bookingStatus: booking.displayStatusKey,
             bookingStatusLabel: booking.statusLabel,
             bookingUuid: booking.uuid,

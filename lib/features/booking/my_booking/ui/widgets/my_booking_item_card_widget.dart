@@ -10,7 +10,7 @@ import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 
 class MyBookingItemCardWidget extends StatelessWidget {
   final String bookingTime;
-  final String bookingNumber;
+  final int? dailyQueueNumber;
   final String bookingStatus;
   final String? bookingStatusLabel;
   final String bookingUuid;
@@ -25,7 +25,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
   const MyBookingItemCardWidget({
     super.key,
     required this.bookingTime,
-    required this.bookingNumber,
+    this.dailyQueueNumber,
     required this.bookingStatus,
     this.bookingStatusLabel,
     required this.bookingUuid,
@@ -90,9 +90,9 @@ class MyBookingItemCardWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!_hasSingleAction) ...[
+                  if (!_hasSingleAction && dailyQueueNumber != null) ...[
                     horizontalSpace(8),
-                    //booking number
+                    //daily visit queue number
                     Container(
                       width: 24.r,
                       height: 24.r,
@@ -103,7 +103,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          bookingNumber,
+                          '#$dailyQueueNumber',
                           style: TextStyles.font14greenColor500Weight600,
                         ),
                       ),

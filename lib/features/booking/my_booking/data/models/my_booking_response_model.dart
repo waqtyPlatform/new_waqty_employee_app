@@ -21,6 +21,7 @@ class MyBookingResponseModel {
 class MyBookingModel {
   final String uuid;
   final String visitUuid;
+  final int? dailyQueueNumber;
   final String reference;
   final String status;
   final String employeeStatus;
@@ -47,6 +48,7 @@ class MyBookingModel {
   MyBookingModel({
     required this.uuid,
     required this.visitUuid,
+    this.dailyQueueNumber,
     required this.reference,
     required this.status,
     required this.employeeStatus,
@@ -109,6 +111,7 @@ class MyBookingModel {
     return MyBookingModel(
       uuid: _asString(isVisitRow ? bookingJson['uuid'] : json['uuid']),
       visitUuid: _asString(isVisitRow ? json['uuid'] : json['visit_uuid']),
+      dailyQueueNumber: _asNullableInt(json['daily_queue_number']),
       reference: _asString(
         isVisitRow ? bookingJson['reference'] : json['reference'],
       ),
@@ -213,6 +216,7 @@ class MyBookingModel {
 class MyBookingVisitModel {
   final String uuid;
   final int number;
+  final int? dailyQueueNumber;
   final String status;
   final String scheduledStartAt;
   final String scheduledEndAt;
@@ -222,6 +226,7 @@ class MyBookingVisitModel {
   const MyBookingVisitModel({
     required this.uuid,
     required this.number,
+    this.dailyQueueNumber,
     required this.status,
     required this.scheduledStartAt,
     required this.scheduledEndAt,
@@ -233,6 +238,7 @@ class MyBookingVisitModel {
     return MyBookingVisitModel(
       uuid: _asString(json['uuid']),
       number: _asInt(json['number'], fallback: 1),
+      dailyQueueNumber: _asNullableInt(json['daily_queue_number']),
       status: _asString(json['status']),
       scheduledStartAt: _asString(json['scheduled_start_at']),
       scheduledEndAt: _asString(json['scheduled_end_at']),

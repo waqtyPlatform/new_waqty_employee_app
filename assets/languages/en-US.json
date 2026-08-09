@@ -508,12 +508,27 @@
     "reviewQuestion": "How was your experience with this client?",
     "reviewHint": "Add a note about the client (optional)...",
     "submitReview": "Submit Review",
+    "ratingRequired": "Please select a rating",
     "markAsStarted": "Mark as Started",
     "markAsNoShow": "Mark as No-Show",
     "markAsCompleted": "Mark as Completed",
     "addService": "Add Service",
     "noServicesFound": "No services found",
     "minutes": "minutes",
-    "min": "min"
+    "min": "min",
+    "added": "Added",
+    "visit": "Visit",
+    "visits": "Visits",
+    "plannedDuration": "Planned",
+    "actualDuration": "Actual",
+    "waiting": "Waiting",
+    "lateness": "Lateness",
+    "checkIn": "Arrived",
+    "startService": "Start Service",
+    "endService": "End Service",
+    "confirmNoShow": "Are you sure you want to mark this visit as no-show?",
+    "cancelVisit": "Cancel Visit",
+    "confirmCancelVisit": "Are you sure you want to cancel this visit?",
+    "back": "Back"
   }
 }

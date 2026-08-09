@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -21,10 +22,23 @@ class MyBookingBodyWidget extends StatelessWidget {
             current is OnMyBookingPaginationSuccessState ||
             current is OnMyBookingErrorState ||
             current is OnMyBookingCatchErrorState ||
+            current is OnCancelVisitLoadingState ||
+            current is OnCancelVisitSuccessState ||
             current is OnMyBookingViewModeChangedState;
       },
       builder: (context, state) {
         final cubit = MyBookingCubit.get(context);
+        if (cubit.languageCode != context.locale.languageCode &&
+            !cubit.isBookingsLoading) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              cubit.getMyBookings(
+                refresh: true,
+                languageCode: context.locale.languageCode,
+              );
+            }
+          });
+        }
 
         return Column(
           children: [

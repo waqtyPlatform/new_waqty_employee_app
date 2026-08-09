@@ -508,12 +508,27 @@
     "reviewQuestion": "كيف كانت تجربتك مع هذا العميل؟",
     "reviewHint": "أضف ملاحظة عن العميل (اختياري)...",
     "submitReview": "إرسال التقييم",
+    "ratingRequired": "من فضلك اختر التقييم",
     "markAsStarted": "بدء الموعد",
     "markAsNoShow": "تحديد كعدم حضور",
     "markAsCompleted": "إكمال الموعد",
     "addService": "إضافة خدمة",
     "noServicesFound": "لا توجد خدمات",
     "minutes": "دقيقة",
-    "min": "دقيقة"
+    "min": "دقيقة",
+    "added": "جديدة",
+    "visit": "الزيارة",
+    "visits": "الزيارات",
+    "plannedDuration": "المخطط",
+    "actualDuration": "الفعلي",
+    "waiting": "الانتظار",
+    "lateness": "التأخير",
+    "checkIn": "وصل",
+    "startService": "بدء الخدمة",
+    "endService": "إنهاء الخدمة",
+    "confirmNoShow": "هل أنت متأكد من تحديد هذه الزيارة كعدم حضور؟",
+    "cancelVisit": "إلغاء الزيارة",
+    "confirmCancelVisit": "هل أنت متأكد من إلغاء هذه الزيارة؟",
+    "back": "رجوع"
   }
 }

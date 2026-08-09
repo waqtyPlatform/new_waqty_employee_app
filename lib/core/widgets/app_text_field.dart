@@ -14,6 +14,7 @@ class AppTextFormField extends StatelessWidget {
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final int maxLines;
+  final int? maxLength;
   final String hintText;
   final bool? isObscureText;
   final Widget? suffixIcon;
@@ -45,6 +46,7 @@ class AppTextFormField extends StatelessWidget {
     this.textAlign,
     required this.hintText,
     this.maxLines = 1,
+    this.maxLength,
     this.isObscureText,
     this.suffixIcon,
     this.backgroundColor,
@@ -67,6 +69,7 @@ class AppTextFormField extends StatelessWidget {
       autofocus: autofocus!,
       controller: controller,
       maxLines: maxLines,
+      maxLength: maxLength,
       enabled: isEnable ?? true,
       textAlign: textAlign ?? TextAlign.start,
       onTapOutside: (PointerDownEvent value) {

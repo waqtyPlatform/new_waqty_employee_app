@@ -19,15 +19,17 @@ class MyBookingCubit extends Cubit<MyBookingState> {
   int bookingsLastPage = 1;
   bool isBookingsLoading = false;
   bool isBookingsPaginationLoading = false;
+  String languageCode = 'en';
+  String? cancellingVisitUuid;
 
-  String get selectedStatus {
+  String get selectedTab {
     switch (selectedTabIndex) {
       case 1:
         return 'completed';
       case 2:
         return 'cancelled';
       default:
-        return 'confirmed';
+        return 'upcoming';
     }
   }
 
@@ -36,7 +38,10 @@ class MyBookingCubit extends Cubit<MyBookingState> {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  void init() {
+  void init({String? languageCode}) {
+    if (languageCode != null) {
+      this.languageCode = languageCode;
+    }
     getMyBookings(refresh: true);
   }
 
@@ -71,7 +76,10 @@ class MyBookingCubit extends Cubit<MyBookingState> {
     getMyBookings();
   }
 
-  void getMyBookings({bool refresh = false}) {
+  void getMyBookings({bool refresh = false, String? languageCode}) {
+    if (languageCode != null) {
+      this.languageCode = languageCode;
+    }
     if (refresh) {
       bookingsCurrentPage = 1;
       bookingsLastPage = 1;
@@ -85,9 +93,10 @@ class MyBookingCubit extends Cubit<MyBookingState> {
 
     _myBookingRepo
         .getMyBookings(
-          status: selectedStatus,
+          tab: selectedTab,
           bookingDate: selectedBookingDate,
           page: bookingsCurrentPage,
+          languageCode: this.languageCode,
         )
         .then((value) {
           value.fold(
@@ -117,6 +126,34 @@ class MyBookingCubit extends Cubit<MyBookingState> {
           isBookingsLoading = false;
           isBookingsPaginationLoading = false;
           emit(OnMyBookingCatchErrorState());
+        });
+  }
+
+  void cancelVisit(String visitUuid) {
+    if (visitUuid.isEmpty || cancellingVisitUuid != null) return;
+
+    cancellingVisitUuid = visitUuid;
+    emit(OnCancelVisitLoadingState());
+
+    _myBookingRepo
+        .cancelVisit(visitUuid: visitUuid, languageCode: languageCode)
+        .then((value) {
+          cancellingVisitUuid = null;
+          value.fold(
+            (failure) {
+              emit(OnMyBookingErrorState());
+              getMyBookings(refresh: true);
+            },
+            (_) {
+              emit(OnCancelVisitSuccessState());
+              getMyBookings(refresh: true);
+            },
+          );
+        })
+        .catchError((error) {
+          cancellingVisitUuid = null;
+          emit(OnMyBookingCatchErrorState());
+          getMyBookings(refresh: true);
         });
   }
 

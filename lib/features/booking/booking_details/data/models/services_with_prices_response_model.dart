@@ -32,6 +32,7 @@ class ServiceWithPriceModel {
   final String? imageUrl;
   final int active;
   final int estimatedDurationMinutes;
+  final String currency;
   final ServicePricingModel pricing;
 
   ServiceWithPriceModel({
@@ -44,23 +45,39 @@ class ServiceWithPriceModel {
     this.imageUrl,
     required this.active,
     required this.estimatedDurationMinutes,
+    required this.currency,
     required this.pricing,
   });
 
   factory ServiceWithPriceModel.fromJson(Map<String, dynamic> json) {
+    final pricingJson = json['pricing'] is Map<String, dynamic>
+        ? json['pricing'] as Map<String, dynamic>
+        : <String, dynamic>{
+            'final_price': json['price'] ?? json['resolved_price'],
+            'source_type': json['source_type'],
+          };
     return ServiceWithPriceModel(
       uuid: json['uuid'] ?? '',
       subCategoryUuid: json['sub_category_uuid'] ?? '',
       subCategoryName: json['sub_category_name'] ?? '',
       category: json['category'] ?? '',
-      name: json['name'] ?? '',
+      name: _localizedText(json['name']),
       description: json['description'] ?? '',
       imageUrl: json['image_url'],
       active: json['active'] ?? 0,
-      estimatedDurationMinutes: json['estimated_duration_minutes'] ?? 0,
-      pricing: ServicePricingModel.fromJson(json['pricing'] ?? {}),
+      estimatedDurationMinutes:
+          json['estimated_duration_minutes'] ?? json['duration_minutes'] ?? 0,
+      currency: json['currency']?.toString() ?? '',
+      pricing: ServicePricingModel.fromJson(pricingJson),
     );
   }
+}
+
+String _localizedText(dynamic value) {
+  if (value is Map) {
+    return (value['en'] ?? value['ar'] ?? '').toString();
+  }
+  return value?.toString() ?? '';
 }
 
 class ServicePricingModel {

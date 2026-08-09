@@ -15,3 +15,7 @@ class OnMyBookingPaginationSuccessState extends MyBookingState {}
 class OnMyBookingErrorState extends MyBookingState {}
 
 class OnMyBookingCatchErrorState extends MyBookingState {}
+
+class OnCancelVisitLoadingState extends MyBookingState {}
+
+class OnCancelVisitSuccessState extends MyBookingState {}

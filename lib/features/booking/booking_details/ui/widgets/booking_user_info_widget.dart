@@ -9,11 +9,13 @@ class BookingUserInfoWidget extends StatelessWidget {
   final String userName;
   final String bookingId;
   final String bookingStatus;
+  final String? bookingStatusLabel;
   const BookingUserInfoWidget({
     Key? key,
     required this.userName,
     required this.bookingId,
     required this.bookingStatus,
+    this.bookingStatusLabel,
   }) : super(key: key);
 
   @override
@@ -129,6 +131,10 @@ class BookingUserInfoWidget extends StatelessWidget {
   }
 
   String _getStatusLabel(BuildContext context) {
+    if (bookingStatusLabel?.isNotEmpty == true) {
+      return bookingStatusLabel!;
+    }
+
     switch (bookingStatus.toLowerCase()) {
       case 'processing':
         return context.tr('myBooking.processing');

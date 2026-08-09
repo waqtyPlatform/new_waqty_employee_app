@@ -19,43 +19,43 @@ class LoginCubit extends Cubit<LoginState> {
   TextEditingController countryCodeController = TextEditingController();
 
   int selectedFieldNumber = 0;
-  changeSelectedField(int value) {
+  void changeSelectedField(int value) {
     selectedFieldNumber = value;
     emit(OnChangeSelectedFieldState());
   }
 
   bool isPasswordVisibleLogin = true;
 
-  changePasswordLoginState() {
+  void changePasswordLoginState() {
     isPasswordVisibleLogin = !isPasswordVisibleLogin;
     emit(IsPasswordVisibleState());
   }
 
   Future<void> login() async {
     emit(OnLoginLoadingState());
-    final response = await _loginRepo
-        .login(
-          LoginRequestModel(
-            email: emailController.text,
-            password: passwordController.text,
-          ),
-        )
-        .catchError((error) {
-          emit(OnLoginCatchErrorState());
-        });
-    response.fold(
-      (failure) {
-        if (failure.message.isNotEmpty) {
-          emit(OnLoginErrorState(message: failure.message));
-        } else {
-          emit(OnLoginCatchErrorState());
-        }
-      },
-      (result) async {
-        await cashUserData(result);
-        emit(OnLoginSuccessState(message: result.message));
-      },
-    );
+    try {
+      final response = await _loginRepo.login(
+        LoginRequestModel(
+          email: emailController.text,
+          password: passwordController.text,
+        ),
+      );
+      response.fold(
+        (failure) {
+          if (failure.message.isNotEmpty) {
+            emit(OnLoginErrorState(message: failure.message));
+          } else {
+            emit(OnLoginCatchErrorState());
+          }
+        },
+        (result) async {
+          await cashUserData(result);
+          emit(OnLoginSuccessState(message: result.message));
+        },
+      );
+    } catch (_) {
+      emit(OnLoginCatchErrorState());
+    }
   }
 
   Future<void> cashUserData(LoginResponseModel response) async {
@@ -63,7 +63,17 @@ class LoginCubit extends Cubit<LoginState> {
       ConstantKeys.saveTokenToShared,
       response.token,
     );
+    if (response.expiresIn > 0) {
+      final expiresAt = DateTime.now()
+          .add(Duration(seconds: response.expiresIn))
+          .millisecondsSinceEpoch
+          .toString();
+      await CacheHelper.setSecuredString(
+        ConstantKeys.saveTokenExpiresAtToShared,
+        expiresAt,
+      );
+    }
   }
 
-  static LoginCubit get(context) => BlocProvider.of(context);
+  static LoginCubit get(BuildContext context) => BlocProvider.of(context);
 }

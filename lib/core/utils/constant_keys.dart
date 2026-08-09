@@ -1,6 +1,7 @@
 class ConstantKeys {
   /// shared
   static const saveTokenToShared = "TOKEN";
+  static const saveTokenExpiresAtToShared = "TOKEN_EXPIRES_AT";
 
   ///user setting
   static const saveEmailToShared = "EMAIL";

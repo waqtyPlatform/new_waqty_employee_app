@@ -10,16 +10,34 @@ class MyBookingRepo {
   MyBookingRepo(this._myBookingService);
 
   Future<Either<Failure, MyBookingResponseModel>> getMyBookings({
-    required String status,
+    required String tab,
     required String bookingDate,
     required int page,
+    required String languageCode,
   }) async {
     try {
       return Right(
         await _myBookingService.getMyBookings(
-          status: status,
+          tab: tab,
           bookingDate: bookingDate,
           page: page,
+          languageCode: languageCode,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, void>> cancelVisit({
+    required String visitUuid,
+    required String languageCode,
+  }) async {
+    try {
+      return Right(
+        await _myBookingService.cancelVisit(
+          visitUuid: visitUuid,
+          languageCode: languageCode,
         ),
       );
     } on ServerException catch (failure) {

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/models/my_booking_response_model.dart';
+import 'package:new_waqty_employee_app/features/booking/my_booking/logic/my_booking_cubit.dart';
 
 import 'my_booking_item_card_widget.dart';
 
@@ -39,18 +40,26 @@ class MyBookingCompletedListWidget extends StatelessWidget {
           if (index == bookings.length) {
             return const Center(child: CircularProgressIndicator());
           }
+          final cubit = MyBookingCubit.get(context);
           final booking = bookings[index];
           return MyBookingItemCardWidget(
-            bookingNumber: booking.uuid,
-            bookingStatus: booking.status,
+            bookingNumber: booking.reference.isNotEmpty
+                ? booking.reference
+                : booking.uuid,
+            bookingStatus: booking.displayStatusKey,
+            bookingStatusLabel: booking.statusLabel,
             bookingUuid: booking.uuid,
             bookingTime: booking.formattedStartTime,
             clientName: booking.customerName.isEmpty
                 ? context.tr('myBooking.walkInCustomer')
                 : booking.customerName,
-            serviceName: booking.serviceNameForLanguage(
+            serviceName: booking.servicesNamesForLanguage(
               context.locale.languageCode,
             ),
+            visitsCount: booking.visitsCount,
+            canCancel: booking.canCancel,
+            isCancelLoading: cubit.cancellingVisitUuid == booking.visitUuid,
+            onCancelTap: () => cubit.cancelVisit(booking.visitUuid),
           );
         },
       ),

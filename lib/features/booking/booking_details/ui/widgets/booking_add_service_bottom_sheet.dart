@@ -13,6 +13,7 @@ void showAddServiceBottomSheet(
   BuildContext context,
   BookingDetailsCubit cubit,
   String currency,
+  String? visitUuid,
 ) {
   cubit.getServicesWithPrices(refresh: true);
   showModalBottomSheet(
@@ -23,7 +24,10 @@ void showAddServiceBottomSheet(
     builder: (_) {
       return BlocProvider.value(
         value: cubit,
-        child: BookingAddServiceBottomSheet(currency: currency),
+        child: BookingAddServiceBottomSheet(
+          currency: currency,
+          visitUuid: visitUuid,
+        ),
       );
     },
   );
@@ -31,8 +35,13 @@ void showAddServiceBottomSheet(
 
 class BookingAddServiceBottomSheet extends StatelessWidget {
   final String currency;
+  final String? visitUuid;
 
-  const BookingAddServiceBottomSheet({super.key, required this.currency});
+  const BookingAddServiceBottomSheet({
+    super.key,
+    required this.currency,
+    required this.visitUuid,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +58,9 @@ class BookingAddServiceBottomSheet extends StatelessWidget {
               current is OnServicesWithPricesSuccessState ||
               current is OnServicesWithPricesPaginationLoadingState ||
               current is OnServicesWithPricesPaginationSuccessState ||
+              current is OnAddBookingServiceLoadingState ||
+              current is OnAddBookingServiceSuccessState ||
+              current is OnAddBookingServiceErrorState ||
               current is OnBookingDetailsErrorState ||
               current is OnBookingDetailsCatchErrorState;
         },
@@ -139,6 +151,14 @@ class BookingAddServiceBottomSheet extends StatelessWidget {
           return AddServiceItemWidget(
             service: cubit.servicesWithPrices[index],
             currency: currency,
+            isLoading: cubit.isAddingService,
+            onTap: () {
+              cubit.addServiceToBooking(
+                cubit.servicesWithPrices[index],
+                visitUuid: visitUuid,
+              );
+              Navigator.pop(context);
+            },
           );
         },
       ),
@@ -149,17 +169,21 @@ class BookingAddServiceBottomSheet extends StatelessWidget {
 class AddServiceItemWidget extends StatelessWidget {
   final ServiceWithPriceModel service;
   final String currency;
+  final bool isLoading;
+  final VoidCallback onTap;
 
   const AddServiceItemWidget({
     super.key,
     required this.service,
     required this.currency,
+    required this.isLoading,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pop(context),
+      onTap: isLoading ? null : onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 14.h),
         child: Row(
@@ -171,11 +195,12 @@ class AddServiceItemWidget extends StatelessWidget {
                 color: AppColors.greenColor5005,
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(
-                Icons.add,
-                color: AppColors.greenColor500,
-                size: 18.r,
-              ),
+              child: isLoading
+                  ? Padding(
+                      padding: EdgeInsets.all(10.r),
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(Icons.add, color: AppColors.greenColor500, size: 18.r),
             ),
             horizontalSpace(12),
             Expanded(

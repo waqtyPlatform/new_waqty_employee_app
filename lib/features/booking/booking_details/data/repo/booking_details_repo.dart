@@ -36,10 +36,96 @@ class BookingDetailsRepo {
     }
   }
 
-  Future<Either<Failure, ServicesWithPricesResponseModel>>
-  getServicesWithPrices(int page) async {
+  Future<Either<Failure, BookingDetailsResponseModel>> runBookingAction({
+    required String uuid,
+    required BookingDetailsAction action,
+  }) async {
     try {
-      return Right(await _bookingDetailsService.getServicesWithPrices(page));
+      return Right(
+        await _bookingDetailsService.runBookingAction(
+          uuid: uuid,
+          action: action,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, BookingDetailsResponseModel>> addService({
+    required String uuid,
+    required String serviceUuid,
+    String? visitUuid,
+  }) async {
+    try {
+      return Right(
+        await _bookingDetailsService.addService(
+          uuid: uuid,
+          serviceUuid: serviceUuid,
+          visitUuid: visitUuid,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, ServicesWithPricesResponseModel>>
+  getServicesWithPrices(String uuid, int page) async {
+    try {
+      return Right(
+        await _bookingDetailsService.getServicesWithPrices(uuid, page),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, void>> runVisitAction({
+    required String visitUuid,
+    required BookingVisitAction action,
+  }) async {
+    try {
+      return Right(
+        await _bookingDetailsService.runVisitAction(
+          visitUuid: visitUuid,
+          action: action,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, void>> runBookingItemAction({
+    required String itemUuid,
+    required BookingItemAction action,
+  }) async {
+    try {
+      return Right(
+        await _bookingDetailsService.runBookingItemAction(
+          itemUuid: itemUuid,
+          action: action,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
+
+  Future<Either<Failure, BookingCustomerReviewModel>> submitCustomerReview({
+    required String visitUuid,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      return Right(
+        await _bookingDetailsService.submitCustomerReview(
+          visitUuid: visitUuid,
+          rating: rating,
+          comment: comment,
+        ),
+      );
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }

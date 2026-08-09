@@ -15,22 +15,28 @@ class MyBookingService {
   MyBookingService({required this.apiConsumer});
 
   Future<MyBookingResponseModel> getMyBookings({
-    required String status,
+    required String tab,
     required String bookingDate,
     required int page,
+    required String languageCode,
   }) async {
     final response = await apiConsumer.get(
       MyBookingApiEndPoints.getMyBookings(
-        status: status,
+        tab: tab,
         bookingDate: bookingDate,
         page: page,
       ),
       {
         ConstantKeys.appAuthorization:
             "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
+        ConstantKeys.acceptLanguage: languageCode,
+        ConstantKeys.contentType: ConstantKeys.applicationJson,
+        ConstantKeys.acceptText: ConstantKeys.applicationJson,
       },
     );
 
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == StatusCode.ok) {
       return MyBookingResponseModel.fromJson(jsonDecode(response.body));
     } else {
@@ -39,4 +45,35 @@ class MyBookingService {
       );
     }
   }
+
+  Future<void> cancelVisit({
+    required String visitUuid,
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.patch(
+      MyBookingApiEndPoints.cancelVisit(visitUuid),
+      null,
+      {
+        ConstantKeys.appAuthorization:
+            "${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}",
+        ConstantKeys.acceptLanguage: languageCode,
+        ConstantKeys.contentType: ConstantKeys.applicationJson,
+        ConstantKeys.acceptText: ConstantKeys.applicationJson,
+      },
+    );
+
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      return;
+    } else {
+      throw ServerException(
+        serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
+      );
+    }
+  }
 }
+
+//mailto:ahmed.sameh@waqty-test.com
+//123123123
+
+

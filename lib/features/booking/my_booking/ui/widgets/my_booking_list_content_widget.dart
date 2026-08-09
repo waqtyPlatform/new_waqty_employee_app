@@ -15,7 +15,10 @@ class MyBookingListContentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        cubit.getMyBookings(refresh: true);
+        cubit.getMyBookings(
+          refresh: true,
+          languageCode: context.locale.languageCode,
+        );
       },
       child: _buildContent(context),
     );

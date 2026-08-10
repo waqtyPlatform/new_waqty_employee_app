@@ -165,10 +165,7 @@ class _ProfileClockSuccessData {
           outerColor: AppColors.successColor0,
           innerColor: AppColors.successColor100,
           iconColor: AppColors.whiteColor,
-          message: (context, actionTime) {
-            final time = _timeMessage(context, actionTime);
-            return '$time\n${context.tr('profile.clockedOutMessage')}';
-          },
+          message: _timeMessage,
         );
     }
   }

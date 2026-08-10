@@ -4,15 +4,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_clock_action_dialog_widget.dart';
 
 class ProfileUserWorkTimeWidget extends StatelessWidget {
   final bool isClockedIn;
+  final bool isOnBreak;
   final bool isLoading;
 
   const ProfileUserWorkTimeWidget({
     super.key,
     required this.isClockedIn,
+    this.isOnBreak = false,
     this.isLoading = false,
   });
 
@@ -41,6 +44,8 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
           : () => ProfileClockActionDialogWidget.show(
               context,
               isClockedIn: isClockedIn,
+              cubit: ProfileCubit.get(context),
+              isOnBreak: isOnBreak,
             ),
       child: Container(
         height: 74.6.h,

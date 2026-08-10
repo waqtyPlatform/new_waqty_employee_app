@@ -31,11 +31,74 @@ class AttendanceService {
     );
 
     if (response.statusCode == StatusCode.ok) {
-      return AttendanceResponseModel.fromJson(jsonDecode(response.body));
+      return AttendanceResponseModel.fromJson(_decodeMap(response.body));
     } else {
+      _throwServerFailure(response.body);
+    }
+  }
+
+  Map<String, dynamic> _decodeMap(String body) {
+    try {
+      final decodedBody = jsonDecode(body);
+      return _asMap(decodedBody);
+    } on FormatException {
+      final fixedBody = _bodyWithMissingClosingBraces(body);
+      if (fixedBody != null) {
+        final decodedBody = jsonDecode(fixedBody);
+        return _asMap(decodedBody);
+      }
       throw ServerException(
-        serverFailure: ServerFailure.fromJson(jsonDecode(response.body)),
+        serverFailure: const ServerFailure(message: 'Invalid server response'),
       );
     }
+  }
+
+  String? _bodyWithMissingClosingBraces(String body) {
+    final trimmedBody = body.trimRight();
+    if (!trimmedBody.startsWith('{')) return null;
+
+    final missingBraces = _missingClosingBraces(trimmedBody);
+    if (missingBraces <= 0 || missingBraces > 2) return null;
+
+    return trimmedBody + ('}' * missingBraces);
+  }
+
+  int _missingClosingBraces(String body) {
+    var openedBraces = 0;
+    var inString = false;
+    var isEscaped = false;
+
+    for (final codeUnit in body.codeUnits) {
+      final character = String.fromCharCode(codeUnit);
+      if (isEscaped) {
+        isEscaped = false;
+        continue;
+      }
+      if (character == '\\') {
+        isEscaped = true;
+        continue;
+      }
+      if (character == '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+
+      if (character == '{') openedBraces++;
+      if (character == '}') openedBraces--;
+    }
+
+    return openedBraces;
+  }
+
+  Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return <String, dynamic>{};
+  }
+
+  Never _throwServerFailure(String body) {
+    final decodedBody = _decodeMap(body);
+    throw ServerException(serverFailure: ServerFailure.fromJson(decodedBody));
   }
 }

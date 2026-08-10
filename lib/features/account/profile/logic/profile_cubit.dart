@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/attendance_session_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
@@ -9,8 +11,12 @@ class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit(this._profileRepo) : super(ProfileInitialState());
 
   ProfileResponseModel? profileResponseModel;
+  AttendanceSessionModel? currentAttendanceSession;
   bool isClockedIn = false;
+  bool isOnBreak = false;
   bool isCurrentAttendanceLoading = false;
+  bool isAttendanceActionLoading = false;
+  String attendanceActionErrorMessage = '';
 
   Future<void> init() async {
     await Future.wait([getProfile(), checkCurrentAttendance()]);
@@ -43,18 +49,68 @@ class ProfileCubit extends Cubit<ProfileState> {
       value.fold(
         (l) {
           isClockedIn = false;
+          isOnBreak = false;
+          currentAttendanceSession = null;
           emit(CheckCurrentAttendanceErrorState());
         },
         (r) {
-          isClockedIn = r;
+          currentAttendanceSession = r;
+          isClockedIn = r != null;
+          isOnBreak = r?.isOnBreak == true;
           emit(CheckCurrentAttendanceSuccessState());
         },
       );
     } catch (error) {
       isCurrentAttendanceLoading = false;
       isClockedIn = false;
+      isOnBreak = false;
+      currentAttendanceSession = null;
       emit(CheckCurrentAttendanceCatchErrorState());
     }
+  }
+
+  Future<bool> runAttendanceAction({
+    required ProfileAttendanceAction action,
+    required double latitude,
+    required double longitude,
+  }) async {
+    if (isAttendanceActionLoading) return false;
+
+    isAttendanceActionLoading = true;
+    attendanceActionErrorMessage = '';
+    emit(AttendanceActionLoadingState());
+
+    final value = await _profileRepo.runAttendanceAction(
+      action: action,
+      latitude: latitude,
+      longitude: longitude,
+      idempotencyKey: _idempotencyKey(action),
+    );
+
+    var succeeded = false;
+    value.fold(
+      (failure) {
+        attendanceActionErrorMessage = failure.message;
+        emit(AttendanceActionErrorState());
+      },
+      (session) {
+        currentAttendanceSession = action == ProfileAttendanceAction.clockOut
+            ? null
+            : session;
+        isClockedIn = currentAttendanceSession != null;
+        isOnBreak = currentAttendanceSession?.isOnBreak == true;
+        succeeded = true;
+        emit(AttendanceActionSuccessState());
+      },
+    );
+
+    isAttendanceActionLoading = false;
+    await checkCurrentAttendance();
+    return succeeded;
+  }
+
+  String _idempotencyKey(ProfileAttendanceAction action) {
+    return '${action.name}-${DateTime.now().millisecondsSinceEpoch}';
   }
 
   static ProfileCubit get(dynamic context) => BlocProvider.of(context);

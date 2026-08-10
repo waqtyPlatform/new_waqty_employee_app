@@ -24,6 +24,8 @@ class AttendanceRepo {
       );
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
+    } catch (_) {
+      return const Left(ServerFailure(message: 'Invalid server response'));
     }
   }
 }

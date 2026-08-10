@@ -6,6 +6,8 @@ class AttendanceApiEndPoints {
   static String getAttendance({
     required String dateFrom,
     required String dateTo,
-  }) =>
-      '${EndPoints.baseUrl}/api/employee/attendance?date_from=$dateFrom&date_to=$dateTo';
+  }) {
+    final month = dateFrom.length >= 7 ? dateFrom.substring(0, 7) : dateFrom;
+    return '${EndPoints.baseUrl}/api/employee/attendance?month=$month&date_from=$dateFrom&date_to=$dateTo';
+  }
 }

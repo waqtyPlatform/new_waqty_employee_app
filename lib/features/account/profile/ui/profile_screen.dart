@@ -235,6 +235,7 @@ class _ProfileClockSectionWidget extends StatelessWidget {
         final cubit = ProfileCubit.get(context);
         return ProfileUserWorkTimeWidget(
           isClockedIn: cubit.isClockedIn,
+          isOnBreak: cubit.isOnBreak,
           isLoading: cubit.isCurrentAttendanceLoading,
         );
       },

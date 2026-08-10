@@ -1,27 +1,36 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/attendance_session_model.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_clock_success_dialog_widget.dart';
 
-class ProfileClockActionDialogWidget extends StatelessWidget {
+class ProfileClockActionDialogWidget extends StatefulWidget {
   final bool isClockedIn;
   final bool isOnBreak;
+  final ProfileCubit cubit;
 
   const ProfileClockActionDialogWidget({
     super.key,
     required this.isClockedIn,
+    required this.cubit,
     this.isOnBreak = false,
   });
 
   static Future<void> show(
     BuildContext context, {
     required bool isClockedIn,
+    required ProfileCubit cubit,
     bool isOnBreak = false,
   }) {
     return showGeneralDialog<void>(
@@ -35,6 +44,7 @@ class ProfileClockActionDialogWidget extends StatelessWidget {
           child: Center(
             child: ProfileClockActionDialogWidget(
               isClockedIn: isClockedIn,
+              cubit: cubit,
               isOnBreak: isOnBreak,
             ),
           ),
@@ -44,9 +54,33 @@ class ProfileClockActionDialogWidget extends StatelessWidget {
   }
 
   @override
+  State<ProfileClockActionDialogWidget> createState() =>
+      _ProfileClockActionDialogWidgetState();
+}
+
+class _ProfileClockActionDialogWidgetState
+    extends State<ProfileClockActionDialogWidget> {
+  static const double _branchLatitude = 30.0444;
+  static const double _branchLongitude = 31.2357;
+  static const double _branchRangeMeters = 100;
+
+  ProfileAttendanceAction? _loadingAction;
+  Position? _currentPositionValue;
+  bool _isCheckingBranchRange = true;
+  bool? _isWithinBranchRange;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBranchRangeStatus();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final actionKey = isClockedIn ? 'profile.clockOut' : 'profile.clockIn';
-    final actionColor = isClockedIn
+    final actionKey = widget.isClockedIn
+        ? 'profile.clockOut'
+        : 'profile.clockIn';
+    final actionColor = widget.isClockedIn
         ? AppColors.errorColor100
         : AppColors.greenColor500;
     final now = DateTime.now();
@@ -98,48 +132,179 @@ class ProfileClockActionDialogWidget extends StatelessWidget {
             verticalSpace(16),
             const _ClockBranchInfoWidget(),
             verticalSpace(12),
-            _BranchRangeWidget(color: actionColor),
-            if (isClockedIn) ...[
+            _BranchRangeWidget(
+              isChecking: _isCheckingBranchRange,
+              isWithinRange: _isWithinBranchRange,
+            ),
+            if (widget.isClockedIn) ...[
               verticalSpace(12),
-              _ClockDurationWidget(isOnBreak: isOnBreak),
+              _ClockDurationWidget(
+                isOnBreak: widget.isOnBreak,
+                session: widget.cubit.currentAttendanceSession,
+              ),
             ],
-            verticalSpace(12),
-            _ClockActionButtonWidget(
-              title: context.tr(actionKey),
-              color: actionColor,
-              onTap: () {
-                final navigator = Navigator.of(context);
-                final parentContext = navigator.context;
-                Navigator.pop(context);
-                ProfileClockSuccessDialogWidget.show(
-                  parentContext,
-                  type: isClockedIn
+            if (!widget.isOnBreak) ...[
+              verticalSpace(12),
+              _ClockActionButtonWidget(
+                title: context.tr(actionKey),
+                color: actionColor,
+                isLoading: _isActionLoading(
+                  widget.isClockedIn
+                      ? ProfileAttendanceAction.clockOut
+                      : ProfileAttendanceAction.clockIn,
+                ),
+                isDisabled: _loadingAction != null,
+                onTap: () => _runAction(
+                  context,
+                  widget.isClockedIn
+                      ? ProfileAttendanceAction.clockOut
+                      : ProfileAttendanceAction.clockIn,
+                  widget.isClockedIn
                       ? ProfileClockSuccessType.clockedOut
                       : ProfileClockSuccessType.clockedIn,
-                );
-              },
-            ),
-            if (isClockedIn) ...[
-              verticalSpace(12),
+                ),
+              ),
+            ],
+            if (widget.isClockedIn) ...[
+              verticalSpace(widget.isOnBreak ? 12 : 12),
               _ClockBreakButtonWidget(
-                isOnBreak: isOnBreak,
-                onTap: () {
-                  final navigator = Navigator.of(context);
-                  final parentContext = navigator.context;
-                  Navigator.pop(context);
-                  ProfileClockSuccessDialogWidget.show(
-                    parentContext,
-                    type: isOnBreak
-                        ? ProfileClockSuccessType.breakEnded
-                        : ProfileClockSuccessType.breakStarted,
-                  );
-                },
+                isOnBreak: widget.isOnBreak,
+                isLoading: _isActionLoading(
+                  widget.isOnBreak
+                      ? ProfileAttendanceAction.endBreak
+                      : ProfileAttendanceAction.startBreak,
+                ),
+                isDisabled: _loadingAction != null,
+                onTap: () => _runAction(
+                  context,
+                  widget.isOnBreak
+                      ? ProfileAttendanceAction.endBreak
+                      : ProfileAttendanceAction.startBreak,
+                  widget.isOnBreak
+                      ? ProfileClockSuccessType.breakEnded
+                      : ProfileClockSuccessType.breakStarted,
+                ),
               ),
             ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _runAction(
+    BuildContext context,
+    ProfileAttendanceAction action,
+    ProfileClockSuccessType successType,
+  ) async {
+    if (_loadingAction != null) return;
+    setState(() => _loadingAction = action);
+
+    final navigator = Navigator.of(context);
+    final parentContext = navigator.context;
+    try {
+      final position = _currentPositionValue ?? await _currentPosition(context);
+      if (position == null) return;
+      _updateBranchRangeStatus(position);
+      if (!context.mounted) return;
+
+      final succeeded = await widget.cubit.runAttendanceAction(
+        action: action,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      if (!context.mounted) return;
+      if (!succeeded) {
+        final message = widget.cubit.attendanceActionErrorMessage.isNotEmpty
+            ? widget.cubit.attendanceActionErrorMessage
+            : 'Attendance action failed';
+        AppConstant.toast(message, false, context);
+        return;
+      }
+
+      Navigator.pop(context);
+      ProfileClockSuccessDialogWidget.show(parentContext, type: successType);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingAction = null);
+      }
+    }
+  }
+
+  bool _isActionLoading(ProfileAttendanceAction action) {
+    return _loadingAction == action;
+  }
+
+  Future<void> _loadBranchRangeStatus() async {
+    final position = await _currentPosition(context);
+    if (!mounted) return;
+    if (position == null) {
+      setState(() {
+        _isCheckingBranchRange = false;
+        _isWithinBranchRange = null;
+      });
+      return;
+    }
+    _updateBranchRangeStatus(position);
+  }
+
+  void _updateBranchRangeStatus(Position position) {
+    final distance = Geolocator.distanceBetween(
+      position.latitude,
+      position.longitude,
+      _branchLatitude,
+      _branchLongitude,
+    );
+    if (!mounted) return;
+    setState(() {
+      _currentPositionValue = position;
+      _isCheckingBranchRange = false;
+      _isWithinBranchRange = distance <= _branchRangeMeters;
+    });
+  }
+
+  Future<Position?> _currentPosition(BuildContext context) async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        await Geolocator.openAppSettings();
+        if (context.mounted) {
+          AppConstant.toast('Location permission is required', false, context);
+        }
+        return null;
+      }
+
+      if (permission == LocationPermission.denied) {
+        if (context.mounted) {
+          AppConstant.toast('Location permission is required', false, context);
+        }
+        return null;
+      }
+
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (context.mounted) {
+          AppConstant.toast('Location service is disabled', false, context);
+        }
+        return null;
+      }
+
+      return Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (_) {
+      if (context.mounted) {
+        AppConstant.toast('Location permission is required', false, context);
+      }
+      return null;
+    }
   }
 }
 
@@ -225,16 +390,6 @@ class _ClockBranchInfoWidget extends StatelessWidget {
               ],
             ),
           ),
-          verticalSpace(8),
-          Padding(
-            padding: EdgeInsetsDirectional.only(start: 24.w),
-            child: Text(
-              context.tr('profile.branchCoordinates'),
-              style: TextStyles.font10greyColorA3w400.copyWith(
-                color: const Color(0xffD4D4D4),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -242,12 +397,27 @@ class _ClockBranchInfoWidget extends StatelessWidget {
 }
 
 class _BranchRangeWidget extends StatelessWidget {
-  final Color color;
+  final bool isChecking;
+  final bool? isWithinRange;
 
-  const _BranchRangeWidget({required this.color});
+  const _BranchRangeWidget({
+    required this.isChecking,
+    required this.isWithinRange,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final color = isChecking
+        ? AppColors.greyColorA3
+        : isWithinRange == true
+        ? AppColors.greenColor500
+        : AppColors.errorColor100;
+    final titleKey = isChecking
+        ? 'profile.checkingBranchRange'
+        : isWithinRange == true
+        ? 'profile.withinBranchRange'
+        : 'profile.outsideBranchRange';
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -258,7 +428,7 @@ class _BranchRangeWidget extends StatelessWidget {
         ),
         horizontalSpace(8),
         Text(
-          context.tr('profile.withinBranchRange'),
+          context.tr(titleKey),
           style: TextStyles.font14greenColor500W500.copyWith(color: color),
         ),
       ],
@@ -269,18 +439,22 @@ class _BranchRangeWidget extends StatelessWidget {
 class _ClockActionButtonWidget extends StatelessWidget {
   final String title;
   final Color color;
+  final bool isLoading;
+  final bool isDisabled;
   final VoidCallback onTap;
 
   const _ClockActionButtonWidget({
     required this.title,
     required this.color,
+    required this.isLoading,
+    required this.isDisabled,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Container(
         width: double.infinity,
         height: 48.h,
@@ -296,19 +470,56 @@ class _ClockActionButtonWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Text(title, style: TextStyles.font16whiteColorWeight600),
+        child: isLoading
+            ? SizedBox(
+                width: 20.r,
+                height: 20.r,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.w,
+                  color: AppColors.whiteColor,
+                ),
+              )
+            : Text(title, style: TextStyles.font16whiteColorWeight600),
       ),
     );
   }
 }
 
-class _ClockDurationWidget extends StatelessWidget {
+class _ClockDurationWidget extends StatefulWidget {
   final bool isOnBreak;
+  final AttendanceSessionModel? session;
 
-  const _ClockDurationWidget({required this.isOnBreak});
+  const _ClockDurationWidget({required this.isOnBreak, required this.session});
+
+  @override
+  State<_ClockDurationWidget> createState() => _ClockDurationWidgetState();
+}
+
+class _ClockDurationWidgetState extends State<_ClockDurationWidget> {
+  Timer? _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) {
+        setState(() => _now = DateTime.now());
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final durationText = _formatDuration(_shiftDuration);
+    final breakStartedText = _breakStartedText(context);
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 12.8.h, horizontal: .8.w),
@@ -326,14 +537,14 @@ class _ClockDurationWidget extends StatelessWidget {
           ),
           verticalSpace(4),
           Text(
-            '2h 39m',
+            durationText,
             textAlign: TextAlign.center,
             style: TextStyles.font24greyColor900Weight600,
           ),
-          if (isOnBreak) ...[
+          if (widget.isOnBreak && breakStartedText != null) ...[
             verticalSpace(4),
             Text(
-              context.tr('profile.onBreakSince'),
+              breakStartedText,
               textAlign: TextAlign.center,
               style: TextStyles.font12greyColorA3W400.copyWith(
                 color: AppColors.warningColor1001,
@@ -344,20 +555,81 @@ class _ClockDurationWidget extends StatelessWidget {
       ),
     );
   }
+
+  Duration get _shiftDuration {
+    final startAt = widget.isOnBreak
+        ? widget.session?.breakStartedAt ?? widget.session?.clockInAt
+        : widget.session?.clockInAt;
+    if (startAt == null || startAt.trim().isEmpty) {
+      return Duration.zero;
+    }
+
+    final startedAt = _parseDateTime(startAt);
+    if (startedAt == null) return Duration.zero;
+
+    final duration = _now.difference(startedAt.toLocal());
+    return duration.isNegative ? Duration.zero : duration;
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '${hours}h ${minutes}m';
+  }
+
+  String? _breakStartedText(BuildContext context) {
+    final breakStartedAt = widget.session?.breakStartedAt;
+    if (breakStartedAt == null || breakStartedAt.trim().isEmpty) {
+      return null;
+    }
+
+    final startedAt = _parseDateTime(breakStartedAt);
+    if (startedAt == null) return null;
+
+    final time = intl.DateFormat(
+      'h:mm a',
+      context.locale.toString(),
+    ).format(startedAt.toLocal());
+
+    return context.tr('profile.onBreakSinceAt', namedArgs: {'time': time});
+  }
+
+  DateTime? _parseDateTime(String value) {
+    final trimmed = value.trim();
+    final parsedDateTime = DateTime.tryParse(trimmed);
+    if (parsedDateTime != null) return parsedDateTime;
+
+    final timeParts = trimmed.split(':');
+    if (timeParts.length < 2) return null;
+
+    final hour = int.tryParse(timeParts[0]);
+    final minute = int.tryParse(timeParts[1]);
+    if (hour == null || minute == null) return null;
+
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, hour, minute);
+  }
 }
 
 class _ClockBreakButtonWidget extends StatelessWidget {
   final bool isOnBreak;
+  final bool isLoading;
+  final bool isDisabled;
   final VoidCallback onTap;
 
-  const _ClockBreakButtonWidget({required this.isOnBreak, required this.onTap});
+  const _ClockBreakButtonWidget({
+    required this.isOnBreak,
+    required this.isLoading,
+    required this.isDisabled,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final titleKey = isOnBreak ? 'profile.endBreak' : 'profile.takeBreak';
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Container(
         width: double.infinity,
         height: 48.h,
@@ -374,23 +646,32 @@ class _ClockBreakButtonWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.free_breakfast_outlined,
-              size: 20.r,
-              color: AppColors.warningColor1001,
-            ),
-            horizontalSpace(8),
-            Text(
-              context.tr(titleKey),
-              style: TextStyles.font16whiteColorWeight600.copyWith(
-                color: AppColors.warningColor1001,
+        child: isLoading
+            ? SizedBox(
+                width: 20.r,
+                height: 20.r,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.w,
+                  color: AppColors.warningColor1001,
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.free_breakfast_outlined,
+                    size: 20.r,
+                    color: AppColors.warningColor1001,
+                  ),
+                  horizontalSpace(8),
+                  Text(
+                    context.tr(titleKey),
+                    style: TextStyles.font16whiteColorWeight600.copyWith(
+                      color: AppColors.warningColor1001,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

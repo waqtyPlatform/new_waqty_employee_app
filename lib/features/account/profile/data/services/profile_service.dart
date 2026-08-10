@@ -6,6 +6,7 @@ import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/attendance_session_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_api_end_points.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_response_model.dart';
 
@@ -29,21 +30,51 @@ class ProfileService {
     }
   }
 
-  Future<bool> checkCurrentAttendance() async {
+  Future<AttendanceSessionModel?> checkCurrentAttendance() async {
     final response = await apiConsumer.get(
       ProfileApiEndPoints.currentAttendance,
       await _headers(),
     );
 
-    if (response.statusCode != StatusCode.ok) {
-      return false;
+    if (response.statusCode != StatusCode.ok) return null;
+
+    final responseBody = _decodeMap(response.body);
+    final data = responseBody['data'];
+    if (data is Map<String, dynamic>) {
+      return AttendanceSessionModel.fromJson(data);
+    }
+    if (data is Map) {
+      return AttendanceSessionModel.fromJson(Map<String, dynamic>.from(data));
+    }
+    return null;
+  }
+
+  Future<AttendanceSessionModel> runAttendanceAction({
+    required ProfileAttendanceAction action,
+    required double latitude,
+    required double longitude,
+    required String idempotencyKey,
+  }) async {
+    final response = await apiConsumer.post(_attendanceActionEndpoint(action), {
+      'latitude': latitude,
+      'longitude': longitude,
+      'idempotency_key': idempotencyKey,
+    }, await _headers());
+
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      final data = _decodeMap(response.body)['data'];
+      if (data is Map<String, dynamic>) {
+        return AttendanceSessionModel.fromJson(data);
+      }
+      if (data is Map) {
+        return AttendanceSessionModel.fromJson(Map<String, dynamic>.from(data));
+      }
     }
 
-    final responseBody = jsonDecode(response.body);
-    if (responseBody is Map<String, dynamic>) {
-      return responseBody['success'] == true;
-    }
-    return false;
+    throw ServerException(
+      serverFailure: ServerFailure.fromJson(_decodeMap(response.body)),
+    );
   }
 
   Future<Map<String, String>> _headers() async {
@@ -54,4 +85,26 @@ class ProfileService {
       ConstantKeys.acceptText: ConstantKeys.applicationJson,
     };
   }
+
+  Map<String, dynamic> _decodeMap(String body) {
+    final decodedBody = jsonDecode(body);
+    if (decodedBody is Map<String, dynamic>) return decodedBody;
+    if (decodedBody is Map) return Map<String, dynamic>.from(decodedBody);
+    return <String, dynamic>{};
+  }
+
+  String _attendanceActionEndpoint(ProfileAttendanceAction action) {
+    switch (action) {
+      case ProfileAttendanceAction.clockIn:
+        return ProfileApiEndPoints.clockIn;
+      case ProfileAttendanceAction.clockOut:
+        return ProfileApiEndPoints.clockOut;
+      case ProfileAttendanceAction.startBreak:
+        return ProfileApiEndPoints.startBreak;
+      case ProfileAttendanceAction.endBreak:
+        return ProfileApiEndPoints.endBreak;
+    }
+  }
 }
+
+enum ProfileAttendanceAction { clockIn, clockOut, startBreak, endBreak }

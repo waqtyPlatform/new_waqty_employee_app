@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/attendance_session_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_response_model.dart';
 
@@ -17,11 +18,36 @@ class ProfileRepo {
     }
   }
 
-  Future<Either<Failure, bool>> checkCurrentAttendance() async {
+  Future<Either<Failure, AttendanceSessionModel?>>
+  checkCurrentAttendance() async {
     try {
       return Right(await _profileService.checkCurrentAttendance());
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
+    } catch (_) {
+      return const Left(ServerFailure(message: 'Invalid server response'));
+    }
+  }
+
+  Future<Either<Failure, AttendanceSessionModel>> runAttendanceAction({
+    required ProfileAttendanceAction action,
+    required double latitude,
+    required double longitude,
+    required String idempotencyKey,
+  }) async {
+    try {
+      return Right(
+        await _profileService.runAttendanceAction(
+          action: action,
+          latitude: latitude,
+          longitude: longitude,
+          idempotencyKey: idempotencyKey,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    } catch (_) {
+      return const Left(ServerFailure(message: 'Attendance action failed'));
     }
   }
 }

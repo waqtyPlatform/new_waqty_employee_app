@@ -5,9 +5,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/models/attendance_session_model.dart';
@@ -113,19 +113,13 @@ class _ProfileClockActionDialogWidgetState
             _ClockDialogHeaderWidget(title: context.tr(actionKey)),
             verticalSpace(12),
             Text(
-              intl.DateFormat(
-                'h:mm:ss a',
-                context.locale.toString(),
-              ).format(now),
+              AppDateFormat.timeWithSeconds(context, now),
               textAlign: TextAlign.center,
               style: TextStyles.font24greyColor900Weight600,
             ),
             verticalSpace(4),
             Text(
-              intl.DateFormat(
-                'EEEE, MMMM d',
-                context.locale.toString(),
-              ).format(now),
+              AppDateFormat.dayMonth(context, now),
               textAlign: TextAlign.center,
               style: TextStyles.font14greyColorA3W400,
             ),
@@ -218,7 +212,7 @@ class _ProfileClockActionDialogWidgetState
       if (!succeeded) {
         final message = widget.cubit.attendanceActionErrorMessage.isNotEmpty
             ? widget.cubit.attendanceActionErrorMessage
-            : 'Attendance action failed';
+            : context.tr('profile.attendanceActionFailed');
         AppConstant.toast(message, false, context);
         return;
       }
@@ -274,14 +268,22 @@ class _ProfileClockActionDialogWidgetState
       if (permission == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();
         if (context.mounted) {
-          AppConstant.toast('Location permission is required', false, context);
+          AppConstant.toast(
+            context.tr('profile.locationPermissionRequired'),
+            false,
+            context,
+          );
         }
         return null;
       }
 
       if (permission == LocationPermission.denied) {
         if (context.mounted) {
-          AppConstant.toast('Location permission is required', false, context);
+          AppConstant.toast(
+            context.tr('profile.locationPermissionRequired'),
+            false,
+            context,
+          );
         }
         return null;
       }
@@ -289,7 +291,11 @@ class _ProfileClockActionDialogWidgetState
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (context.mounted) {
-          AppConstant.toast('Location service is disabled', false, context);
+          AppConstant.toast(
+            context.tr('profile.locationServiceDisabled'),
+            false,
+            context,
+          );
         }
         return null;
       }
@@ -301,7 +307,11 @@ class _ProfileClockActionDialogWidgetState
       );
     } catch (_) {
       if (context.mounted) {
-        AppConstant.toast('Location permission is required', false, context);
+        AppConstant.toast(
+            context.tr('profile.locationPermissionRequired'),
+            false,
+            context,
+          );
       }
       return null;
     }
@@ -586,10 +596,7 @@ class _ClockDurationWidgetState extends State<_ClockDurationWidget> {
     final startedAt = _parseDateTime(breakStartedAt);
     if (startedAt == null) return null;
 
-    final time = intl.DateFormat(
-      'h:mm a',
-      context.locale.toString(),
-    ).format(startedAt.toLocal());
+    final time = AppDateFormat.time(context, startedAt.toLocal());
 
     return context.tr('profile.onBreakSinceAt', namedArgs: {'time': time});
   }

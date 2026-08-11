@@ -13,12 +13,12 @@ class OfflineAlertDialog {
       barrierDismissible: false,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: Text("noInternet".tr()),
-          content: Text("noInternetText".tr()),
+          title: Text("common.noInternet".tr()),
+          content: Text("common.noInternetText".tr()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("ok".tr()),
+              child: Text("common.ok".tr()),
             ),
           ],
         );

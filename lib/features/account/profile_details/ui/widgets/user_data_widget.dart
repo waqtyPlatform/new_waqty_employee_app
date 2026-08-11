@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -36,7 +37,7 @@ class UserDataWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Full Name',
+                    context.tr('profileDetails.fullName'),
                     maxLines: 1,
                     style: TextStyles.font10greyColorA3W600,
                   ),
@@ -56,7 +57,7 @@ class UserDataWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Phone Number',
+                    context.tr('profileDetails.phoneNumber'),
                     maxLines: 1,
                     style: TextStyles.font10greyColorA3W600,
                   ),
@@ -96,7 +97,7 @@ class UserDataWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Branch Name',
+                    context.tr('profileDetails.branchName'),
                     maxLines: 1,
                     style: TextStyles.font10greyColorA3W600,
                   ),

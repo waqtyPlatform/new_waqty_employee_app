@@ -55,7 +55,73 @@
     "optional": "اختياري",
     "sendMessage": "إرسال الرسالة",
     "errorMessage": "حدث خطأ ما",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "ok": "تمام",
+    "noInternet": "مفيش اتصال بالإنترنت",
+    "noInternetText": "اتأكد من اتصالك بالإنترنت وحاول تاني"
+  },
+  "date": {
+    "days": {
+      "monday": "الإثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد"
+    },
+    "daysShort": {
+      "monday": "إثن",
+      "tuesday": "ثلا",
+      "wednesday": "أرب",
+      "thursday": "خمي",
+      "friday": "جمع",
+      "saturday": "سبت",
+      "sunday": "أحد"
+    },
+    "months": {
+      "january": "يناير",
+      "february": "فبراير",
+      "march": "مارس",
+      "april": "أبريل",
+      "may": "مايو",
+      "june": "يونيو",
+      "july": "يوليو",
+      "august": "أغسطس",
+      "september": "سبتمبر",
+      "october": "أكتوبر",
+      "november": "نوفمبر",
+      "december": "ديسمبر"
+    },
+    "monthsShort": {
+      "january": "ينا",
+      "february": "فبر",
+      "march": "مار",
+      "april": "أبر",
+      "may": "ماي",
+      "june": "يون",
+      "july": "يول",
+      "august": "أغس",
+      "september": "سبت",
+      "october": "أكت",
+      "november": "نوف",
+      "december": "ديس"
+    },
+    "patterns": {
+      "dayMonth": "{day}، {dayNum} {month}",
+      "monthDayShort": "{dayNum} {month}",
+      "monthYear": "{month} {year}",
+      "fullDate": "{dayNum} {month} {year}",
+      "time": "{hour}:{minute} {marker}",
+      "timeSeconds": "{hour}:{minute}:{second} {marker}",
+      "dateTime": "{date} • {time}",
+      "timeRange": "{start} - {end}"
+    },
+    "am": "ص",
+    "pm": "م",
+    "today": "النهاردة",
+    "yesterday": "إمبارح",
+    "tomorrow": "بكرة"
   },
   "logout": {
     "title": "تسجيل الخروج",
@@ -132,7 +198,11 @@
     "notEnrolledMessage": "لا توجد بصمة أو Face ID مفعلة على هذا الجهاز. يرجى تفعيلها من إعدادات الجهاز.",
     "disableConfirmTitle": "تعطيل الدخول بالبصمة؟",
     "disableConfirmMessage": "هل أنت متأكد أنك تريد تعطيل الدخول بالبصمة؟",
-    "confirmDisableRequired": "يرجى تأكيد تعطيل الدخول بالبصمة."
+    "confirmDisableRequired": "يرجى تأكيد تعطيل الدخول بالبصمة.",
+    "promptEnable": "أكّد هويتك عشان تفعّل الدخول بالبصمة.",
+    "promptUnlock": "أكّد هويتك عشان تفتح وقتي.",
+    "thisDevice": "الجهاز ده",
+    "methodFallback": "بصمة"
   },
   "profile": {
     "sections": {
@@ -181,7 +251,10 @@
     "branchWorkingHours": "9:00 ص - 6:00 م",
     "branchCoordinates": "30.0444°N, 31.2357°E",
     "jobTitle": "مصمم أول",
-    "employeeCode": "EMP-0042"
+    "employeeCode": "EMP-0042",
+    "attendanceActionFailed": "ماقدرناش نسجّل الحضور، حاول تاني",
+    "locationPermissionRequired": "لازم تسمح للتطبيق يوصل لموقعك",
+    "locationServiceDisabled": "خدمة الموقع مقفولة على الجهاز"
   },
   "appPin": {
     "enableAppPin": "تفعيل رمز التطبيق",
@@ -328,21 +401,7 @@
     "outTime": "خروج",
     "dayOff": "إجازة",
     "noScheduledShift": "لا يوجد شيفت محدد",
-    "noWorkingHoursFound": "لا توجد ساعات عمل",
-    "monday": "الإثنين",
-    "tuesday": "الثلاثاء",
-    "wednesday": "الأربعاء",
-    "thursday": "الخميس",
-    "friday": "الجمعة",
-    "saturday": "السبت",
-    "sunday": "الأحد",
-    "mondayShort": "إثن",
-    "tuesdayShort": "ثلا",
-    "wednesdayShort": "أرب",
-    "thursdayShort": "خمي",
-    "fridayShort": "جمع",
-    "saturdayShort": "سبت",
-    "sundayShort": "أحد"
+    "noWorkingHoursFound": "لا توجد ساعات عمل"
   },
   "attendance": {
     "title": "الحضور",
@@ -406,26 +465,26 @@
     "deductionHowMaterials": "• المواد: يتم احتساب الزيادات بسعر التكلفة",
     "deductionHowFinalized": "• يتم اعتماد الخصومات في نهاية فترة الراتب",
     "deductionHowDisputes": "• يجب رفع الاعتراض خلال 7 أيام من الإشعار",
-      "weeklyTrend": "الاتجاه الأسبوعي",
-      "details": "التفاصيل",
-      "earningTrendTitle": "اتجاه الأرباح",
-      "weekly": "أسبوعي",
-      "daily": "يومي",
-      "dailyEarnings": "الأرباح اليومية",
-      "total": "الإجمالي",
-      "avgDay": "متوسط اليوم",
-      "bestDay": "أفضل يوم",
-      "appointments": "المواعيد",
-      "services": "الخدمات",
-      "revenue": "الإيرادات",
-      "servicesPerformed": "الخدمات المنفذة",
-      "extraction": "الخصم",
-      "earningsSummary": "ملخص الأرباح",
-      "serviceRevenue": "إيرادات الخدمات",
-      "netRevenue": "صافي الإيرادات",
-      "commissionPercent": "عمولة 5%",
-      "dayEarnings": "أرباح اليوم",
-      "commissionTarget": "هدف العمولة",
+    "weeklyTrend": "الاتجاه الأسبوعي",
+    "details": "التفاصيل",
+    "earningTrendTitle": "اتجاه الأرباح",
+    "weekly": "أسبوعي",
+    "daily": "يومي",
+    "dailyEarnings": "الأرباح اليومية",
+    "total": "الإجمالي",
+    "avgDay": "متوسط اليوم",
+    "bestDay": "أفضل يوم",
+    "appointments": "المواعيد",
+    "services": "الخدمات",
+    "revenue": "الإيرادات",
+    "servicesPerformed": "الخدمات المنفذة",
+    "extraction": "الخصم",
+    "earningsSummary": "ملخص الأرباح",
+    "serviceRevenue": "إيرادات الخدمات",
+    "netRevenue": "صافي الإيرادات",
+    "commissionPercent": "عمولة 5%",
+    "dayEarnings": "أرباح اليوم",
+    "commissionTarget": "هدف العمولة",
     "monthlyRevenue": "شهريًا: EGP 15,000 إيرادات",
     "estimatedCommission": "العمولة المتوقعة: ~EGP 1,860",
     "recent": "الأحدث",
@@ -533,5 +592,35 @@
     "cancelVisit": "إلغاء الزيارة",
     "confirmCancelVisit": "هل أنت متأكد من إلغاء هذه الزيارة؟",
     "back": "رجوع"
+  },
+  "home": {
+    "todaysEarnings": "أرباح النهاردة",
+    "afterPayrollProcessing": "بعد معالجة الرواتب",
+    "todaysSnapshot": "نظرة على النهاردة",
+    "latestReview": "آخر تقييم",
+    "noReviewsYet": "لسه مفيش تقييمات",
+    "upcomingAppointments": "المواعيد الجاية",
+    "noAppointmentsLeftToday": "مفيش مواعيد تانية النهاردة",
+    "seeAll": "شوف الكل",
+    "searchPlaceholder": "دوّر على عميل أو موعد.."
+  },
+  "myServices": {
+    "title": "خدماتي",
+    "noServicesFound": "مفيش خدمات"
+  },
+  "profileDetails": {
+    "fullName": "الاسم بالكامل",
+    "phoneNumber": "رقم الموبايل",
+    "branchName": "اسم الفرع"
+  },
+  "myStats": {
+    "title": "أدائي",
+    "appointmentsOverview": "نظرة على المواعيد",
+    "revenueTrend": "اتجاه الإيرادات",
+    "avgRating": "متوسط التقييم",
+    "vsLast": "مقارنة باللي فات",
+    "filterToday": "النهاردة",
+    "filterWeek": "الأسبوع",
+    "filterMonth": "الشهر"
   }
 }

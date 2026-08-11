@@ -68,7 +68,14 @@ class ReviewCardWidget extends StatelessWidget {
                       style: TextStyles.font14greyColor900Weight500,
                     ),
                     verticalSpace(2),
-                    Text(date, style: TextStyles.font12greyColor500W400),
+                    // Latin label in an RTL page: without an explicit
+                    // direction the bidi pass throws the leading digit to the
+                    // far side and "2 days ago" renders as "days ago 2".
+                    Text(
+                      date,
+                      textDirection: TextDirection.ltr,
+                      style: TextStyles.font12greyColor500W400,
+                    ),
                   ],
                 ),
               ),

@@ -4,11 +4,22 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
-import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
-  const HomeHeaderWidget({Key? key}) : super(key: key);
+  final String employeeName;
+  final String branchName;
+
+  const HomeHeaderWidget({
+    Key? key,
+    required this.employeeName,
+    required this.branchName,
+  }) : super(key: key);
+
+  String get _initial {
+    final name = employeeName.trim();
+    return name.isEmpty ? '' : String.fromCharCode(name.runes.first);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +38,10 @@ class HomeHeaderWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: AppColors.greyColor300,
                 ),
-                child: CachedNetworkImageWidget(
-                  imgUrl: 'https://ui-avatars.com/api/?name=Aaron+Ramsdale',
-                  radius: BorderRadius.all(Radius.circular(24.r)),
+                alignment: Alignment.center,
+                child: Text(
+                  _initial,
+                  style: TextStyles.font18whiteColorWeight600,
                 ),
               ),
               horizontalSpace(8),
@@ -38,14 +50,14 @@ class HomeHeaderWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hi, on Ramsda Hi, on Ramsda Hi, on Ramsda Hi, on Ramsda',
+                      employeeName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyles.font18whiteColorWeight600,
                     ),
                     verticalSpace(4),
                     Text(
-                      'Maadi Branch',
+                      branchName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyles.font12greyColor3003Weight500,

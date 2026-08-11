@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_details_response_model.dart';
@@ -165,8 +165,7 @@ class _BookingDetailsContent extends StatelessWidget {
     final date = DateTime.tryParse(value);
     if (date == null) return value;
 
-    final locale = context.locale.languageCode == 'ar' ? 'ar' : 'en';
-    return intl.DateFormat('EEEE, MMMM d', locale).format(date);
+    return AppDateFormat.dayMonth(context, date);
   }
 
   String _formatBookingTime(BookingDetailsModel booking, BuildContext context) {
@@ -345,17 +344,22 @@ class _BookingVisitCard extends StatelessWidget {
   }
 
   String _formatVisitRange(BuildContext context) {
-    final start = _formatDateTime(visit.scheduledStartAt);
-    final end = _formatDateTime(visit.scheduledEndAt, timeOnly: true);
+    final start = _formatDateTime(context, visit.scheduledStartAt);
+    final end = _formatDateTime(context, visit.scheduledEndAt, timeOnly: true);
     if (start.isEmpty && end.isEmpty) return '-';
     return '$start - $end';
   }
 
-  String _formatDateTime(String value, {bool timeOnly = false}) {
+  String _formatDateTime(
+    BuildContext context,
+    String value, {
+    bool timeOnly = false,
+  }) {
     final date = DateTime.tryParse(value);
     if (date == null) return '';
-    final pattern = timeOnly ? 'h:mm a' : 'EEEE, MMMM d • h:mm a';
-    return intl.DateFormat(pattern).format(date);
+    return timeOnly
+        ? AppDateFormat.time(context, date)
+        : AppDateFormat.dayMonthTime(context, date);
   }
 }
 

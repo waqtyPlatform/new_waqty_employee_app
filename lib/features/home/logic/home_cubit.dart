@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_state.dart';
 
@@ -7,17 +8,41 @@ class HomeCubit extends Cubit<HomeState> {
 
   HomeCubit(this._homeRepo) : super(InitialState());
 
-  // Example Logic method
-  // getHomeData() {
-  //   emit(OnHomeLoadingState());
-  //   _homeRepo.getHomeData().then((value) {
-  //     value.fold(
-  //         (l) => emit(OnHomeErrorState()),
-  //         (r) => emit(OnHomeSuccessState()));
-  //   }).catchError((error) {
-  //     emit(OnHomeCatchErrorState());
-  //   });
-  // }
+  HomeSummaryModel? summary;
+  String languageCode = 'ar';
+  String errorMessage = '';
+
+  void init({String? languageCode}) {
+    if (languageCode != null) {
+      this.languageCode = languageCode;
+    }
+    getHomeSummary();
+  }
+
+  void getHomeSummary({String? languageCode}) {
+    if (languageCode != null) {
+      this.languageCode = languageCode;
+    }
+    emit(OnHomeLoadingState());
+
+    _homeRepo
+        .getHomeSummary(languageCode: this.languageCode)
+        .then((value) {
+          value.fold(
+            (failure) {
+              errorMessage = failure.message;
+              emit(OnHomeErrorState(failure.message));
+            },
+            (response) {
+              summary = response;
+              emit(OnHomeSuccessState());
+            },
+          );
+        })
+        .catchError((error) {
+          emit(OnHomeCatchErrorState());
+        });
+  }
 
   static HomeCubit get(context) => BlocProvider.of(context);
 }

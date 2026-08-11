@@ -59,7 +59,7 @@ class MainNavigationScreenView extends StatelessWidget {
     switch (currentIndex) {
       case 0:
         return BlocProvider(
-          create: (context) => HomeCubit(getIt()),
+          create: (context) => HomeCubit(getIt())..init(),
           child: const HomeScreen(),
         );
       case 1:
@@ -81,7 +81,7 @@ class MainNavigationScreenView extends StatelessWidget {
         );
       default:
         return BlocProvider(
-          create: (context) => HomeCubit(getIt()),
+          create: (context) => HomeCubit(getIt())..init(),
           child: const HomeScreen(),
         );
     }

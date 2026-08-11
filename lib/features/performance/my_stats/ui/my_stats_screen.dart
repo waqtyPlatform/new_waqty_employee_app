@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -25,7 +26,7 @@ class MyStatsScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         centerTitle: false,
         title: Text(
-          'My Performance',
+          context.tr('myStats.title'),
           style: TextStyles.font18greyColor900Weight600,
         ),
       ),

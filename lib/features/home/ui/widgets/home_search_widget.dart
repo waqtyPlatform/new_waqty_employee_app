@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -12,7 +13,7 @@ class HomeSearchWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
       child: SearchWidget(
-        hintText: 'Search for client, appointment..',
+        hintText: context.tr('home.searchPlaceholder'),
         hintStyle: TextStyles.font14greyColor500W500,
         textStyle: TextStyles.font14whiteColorWeight500,
         backgroundColor: AppColors.greyColor800,

@@ -6,6 +6,8 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 
 class AppointmentCardWidget extends StatelessWidget {
+  /// Empty when there is no photo to show — the booking API carries no customer
+  /// image, so the card falls back to the initial instead of a broken box.
   final String imageUrl;
   final String clientName;
   final String services;
@@ -15,7 +17,7 @@ class AppointmentCardWidget extends StatelessWidget {
 
   const AppointmentCardWidget({
     Key? key,
-    required this.imageUrl,
+    this.imageUrl = '',
     required this.clientName,
     required this.services,
     required this.date,
@@ -53,17 +55,25 @@ class AppointmentCardWidget extends StatelessWidget {
           SizedBox(
             width: 80.w,
             height: 80.h,
-            child: CachedNetworkImageWidget(
-              imgUrl: imageUrl,
-              radius: BorderRadius.circular(8.r),
-            ),
+            child: imageUrl.isEmpty
+                ? _InitialAvatar(name: clientName)
+                : CachedNetworkImageWidget(
+                    imgUrl: imageUrl,
+                    radius: BorderRadius.circular(8.r),
+                  ),
           ),
           horizontalSpace(16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(clientName, style: TextStyles.font16greyColor900Weight600),
+                Text(
+                  clientName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyles.font16greyColor900Weight600,
+                ),
 
                 RichText(
                   text: TextSpan(
@@ -83,6 +93,8 @@ class AppointmentCardWidget extends StatelessWidget {
                 ),
                 Text(
                   '$date • $time • $room',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyles.font12greyColor900Weight400,
                 ),
               ],
@@ -90,6 +102,29 @@ class AppointmentCardWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InitialAvatar extends StatelessWidget {
+  final String name;
+
+  const _InitialAvatar({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = name.trim();
+    final initial = trimmed.isEmpty
+        ? '?'
+        : String.fromCharCode(trimmed.runes.first);
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.greenColor505,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Text(initial, style: TextStyles.font18greyColor900Weight600),
     );
   }
 }

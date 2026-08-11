@@ -55,7 +55,73 @@
     "optional": "Optional",
     "sendMessage": "Send Message",
     "errorMessage": "Something went wrong",
-    "retry": "Retry"
+    "retry": "Retry",
+    "ok": "OK",
+    "noInternet": "No Internet Connection",
+    "noInternetText": "Please check your connection and try again"
+  },
+  "date": {
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "daysShort": {
+      "monday": "MON",
+      "tuesday": "TUE",
+      "wednesday": "WED",
+      "thursday": "THU",
+      "friday": "FRI",
+      "saturday": "SAT",
+      "sunday": "SUN"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "monthsShort": {
+      "january": "Jan",
+      "february": "Feb",
+      "march": "Mar",
+      "april": "Apr",
+      "may": "May",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Aug",
+      "september": "Sep",
+      "october": "Oct",
+      "november": "Nov",
+      "december": "Dec"
+    },
+    "patterns": {
+      "dayMonth": "{day}, {month} {dayNum}",
+      "monthDayShort": "{month} {dayNum}",
+      "monthYear": "{month} {year}",
+      "fullDate": "{month} {dayNum}, {year}",
+      "time": "{hour}:{minute} {marker}",
+      "timeSeconds": "{hour}:{minute}:{second} {marker}",
+      "dateTime": "{date} • {time}",
+      "timeRange": "{start} - {end}"
+    },
+    "am": "AM",
+    "pm": "PM",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
   },
   "logout": {
     "title": "Logout",
@@ -132,7 +198,11 @@
     "notEnrolledMessage": "No fingerprint or Face ID is set up on this device. Please enable it from device settings.",
     "disableConfirmTitle": "Disable biometric login?",
     "disableConfirmMessage": "Are you sure you want to disable biometric login?",
-    "confirmDisableRequired": "Please confirm disabling biometric login."
+    "confirmDisableRequired": "Please confirm disabling biometric login.",
+    "promptEnable": "Authenticate to enable biometric login.",
+    "promptUnlock": "Authenticate to unlock Waqty.",
+    "thisDevice": "This device",
+    "methodFallback": "Biometric"
   },
   "profile": {
     "sections": {
@@ -181,7 +251,10 @@
     "branchWorkingHours": "9:00 AM - 6:00 PM",
     "branchCoordinates": "30.0444°N, 31.2357°E",
     "jobTitle": "Senior Stylist",
-    "employeeCode": "EMP-0042"
+    "employeeCode": "EMP-0042",
+    "attendanceActionFailed": "Attendance action failed, please try again",
+    "locationPermissionRequired": "Location permission is required",
+    "locationServiceDisabled": "Location service is disabled"
   },
   "appPin": {
     "enableAppPin": "Enable App PIN",
@@ -328,21 +401,7 @@
     "outTime": "OUT",
     "dayOff": "Day Off",
     "noScheduledShift": "No scheduled shift",
-    "noWorkingHoursFound": "No working hours found",
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday",
-    "mondayShort": "MON",
-    "tuesdayShort": "TUE",
-    "wednesdayShort": "WED",
-    "thursdayShort": "THU",
-    "fridayShort": "FRI",
-    "saturdayShort": "SAT",
-    "sundayShort": "SUN"
+    "noWorkingHoursFound": "No working hours found"
   },
   "attendance": {
     "title": "Attendance",
@@ -406,26 +465,26 @@
     "deductionHowMaterials": "• Materials: Charged at cost for monthly overages",
     "deductionHowFinalized": "• Deductions are finalized at end of the pay period",
     "deductionHowDisputes": "• Disputes must be raised within 7 days of notification",
-      "weeklyTrend": "Weekly Trend",
-      "details": "Details",
-      "earningTrendTitle": "Earnings Trend",
-      "weekly": "weekly",
-      "daily": "daily",
-      "dailyEarnings": "Daily Earnings",
-      "total": "Total",
-      "avgDay": "Avg/Day",
-      "bestDay": "Best Day",
-      "appointments": "Appointments",
-      "services": "Services",
-      "revenue": "Revenue",
-      "servicesPerformed": "Services Performed",
-      "extraction": "Extraction",
-      "earningsSummary": "Earnings Summary",
-      "serviceRevenue": "Service Revenue",
-      "netRevenue": "Net Revenue",
-      "commissionPercent": "5% Commission",
-      "dayEarnings": "Day Earnings",
-      "commissionTarget": "Commission Target",
+    "weeklyTrend": "Weekly Trend",
+    "details": "Details",
+    "earningTrendTitle": "Earnings Trend",
+    "weekly": "weekly",
+    "daily": "daily",
+    "dailyEarnings": "Daily Earnings",
+    "total": "Total",
+    "avgDay": "Avg/Day",
+    "bestDay": "Best Day",
+    "appointments": "Appointments",
+    "services": "Services",
+    "revenue": "Revenue",
+    "servicesPerformed": "Services Performed",
+    "extraction": "Extraction",
+    "earningsSummary": "Earnings Summary",
+    "serviceRevenue": "Service Revenue",
+    "netRevenue": "Net Revenue",
+    "commissionPercent": "5% Commission",
+    "dayEarnings": "Day Earnings",
+    "commissionTarget": "Commission Target",
     "monthlyRevenue": "Monthly: EGP 15,000 revenue",
     "estimatedCommission": "Est. commission: ~EGP 1,860",
     "recent": "Recent",
@@ -533,5 +592,35 @@
     "cancelVisit": "Cancel Visit",
     "confirmCancelVisit": "Are you sure you want to cancel this visit?",
     "back": "Back"
+  },
+  "home": {
+    "todaysEarnings": "Today's Earnings",
+    "afterPayrollProcessing": "After payroll processing",
+    "todaysSnapshot": "Today's Snapshot",
+    "latestReview": "Latest Review",
+    "noReviewsYet": "No reviews yet",
+    "upcomingAppointments": "Upcoming Appointments",
+    "noAppointmentsLeftToday": "No appointments left today",
+    "seeAll": "See All",
+    "searchPlaceholder": "Search for client, appointment.."
+  },
+  "myServices": {
+    "title": "My Services",
+    "noServicesFound": "No services found"
+  },
+  "profileDetails": {
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "branchName": "Branch Name"
+  },
+  "myStats": {
+    "title": "My Performance",
+    "appointmentsOverview": "Appointments Overview",
+    "revenueTrend": "Revenue Trend",
+    "avgRating": "Avg Rating",
+    "vsLast": "vs last",
+    "filterToday": "Today",
+    "filterWeek": "Week",
+    "filterMonth": "Month"
   }
 }

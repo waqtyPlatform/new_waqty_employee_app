@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -23,7 +24,7 @@ class StatsDashboardWidget extends StatelessWidget {
         ),
         verticalSpace(8),
         StatsDashboardRowWidget(
-          title1: 'Avg Rating',
+          title1: context.tr('myStats.avgRating'),
           title2: 'Utilization',
           value1: '4.7',
           value2: '78%',

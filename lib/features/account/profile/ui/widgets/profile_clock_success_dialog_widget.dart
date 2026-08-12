@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
@@ -171,9 +171,6 @@ class _ProfileClockSuccessData {
   }
 
   static String _timeMessage(BuildContext context, DateTime actionTime) {
-    return intl.DateFormat(
-      'h:mm a',
-      context.locale.toString(),
-    ).format(actionTime);
+    return AppDateFormat.time(context, actionTime);
   }
 }

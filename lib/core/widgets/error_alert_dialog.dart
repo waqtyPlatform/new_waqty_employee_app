@@ -22,7 +22,7 @@ class ErrorAlertDialog {
                   Navigator.pop(context);
                 }
               },
-              child: Text("ok".tr()),
+              child: Text("common.ok".tr()),
             ),
           ],
         );

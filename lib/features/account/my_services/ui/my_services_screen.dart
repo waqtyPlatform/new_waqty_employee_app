@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -69,7 +70,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    'My Services',
+                    context.tr('myServices.title'),
                     style: TextStyles.font18greyColor900Weight600,
                   ),
                   const Spacer(flex: 2),
@@ -111,7 +112,12 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                       } else if (MyServicesCubit.get(
                         context,
                       ).myServices.isEmpty) {
-                        return   Center(child: Text('No Services Found',style: TextStyles.font16greyColor900Weight400));
+                        return Center(
+                          child: Text(
+                            context.tr('myServices.noServicesFound'),
+                            style: TextStyles.font16greyColor900Weight400,
+                          ),
+                        );
                       } else {
                         return Expanded(
                           child: ListView.builder(

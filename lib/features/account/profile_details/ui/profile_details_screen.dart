@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,7 +51,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    'Personal Information',
+                    context.tr('profile.personalInformation'),
                     style: TextStyles.font18greyColor900Weight600,
                   ),
                   const Spacer(flex: 2),

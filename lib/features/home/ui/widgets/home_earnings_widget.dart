@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -5,7 +6,9 @@ import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
 class HomeEarningsWidget extends StatelessWidget {
-  const HomeEarningsWidget({Key? key}) : super(key: key);
+  final String amount;
+
+  const HomeEarningsWidget({Key? key, required this.amount}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +43,14 @@ class HomeEarningsWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Today's Earnings",
+                context.tr('home.todaysEarnings'),
                 style: TextStyles.font12greyColor3003Weight500,
               ),
 
-              Text('EGP 340', style: TextStyles.font32greyColor900Weight600),
+              Text(amount, style: TextStyles.font32greyColor900Weight600),
 
               Text(
-                'After payroll processing',
+                context.tr('home.afterPayrollProcessing'),
                 style: TextStyles.font10greyColor3003Weight400,
               ),
             ],

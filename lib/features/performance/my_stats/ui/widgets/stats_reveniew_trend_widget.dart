@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -45,7 +46,10 @@ class StatsReveniewTrendWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Revenue Trend', style: TextStyles.font14greyColor900Weight500),
+          Text(
+            context.tr('myStats.revenueTrend'),
+            style: TextStyles.font14greyColor900Weight500,
+          ),
           verticalSpace(12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/models/attendance_response_model.dart';
@@ -254,12 +254,12 @@ class _AttendanceCalendarWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            intl.DateFormat('MMMM yyyy').format(month),
+            AppDateFormat.monthYear(context, month),
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
           Row(
-            children: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+            children: AppDateFormat.dayShorts(context)
                 .map(
                   (day) => Expanded(
                     child: Center(
@@ -400,7 +400,7 @@ class _AttendanceHistoryItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = intl.DateFormat('MMM d').format(item.date);
+    final dateText = AppDateFormat.monthDayShort(context, item.date);
     final timeText = !item.hasAttendance
         ? context.tr('attendance.noShift')
         : '${item.checkIn} - ${item.checkOut} · ${_formatDuration(item.workedMinutes)}';

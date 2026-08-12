@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/models/working_hours_response_model.dart';
@@ -32,7 +32,7 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
     final dayShort = _dayShort(context, items.shiftDate);
     final shiftDate = _formatShiftDate(items.shiftDate);
     final timeRange = hasShift
-        ? '${_formatTime(items.startTime)} - ${_formatTime(items.endTime)}'
+        ? '${_formatTime(context, items.startTime)} - ${_formatTime(context, items.endTime)}'
         : context.tr('workingHours.noScheduledShift');
 
     return Column(
@@ -273,19 +273,19 @@ class _TimelineBarWidget extends StatelessWidget {
           children: [
             _TimePointWidget(
               label: context.tr('workingHours.inTime'),
-              time: _formatTime(items.startTime),
+              time: _formatTime(context, items.startTime),
               crossAxisAlignment: CrossAxisAlignment.start,
             ),
             const Spacer(),
             if (items.breakStart != null && items.breakEnd != null)
               _BreakPillWidget(
                 text:
-                    '${_formatTime(items.breakStart!)} - ${_formatTime(items.breakEnd!)}',
+                    '${_formatTime(context, items.breakStart!)} - ${_formatTime(context, items.breakEnd!)}',
               ),
             const Spacer(),
             _TimePointWidget(
               label: context.tr('workingHours.outTime'),
-              time: _formatTime(items.endTime),
+              time: _formatTime(context, items.endTime),
               crossAxisAlignment: CrossAxisAlignment.end,
             ),
           ],
@@ -402,43 +402,26 @@ class _BreakdownCardWidget extends StatelessWidget {
   }
 }
 
-String _formatTime(String value) {
+String _formatTime(BuildContext context, String value) {
   if (value.isEmpty) {
     return '';
   }
-  return AppConstant.convertTo12Hour(value);
+  return AppDateFormat.timeOfDay(context, value);
 }
 
 String _formatShiftDate(String value) {
   return value.trim().isEmpty ? '--' : value;
 }
 
+/// ⚠ التاريخ اللي مش بيتقرا بيرجّع `--` مش «الإثنين». الكود القديم كان
+/// بيرجّع أول يوم في الأسبوع كافتراضي، فالشاشة كانت بتقول يوم غلط بثقة
+/// بدل ما تقول إنها ماتعرفش.
 String _dayName(BuildContext context, String date) {
-  return context.tr('workingHours.${_dayKey(date)}');
+  final parsed = DateTime.tryParse(date);
+  return parsed == null ? '--' : AppDateFormat.dayName(context, parsed);
 }
 
 String _dayShort(BuildContext context, String date) {
-  return context.tr('workingHours.${_dayKey(date)}Short');
-}
-
-String _dayKey(String date) {
-  final parsedDate = DateTime.tryParse(date);
-  switch (parsedDate?.weekday) {
-    case DateTime.monday:
-      return 'monday';
-    case DateTime.tuesday:
-      return 'tuesday';
-    case DateTime.wednesday:
-      return 'wednesday';
-    case DateTime.thursday:
-      return 'thursday';
-    case DateTime.friday:
-      return 'friday';
-    case DateTime.saturday:
-      return 'saturday';
-    case DateTime.sunday:
-      return 'sunday';
-    default:
-      return 'monday';
-  }
+  final parsed = DateTime.tryParse(date);
+  return parsed == null ? '--' : AppDateFormat.dayShort(context, parsed);
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -7,14 +8,28 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeSnapshotWidget extends StatelessWidget {
-  const HomeSnapshotWidget({Key? key}) : super(key: key);
+  final String booked;
+  final String done;
+  final String left;
+  final String rating;
+
+  const HomeSnapshotWidget({
+    Key? key,
+    required this.booked,
+    required this.done,
+    required this.left,
+    required this.rating,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Today's Snapshot", style: TextStyles.font18greyColor900Weight600),
+        Text(
+          context.tr('home.todaysSnapshot'),
+          style: TextStyles.font18greyColor900Weight600,
+        ),
         verticalSpace(8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -23,7 +38,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               imagePath: ImageAsset.bookedIcon,
               iconColor: AppColors.blueColor100,
               iconBgColor: AppColors.blueColor0,
-              value: '7',
+              value: booked,
               label: 'Booked',
             ),
             horizontalSpace(8),
@@ -31,7 +46,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               imagePath: ImageAsset.doneIcon,
               iconColor: AppColors.successColor100,
               iconBgColor: AppColors.successColor0,
-              value: '1',
+              value: done,
               label: 'Done',
             ),
             horizontalSpace(8),
@@ -39,7 +54,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               imagePath: ImageAsset.leftIcon,
               iconColor: AppColors.warningColor100,
               iconBgColor: AppColors.warningColor0,
-              value: '4',
+              value: left,
               label: 'Left',
             ),
             horizontalSpace(8),
@@ -48,7 +63,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               iconColor: AppColors.warningColor3003,
               iconBgColor:
                   AppColors.warningColor0, // Used a light warning color for bg
-              value: '4.8',
+              value: rating,
               label: 'Rating',
             ),
           ],

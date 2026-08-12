@@ -78,16 +78,22 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                 ),
               ),
               horizontalSpace(16),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30.r),
-                  border: Border.all(color: AppColors.greyColorF5),
-                  color: AppColors.greyColorFA,
-                ),
-                child: Text(
-                  notes.isEmpty ? context.tr('bookingDetails.noNotes') : notes,
-                  style: TextStyles.font12greyColorA3W400,
+              // الملاحظة نص حر جاي من الـ API، فلازم تتنازل هي الأولى —
+              // رقم التليفون عمره ما يتقص.
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.r),
+                    border: Border.all(color: AppColors.greyColorF5),
+                    color: AppColors.greyColorFA,
+                  ),
+                  child: Text(
+                    notes.isEmpty ? context.tr('bookingDetails.noNotes') : notes,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
                 ),
               ),
             ],

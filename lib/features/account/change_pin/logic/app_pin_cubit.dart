@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
@@ -193,7 +194,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     }
 
     final authenticated = await biometricAuthService.authenticate(
-      reason: 'Authenticate to enable biometric login.',
+      reason: 'biometricLogin.promptEnable'.tr(),
     );
     if (!authenticated) {
       emit(BiometricAuthFailureState('biometricLogin.authFailed'));
@@ -258,7 +259,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     }
 
     final authenticated = await biometricAuthService.authenticate(
-      reason: 'Authenticate to unlock Waqty.',
+      reason: 'biometricLogin.promptUnlock'.tr(),
     );
     if (authenticated) {
       await _appPinService.saveBiometricLastUsedNow();
@@ -310,33 +311,45 @@ class AppPinCubit extends Cubit<AppPinState> {
   Future<void> _loadBiometricDetails() async {
     final biometricAuthService = _biometricAuthService;
     biometricDeviceName =
-        await biometricAuthService?.getDeviceName() ?? 'This device';
+        await biometricAuthService?.getDeviceName() ?? 'biometricLogin.thisDevice'.tr();
     biometricMethod =
-        await biometricAuthService?.getBiometricMethodLabel() ?? 'Biometric';
+        await biometricAuthService?.getBiometricMethodLabel() ?? 'biometricLogin.methodFallback'.tr();
     final enabledAt = await _appPinService.getBiometricEnabledAt();
     final lastUsedAt = await _appPinService.getBiometricLastUsedAt();
     biometricEnabledAtText = _formatBiometricDate(enabledAt);
     biometricLastUsedText = _formatBiometricDate(lastUsedAt);
   }
 
+  /// ⚠ الـ Cubit مالوش `BuildContext`، فبيستخدم `'key'.tr()` العامة بدل
+  /// `AppDateFormat` — نفس مفاتيح `date.*` بالظبط، فالوقت هنا بيقرا زي
+  /// الوقت في أي شاشة تانية.
   String _formatBiometricDate(DateTime? value) {
     if (value == null) return '';
     final now = DateTime.now();
     final localValue = value.toLocal();
     final hour12 = localValue.hour % 12 == 0 ? 12 : localValue.hour % 12;
-    final minute = localValue.minute.toString().padLeft(2, '0');
-    final suffix = localValue.hour >= 12 ? 'PM' : 'AM';
-    final time = '$hour12:$minute $suffix';
+    final time = 'date.patterns.time'.tr(
+      namedArgs: {
+        'hour': '$hour12',
+        'minute': localValue.minute.toString().padLeft(2, '0'),
+        'marker': (localValue.hour < 12 ? 'date.am' : 'date.pm').tr(),
+      },
+    );
 
     final isToday =
         localValue.year == now.year &&
         localValue.month == now.month &&
         localValue.day == now.day;
-    if (isToday) return 'Today, $time';
 
     final day = localValue.day.toString().padLeft(2, '0');
     final month = localValue.month.toString().padLeft(2, '0');
-    return '$day/$month/${localValue.year}, $time';
+    final datePart = isToday
+        ? 'date.today'.tr()
+        : '$day/$month/${localValue.year}';
+
+    return 'date.patterns.dateTime'.tr(
+      namedArgs: {'date': datePart, 'time': time},
+    );
   }
 
   Future<bool> _emitLockStateIfNeeded() async {

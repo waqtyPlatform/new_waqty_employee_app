@@ -17,6 +17,8 @@ class LoginRepo {
       return Right(await _loginService.login(parameter));
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));
+    } catch (error) {
+      return Left(ServerFailure(message: error.toString()));
     }
   }
 }

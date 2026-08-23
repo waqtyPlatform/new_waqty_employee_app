@@ -34,7 +34,13 @@ class LoginButtonWidget extends StatelessWidget {
         } else if (state is OnLoginErrorState) {
           AppConstant.toast(state.message, false, context);
         } else if (state is OnLoginCatchErrorState) {
-          AppConstant.toast(context.tr('login.loginErrorDesc'), false, context);
+          AppConstant.toast(
+            state.message.isNotEmpty
+                ? state.message
+                : context.tr('login.loginErrorDesc'),
+            false,
+            context,
+          );
         }
       },
       builder: (context, state) {

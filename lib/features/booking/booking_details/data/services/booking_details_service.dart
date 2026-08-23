@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:new_waqty_employee_app/core/api/api_consumer.dart';
 import 'package:new_waqty_employee_app/core/api/status_code.dart';
 import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_addable_items_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_details_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/services_with_prices_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/services/booking_details_api_end_points.dart';
@@ -65,6 +67,36 @@ class BookingDetailsService {
     return _parseBookingMutationResponse(response);
   }
 
+  Future<BookingDetailsResponseModel> addBookingItem({
+    required String uuid,
+    required String visitUuid,
+    required String itemType,
+    String? serviceUuid,
+    String? packageUuid,
+    String? packagePurchaseUuid,
+    String? followUpUuid,
+    int quantity = 1,
+    String? bookingMode,
+  }) async {
+    final body = <String, dynamic>{
+      'visit_uuid': visitUuid,
+      'item_type': itemType,
+      if (serviceUuid?.isNotEmpty == true) 'service_uuid': serviceUuid,
+      if (packageUuid?.isNotEmpty == true) 'package_uuid': packageUuid,
+      if (packagePurchaseUuid?.isNotEmpty == true)
+        'package_purchase_uuid': packagePurchaseUuid,
+      if (followUpUuid?.isNotEmpty == true) 'follow_up_uuid': followUpUuid,
+      if (quantity > 1) 'quantity': quantity,
+      if (bookingMode?.isNotEmpty == true) 'booking_mode': bookingMode,
+    };
+    final response = await apiConsumer.post(
+      BookingDetailsApiEndPoints.addBookingItem(uuid),
+      body,
+      await _headers(),
+    );
+    return _parseBookingMutationResponse(response);
+  }
+
   Future<void> runVisitAction({
     required String visitUuid,
     required BookingVisitAction action,
@@ -80,12 +112,13 @@ class BookingDetailsService {
   Future<void> runBookingItemAction({
     required String itemUuid,
     required BookingItemAction action,
+    int? unitsConsumed,
   }) async {
     final response = await apiConsumer.patch(
       action == BookingItemAction.start
           ? BookingDetailsApiEndPoints.startBookingItem(itemUuid)
           : BookingDetailsApiEndPoints.endBookingItem(itemUuid),
-      null,
+      unitsConsumed == null ? null : {'units_consumed': unitsConsumed},
       await _headers(),
     );
     _throwIfFailed(response);
@@ -147,12 +180,44 @@ class BookingDetailsService {
     }
   }
 
+  Future<BookingAddableItemsResponseModel> getAddableItems({
+    required String bookingUuid,
+    required String visitUuid,
+  }) async {
+    final response = await apiConsumer.get(
+      BookingDetailsApiEndPoints.getAddableItems(
+        bookingUuid: bookingUuid,
+        visitUuid: visitUuid,
+      ),
+      await _headers(),
+    );
+
+    if (response.statusCode == StatusCode.ok) {
+      return BookingAddableItemsResponseModel.fromJson(
+        _decodeMap(response.body),
+      );
+    } else {
+      _throwServerFailure(response);
+    }
+  }
+
   Never _throwServerFailure(dynamic response) {
+    debugPrint('BookingDetails API error status: ${response.statusCode}');
+    debugPrint('BookingDetails API error body: ${response.body}');
+
     String message = '';
     try {
       final decodedBody = jsonDecode(response.body);
       if (decodedBody is Map<String, dynamic>) {
-        message = decodedBody['message']?.toString() ?? '';
+        final code =
+            decodedBody['code']?.toString() ??
+            decodedBody['error']?.toString() ??
+            '';
+        final bodyMessage = decodedBody['message']?.toString() ?? '';
+        message = [
+          code,
+          bodyMessage,
+        ].where((value) => value.trim().isNotEmpty).join(' ');
       }
     } catch (_) {}
 

@@ -4,6 +4,7 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_details_response_model.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_item_source_section.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BookingServicesWidget extends StatelessWidget {
@@ -26,7 +27,7 @@ class BookingServicesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         border: Border.all(
@@ -86,24 +87,244 @@ class BookingServicesWidget extends StatelessWidget {
               style: TextStyles.font12greyColorA3W400,
             )
           else
-            ...List.generate(services.length, (index) {
-              final service = services[index];
+            ...List.generate(_displaySections.length, (sectionIndex) {
+              final section = _displaySections[sectionIndex];
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _BookingServiceLineRow(
-                    service: service,
-                    isLoading: loadingItemUuid == service.itemUuid,
-                    onStartService: onStartService,
-                    onEndService: onEndService,
-                  ),
-                  if (index != services.length - 1) ...[
-                    verticalSpace(12),
+                  if (_displaySections.length > 1) ...[
+                    _BookingSourceSectionTitle(title: section.title(context)),
+                    verticalSpace(10),
+                  ],
+                  ...List.generate(section.rows.length, (rowIndex) {
+                    final row = section.rows[rowIndex];
+                    return Column(
+                      children: [
+                        if (row.services.length > 1)
+                          _BookingPackageGroupRow(
+                            services: row.services,
+                            loadingItemUuid: loadingItemUuid,
+                            onStartService: onStartService,
+                            onEndService: onEndService,
+                          )
+                        else
+                          _BookingServiceLineRow(
+                            service: row.services.first,
+                            isLoading:
+                                loadingItemUuid == row.services.first.itemUuid,
+                            onStartService: onStartService,
+                            onEndService: onEndService,
+                          ),
+                        if (rowIndex != section.rows.length - 1) ...[
+                          verticalSpace(12),
+                          Divider(color: AppColors.greyColorF5, thickness: 1),
+                          verticalSpace(12),
+                        ],
+                      ],
+                    );
+                  }),
+                  if (sectionIndex != _displaySections.length - 1) ...[
+                    verticalSpace(14),
                     Divider(color: AppColors.greyColorF5, thickness: 1),
-                    verticalSpace(12),
+                    verticalSpace(14),
                   ],
                 ],
               );
             }),
+        ],
+      ),
+    );
+  }
+
+  List<_BookingServiceDisplaySection> get _displaySections {
+    final normalRows = <_BookingServiceDisplayRow>[];
+    final packageRows = <_BookingServiceDisplayRow>[];
+    final multiSessionRows = <_BookingServiceDisplayRow>[];
+    final usageRows = <_BookingServiceDisplayRow>[];
+    final followUpRows = <_BookingServiceDisplayRow>[];
+    final groupedItemUuids = <String>{};
+
+    for (final service in services) {
+      if (groupedItemUuids.contains(service.itemUuid)) continue;
+
+      if (service.isSingleVisitPackage) {
+        final instanceId = service.package?.instanceId;
+        final group = <BookingServiceLine>[];
+        if (instanceId?.isNotEmpty == true) {
+          for (final item in services) {
+            if (item.isSingleVisitPackage &&
+                item.package?.instanceId == instanceId) {
+              group.add(item);
+              groupedItemUuids.add(item.itemUuid);
+            }
+          }
+        } else {
+          group.add(service);
+          groupedItemUuids.add(service.itemUuid);
+        }
+        packageRows.add(_BookingServiceDisplayRow(_orderedPackageItems(group)));
+      } else {
+        groupedItemUuids.add(service.itemUuid);
+        if (service.isMultiSession) {
+          multiSessionRows.add(_BookingServiceDisplayRow([service]));
+        } else if (service.isUsageBased) {
+          usageRows.add(_BookingServiceDisplayRow([service]));
+        } else if (service.isFollowUp) {
+          followUpRows.add(_BookingServiceDisplayRow([service]));
+        } else {
+          normalRows.add(_BookingServiceDisplayRow([service]));
+        }
+      }
+    }
+
+    return [
+      if (normalRows.isNotEmpty)
+        _BookingServiceDisplaySection(
+          titleKey: 'bookingDetails.normalServices',
+          rows: normalRows,
+        ),
+      if (packageRows.isNotEmpty)
+        _BookingServiceDisplaySection(
+          titleKey: 'bookingDetails.packageServices',
+          rows: packageRows,
+        ),
+      if (multiSessionRows.isNotEmpty)
+        _BookingServiceDisplaySection(
+          titleKey: 'bookingDetails.multiSessionServices',
+          rows: multiSessionRows,
+        ),
+      if (usageRows.isNotEmpty)
+        _BookingServiceDisplaySection(
+          titleKey: 'bookingDetails.usagePackageServices',
+          rows: usageRows,
+        ),
+      if (followUpRows.isNotEmpty)
+        _BookingServiceDisplaySection(
+          titleKey: 'bookingDetails.followUpServices',
+          rows: followUpRows,
+        ),
+    ];
+  }
+
+  List<BookingServiceLine> _orderedPackageItems(
+    List<BookingServiceLine> items,
+  ) {
+    final indexed = items.indexed.toList();
+    indexed.sort((a, b) {
+      final aPosition = a.$2.package?.itemPosition;
+      final bPosition = b.$2.package?.itemPosition;
+      if (aPosition != null && bPosition != null) {
+        return aPosition.compareTo(bPosition);
+      }
+      if (aPosition != null) return -1;
+      if (bPosition != null) return 1;
+      final aStart = a.$2.scheduledStartAt;
+      final bStart = b.$2.scheduledStartAt;
+      if (aStart.isNotEmpty && bStart.isNotEmpty) {
+        return aStart.compareTo(bStart);
+      }
+      return a.$1.compareTo(b.$1);
+    });
+    return indexed.map((item) => item.$2).toList();
+  }
+}
+
+class _BookingServiceDisplaySection {
+  final String titleKey;
+  final List<_BookingServiceDisplayRow> rows;
+
+  const _BookingServiceDisplaySection({
+    required this.titleKey,
+    required this.rows,
+  });
+
+  String title(BuildContext context) => context.tr(titleKey);
+}
+
+class _BookingSourceSectionTitle extends StatelessWidget {
+  final String title;
+
+  const _BookingSourceSectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: TextStyles.font12greyColorA3W400.copyWith(
+        color: AppColors.greyColor900,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class _BookingServiceDisplayRow {
+  final List<BookingServiceLine> services;
+
+  const _BookingServiceDisplayRow(this.services);
+}
+
+class _BookingPackageGroupRow extends StatelessWidget {
+  final List<BookingServiceLine> services;
+  final String? loadingItemUuid;
+  final void Function(BookingServiceLine service)? onStartService;
+  final void Function(BookingServiceLine service)? onEndService;
+
+  const _BookingPackageGroupRow({
+    required this.services,
+    this.loadingItemUuid,
+    this.onStartService,
+    this.onEndService,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final first = services.first;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: AppColors.greenColor5005,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: AppColors.greenColor500.withValues(alpha: .16),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookingItemSourceSection(service: first),
+          verticalSpace(10),
+          Text(
+            context.tr('bookingDetails.packageIncludedServices'),
+            style: TextStyles.font12greyColorA3W400.copyWith(
+              color: AppColors.greyColor900,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          verticalSpace(8),
+          ...List.generate(services.length, (index) {
+            final service = services[index];
+            return Column(
+              children: [
+                _BookingServiceLineRow(
+                  service: service,
+                  sourceDetails: false,
+                  isLoading: loadingItemUuid == service.itemUuid,
+                  onStartService: onStartService,
+                  onEndService: onEndService,
+                ),
+                if (index != services.length - 1) ...[
+                  verticalSpace(10),
+                  Divider(
+                    color: AppColors.greenColor500.withValues(alpha: .12),
+                    thickness: 1,
+                  ),
+                  verticalSpace(10),
+                ],
+              ],
+            );
+          }),
         ],
       ),
     );
@@ -113,12 +334,14 @@ class BookingServicesWidget extends StatelessWidget {
 class _BookingServiceLineRow extends StatelessWidget {
   final BookingServiceLine service;
   final bool isLoading;
+  final bool sourceDetails;
   final void Function(BookingServiceLine service)? onStartService;
   final void Function(BookingServiceLine service)? onEndService;
 
   const _BookingServiceLineRow({
     required this.service,
     required this.isLoading,
+    this.sourceDetails = true,
     this.onStartService,
     this.onEndService,
   });
@@ -173,6 +396,11 @@ class _BookingServiceLineRow extends StatelessWidget {
                   style: TextStyles.font12greyColorA3W400,
                 ),
               ],
+              verticalSpace(6),
+              BookingItemSourceSection(
+                service: service,
+                showDetails: sourceDetails,
+              ),
               if (service.canStart || service.canEnd) ...[
                 verticalSpace(8),
                 _ServiceActionButton(

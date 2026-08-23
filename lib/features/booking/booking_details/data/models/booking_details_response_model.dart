@@ -81,6 +81,17 @@ class BookingDetailsModel {
         json['start_time'] ?? _timeOnly(json['scheduled_start_at']);
     final fallbackEnd = json['end_time'] ?? _timeOnly(json['scheduled_end_at']);
 
+    final assignedItems =
+        assignedItemsJson
+            ?.whereType<Map>()
+            .map(
+              (item) => BookingAssignedItemModel.fromJson(
+                Map<String, dynamic>.from(item),
+              ),
+            )
+            .toList() ??
+        <BookingAssignedItemModel>[];
+
     return BookingDetailsModel(
       uuid: _asString(json['uuid']),
       reference: _asString(json['reference']),
@@ -110,22 +121,19 @@ class BookingDetailsModel {
       visits:
           (json['visits'] is List ? json['visits'] as List : null)
               ?.whereType<Map>()
-              .map(
-                (item) =>
-                    BookingVisitModel.fromJson(Map<String, dynamic>.from(item)),
-              )
+              .map((item) {
+                final visitJson = Map<String, dynamic>.from(item);
+                final visitUuid = _asString(visitJson['uuid']);
+                return BookingVisitModel.fromJson(
+                  visitJson,
+                  assignedItems: assignedItems
+                      .where((item) => item.visitUuid == visitUuid)
+                      .toList(),
+                );
+              })
               .toList() ??
           [],
-      assignedItems:
-          assignedItemsJson
-              ?.whereType<Map>()
-              .map(
-                (item) => BookingAssignedItemModel.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .toList() ??
-          [],
+      assignedItems: assignedItems,
       totals: totals,
       actions: BookingActionsModel.fromJson(_asMap(json['actions'])),
     );
@@ -143,6 +151,11 @@ class BookingDetailsModel {
   }
 
   List<BookingServiceLine> serviceLinesForDetails(String languageCode) {
+    if (assignedItems.isNotEmpty) {
+      return assignedItems
+          .map((item) => item.toServiceLine(languageCode))
+          .toList();
+    }
     if (services.isNotEmpty) return services;
 
     final legacyName = serviceNameForLanguage(languageCode);
@@ -242,7 +255,10 @@ class BookingVisitModel {
     this.customerReview,
   });
 
-  factory BookingVisitModel.fromJson(Map<String, dynamic> json) {
+  factory BookingVisitModel.fromJson(
+    Map<String, dynamic> json, {
+    List<BookingAssignedItemModel> assignedItems = const [],
+  }) {
     final branchJson = _asMap(json['branch']);
     return BookingVisitModel(
       uuid: _asNullableString(json['uuid']),
@@ -263,7 +279,11 @@ class BookingVisitModel {
         json['customer_lateness_minutes'],
       ),
       notes: _asNullableString(json['notes']),
-      services: _parseServices(json['services']),
+      services: assignedItems.isNotEmpty
+          ? assignedItems.map((item) => item.toServiceLine('ar')).toList()
+          : _parseServices(json['assigned_items']).isNotEmpty
+          ? _parseServices(json['assigned_items'])
+          : _parseServices(json['services']),
       totals: BookingVisitTotalsModel.fromJson(_asMap(json['totals'])),
       actions: BookingVisitActionsModel.fromJson(_asMap(json['actions'])),
       customerReview: json['customer_review'] == null
@@ -369,6 +389,16 @@ class BookingServiceLine {
   final double occupancyPercentage;
   final bool canStart;
   final bool canEnd;
+  final String sourceType;
+  final String sourceTypeRaw;
+  final bool coveredByPackage;
+  final bool coveredByUsagePackage;
+  final int? usageUnitsConsumed;
+  final bool usageRecordingRequired;
+  final PackageMeta? package;
+  final UsagePackageMeta? usagePackage;
+  final FollowUpMeta? followUp;
+  final String newCharge;
 
   const BookingServiceLine({
     required this.itemUuid,
@@ -389,14 +419,35 @@ class BookingServiceLine {
     this.occupancyPercentage = 0,
     this.canStart = false,
     this.canEnd = false,
+    this.sourceType = 'normal_service',
+    this.sourceTypeRaw = '',
+    this.coveredByPackage = false,
+    this.coveredByUsagePackage = false,
+    this.usageUnitsConsumed,
+    this.usageRecordingRequired = false,
+    this.package,
+    this.usagePackage,
+    this.followUp,
+    this.newCharge = '0',
   });
 
   factory BookingServiceLine.fromJson(Map<String, dynamic> json) {
     final employeeJson = _asMap(json['employee']);
+    final packageJson = _asMap(json['package']);
+    final usagePackageJson = _asMap(
+      json['usage_package'] ?? json['usagePackage'],
+    );
+    final followUpJson = _asMap(json['follow_up'] ?? json['followUp']);
+    final sourceType = _bookingItemSourceType(
+      json,
+      packageJson: packageJson,
+      usagePackageJson: usagePackageJson,
+      followUpJson: followUpJson,
+    );
     return BookingServiceLine(
-      itemUuid: _asString(json['item_uuid']),
+      itemUuid: _asString(json['item_uuid'] ?? json['uuid']),
       serviceUuid: _asNullableString(json['uuid']),
-      name: _asNullableString(json['name']),
+      name: _asNullableString(json['name'] ?? _asMap(json['service'])['name']),
       category: _asNullableString(json['category']),
       price: _asString(json['price'], fallback: '0'),
       currency: _asNullableString(json['currency']),
@@ -406,14 +457,326 @@ class BookingServiceLine {
       employee: employeeJson.isEmpty
           ? null
           : BookingDetailsEmployeeModel.fromJson(employeeJson),
-      scheduledStartAt: _asString(json['scheduled_start_at']),
-      scheduledEndAt: _asString(json['scheduled_end_at']),
+      scheduledStartAt: _asString(
+        json['scheduled_start_at'] ?? json['start_at'],
+      ),
+      scheduledEndAt: _asString(json['scheduled_end_at'] ?? json['end_at']),
       actualStartedAt: _asString(json['actual_started_at']),
       actualEndedAt: _asString(json['actual_ended_at']),
       actualDurationMinutes: _asInt(json['actual_duration_minutes']),
       occupancyPercentage: _asDouble(json['occupancy_percentage']),
       canStart: json['can_start'] == true,
       canEnd: json['can_end'] == true,
+      sourceType: sourceType,
+      sourceTypeRaw: _asString(
+        json['source_type_raw'] ?? json['sourceTypeRaw'],
+      ),
+      coveredByPackage:
+          (json['covered_by_package'] ?? json['coveredByPackage']) == true,
+      coveredByUsagePackage:
+          (json['covered_by_usage_package'] ?? json['coveredByUsagePackage']) ==
+          true,
+      usageUnitsConsumed: _asNullableInt(
+        json['usage_units_consumed'] ?? json['usageUnitsConsumed'],
+      ),
+      usageRecordingRequired:
+          (json['usage_recording_required'] ??
+              json['usageRecordingRequired']) ==
+          true,
+      package: packageJson.isEmpty ? null : PackageMeta.fromJson(packageJson),
+      usagePackage: usagePackageJson.isEmpty
+          ? null
+          : UsagePackageMeta.fromJson(usagePackageJson),
+      followUp: followUpJson.isEmpty
+          ? null
+          : FollowUpMeta.fromJson(followUpJson),
+      newCharge: _asString(json['new_charge'], fallback: '0'),
+    );
+  }
+
+  bool get isSingleVisitPackage => sourceType == 'single_visit_package';
+  bool get isMultiSession => sourceType == 'multi_session';
+  bool get isUsageBased => sourceType == 'usage_based';
+  bool get isFollowUp => sourceType == 'follow_up';
+}
+
+class PackageMeta {
+  final String? uuid;
+  final String? purchaseUuid;
+  final String? instanceId;
+  final String? instanceUuid;
+  final String? name;
+  final String? type;
+  final int? itemPosition;
+  final List<PackageServiceMeta> services;
+  final int? sessionNumber;
+  final PackageSessionsMeta? sessions;
+  final PackageUsageMeta? usage;
+  final String? entitlementStatus;
+  final String? expiresAt;
+  final String? basePrice;
+  final String? offerPrice;
+  final String? effectivePrice;
+
+  const PackageMeta({
+    this.uuid,
+    this.purchaseUuid,
+    this.instanceId,
+    this.instanceUuid,
+    this.name,
+    this.type,
+    this.itemPosition,
+    this.services = const [],
+    this.sessionNumber,
+    this.sessions,
+    this.usage,
+    this.entitlementStatus,
+    this.expiresAt,
+    this.basePrice,
+    this.offerPrice,
+    this.effectivePrice,
+  });
+
+  factory PackageMeta.fromJson(Map<String, dynamic> json) {
+    return PackageMeta(
+      uuid: _asNullableString(json['uuid']),
+      purchaseUuid: _asNullableString(
+        json['purchase_uuid'] ?? json['purchaseUuid'],
+      ),
+      instanceId: _asNullableString(json['instance_id'] ?? json['instanceId']),
+      instanceUuid: _asNullableString(
+        json['instance_uuid'] ?? json['instanceUuid'],
+      ),
+      name: _asNullableString(json['name']),
+      type: _asNullableString(json['type']),
+      itemPosition: _asNullableInt(
+        json['item_position'] ?? json['itemPosition'],
+      ),
+      services:
+          (json['services'] is List ? json['services'] as List : null)
+              ?.whereType<Map>()
+              .map(
+                (item) => PackageServiceMeta.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList() ??
+          const [],
+      sessionNumber: _asNullableInt(
+        json['session_number'] ?? json['sessionNumber'],
+      ),
+      sessions: _asMap(json['sessions']).isEmpty
+          ? null
+          : PackageSessionsMeta.fromJson(_asMap(json['sessions'])),
+      usage: _asMap(json['usage']).isEmpty
+          ? null
+          : PackageUsageMeta.fromJson(_asMap(json['usage'])),
+      entitlementStatus: _asNullableString(
+        json['entitlement_status'] ?? json['entitlementStatus'],
+      ),
+      expiresAt: _asNullableString(json['expires_at'] ?? json['expiresAt']),
+      basePrice: _asNullableString(json['base_price'] ?? json['basePrice']),
+      offerPrice: _asNullableString(json['offer_price'] ?? json['offerPrice']),
+      effectivePrice: _asNullableString(
+        json['effective_price'] ?? json['effectivePrice'],
+      ),
+    );
+  }
+}
+
+class PackageServiceMeta {
+  final String? uuid;
+  final String? name;
+  final int durationMinutes;
+
+  const PackageServiceMeta({
+    this.uuid,
+    this.name,
+    required this.durationMinutes,
+  });
+
+  factory PackageServiceMeta.fromJson(Map<String, dynamic> json) {
+    return PackageServiceMeta(
+      uuid: _asNullableString(json['uuid']),
+      name: _asNullableString(json['name']),
+      durationMinutes: _asInt(
+        json['duration_minutes'] ?? json['durationMinutes'],
+      ),
+    );
+  }
+}
+
+class PackageSessionsMeta {
+  final int total;
+  final int reserved;
+  final int used;
+  final int completed;
+  final int available;
+  final int remaining;
+
+  const PackageSessionsMeta({
+    required this.total,
+    required this.reserved,
+    required this.used,
+    required this.completed,
+    required this.available,
+    required this.remaining,
+  });
+
+  factory PackageSessionsMeta.fromJson(Map<String, dynamic> json) {
+    return PackageSessionsMeta(
+      total: _asInt(json['total']),
+      reserved: _asInt(json['reserved']),
+      used: _asInt(json['used']),
+      completed: _asInt(json['completed']),
+      available: _asInt(json['available']),
+      remaining: _asInt(json['remaining']),
+    );
+  }
+}
+
+class PackageUsageMeta {
+  final int? availableUnits;
+  final String? unitCode;
+  final String? unitName;
+
+  const PackageUsageMeta({this.availableUnits, this.unitCode, this.unitName});
+
+  factory PackageUsageMeta.fromJson(Map<String, dynamic> json) {
+    return PackageUsageMeta(
+      availableUnits: _asNullableInt(
+        json['available_units'] ?? json['availableUnits'],
+      ),
+      unitCode: _asNullableString(json['unit_code'] ?? json['unitCode']),
+      unitName: _asNullableString(json['unit_name'] ?? json['unitName']),
+    );
+  }
+}
+
+class UsagePackageMeta {
+  final String? uuid;
+  final String? name;
+  final PackageServiceMeta? selectedService;
+  final List<PackageServiceMeta> allowedServices;
+  final int? availableUnits;
+  final String? unitCode;
+  final String? unitName;
+  final String? entitlementStatus;
+  final String? expiresAt;
+
+  const UsagePackageMeta({
+    this.uuid,
+    this.name,
+    this.selectedService,
+    this.allowedServices = const [],
+    this.availableUnits,
+    this.unitCode,
+    this.unitName,
+    this.entitlementStatus,
+    this.expiresAt,
+  });
+
+  factory UsagePackageMeta.fromJson(Map<String, dynamic> json) {
+    return UsagePackageMeta(
+      uuid: _asNullableString(json['uuid']),
+      name: _asNullableString(json['name']),
+      selectedService:
+          _asMap(json['selected_service'] ?? json['selectedService']).isEmpty
+          ? null
+          : PackageServiceMeta.fromJson(
+              _asMap(json['selected_service'] ?? json['selectedService']),
+            ),
+      allowedServices:
+          (json['allowed_services'] is List
+                  ? json['allowed_services'] as List
+                  : json['allowedServices'] is List
+                  ? json['allowedServices'] as List
+                  : null)
+              ?.whereType<Map>()
+              .map(
+                (item) => PackageServiceMeta.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList() ??
+          const [],
+      availableUnits: _asNullableInt(
+        json['available_units'] ?? json['availableUnits'],
+      ),
+      unitCode: _asNullableString(json['unit_code'] ?? json['unitCode']),
+      unitName: _asNullableString(json['unit_name'] ?? json['unitName']),
+      entitlementStatus: _asNullableString(
+        json['entitlement_status'] ?? json['entitlementStatus'],
+      ),
+      expiresAt: _asNullableString(json['expires_at'] ?? json['expiresAt']),
+    );
+  }
+}
+
+class FollowUpMeta {
+  final String? uuid;
+  final String? status;
+  final int? availableCount;
+  final int? remainingUses;
+  final int? durationMinutes;
+  final String? price;
+  final String? validUntil;
+  final String? afterExpiryPolicy;
+  final String? employeeRule;
+  final String? sourceBookingUuid;
+  final String? sourceBookingItemUuid;
+  final String? originalService;
+  final String? originalEmployee;
+
+  const FollowUpMeta({
+    this.uuid,
+    this.status,
+    this.availableCount,
+    this.remainingUses,
+    this.durationMinutes,
+    this.price,
+    this.validUntil,
+    this.afterExpiryPolicy,
+    this.employeeRule,
+    this.sourceBookingUuid,
+    this.sourceBookingItemUuid,
+    this.originalService,
+    this.originalEmployee,
+  });
+
+  factory FollowUpMeta.fromJson(Map<String, dynamic> json) {
+    return FollowUpMeta(
+      uuid: _asNullableString(json['uuid']),
+      status: _asNullableString(json['status']),
+      availableCount: _asNullableInt(
+        json['available_count'] ?? json['availableCount'],
+      ),
+      remainingUses: _asNullableInt(
+        json['remaining_uses'] ?? json['remainingUses'],
+      ),
+      durationMinutes: _asNullableInt(
+        json['duration_minutes'] ?? json['durationMinutes'],
+      ),
+      price: _asNullableString(json['price']),
+      validUntil: _asNullableString(json['valid_until'] ?? json['validUntil']),
+      afterExpiryPolicy: _asNullableString(
+        json['after_expiry_policy'] ?? json['afterExpiryPolicy'],
+      ),
+      employeeRule: _asNullableString(
+        json['employee_rule'] ?? json['employeeRule'],
+      ),
+      sourceBookingUuid: _asNullableString(
+        json['source_booking_uuid'] ?? json['sourceBookingUuid'],
+      ),
+      sourceBookingItemUuid: _asNullableString(
+        json['source_booking_item_uuid'] ?? json['sourceBookingItemUuid'],
+      ),
+      originalService: _asNullableString(
+        json['original_service'] ?? json['originalService'],
+      ),
+      originalEmployee: _asNullableString(
+        json['original_employee'] ?? json['originalEmployee'],
+      ),
     );
   }
 }
@@ -545,6 +908,7 @@ class BookingDetailsCustomerModel {
 
 class BookingAssignedItemModel {
   final String uuid;
+  final String visitUuid;
   final BookingDetailsServiceModel service;
   final String startAt;
   final String endAt;
@@ -555,9 +919,20 @@ class BookingAssignedItemModel {
   final String status;
   final bool canStart;
   final bool canEnd;
+  final String sourceType;
+  final String sourceTypeRaw;
+  final bool coveredByPackage;
+  final bool coveredByUsagePackage;
+  final int? usageUnitsConsumed;
+  final bool usageRecordingRequired;
+  final PackageMeta? package;
+  final UsagePackageMeta? usagePackage;
+  final FollowUpMeta? followUp;
+  final String newCharge;
 
   BookingAssignedItemModel({
     required this.uuid,
+    required this.visitUuid,
     required this.service,
     required this.startAt,
     required this.endAt,
@@ -568,11 +943,33 @@ class BookingAssignedItemModel {
     required this.status,
     required this.canStart,
     required this.canEnd,
+    required this.sourceType,
+    required this.sourceTypeRaw,
+    required this.coveredByPackage,
+    required this.coveredByUsagePackage,
+    required this.usageUnitsConsumed,
+    required this.usageRecordingRequired,
+    this.package,
+    this.usagePackage,
+    this.followUp,
+    required this.newCharge,
   });
 
   factory BookingAssignedItemModel.fromJson(Map<String, dynamic> json) {
+    final packageJson = _asMap(json['package']);
+    final usagePackageJson = _asMap(
+      json['usage_package'] ?? json['usagePackage'],
+    );
+    final followUpJson = _asMap(json['follow_up'] ?? json['followUp']);
+    final sourceType = _bookingItemSourceType(
+      json,
+      packageJson: packageJson,
+      usagePackageJson: usagePackageJson,
+      followUpJson: followUpJson,
+    );
     return BookingAssignedItemModel(
       uuid: _asString(json['uuid']),
+      visitUuid: _asString(json['visit_uuid'] ?? json['visitUuid']),
       service: BookingDetailsServiceModel.fromJson(_asMap(json['service'])),
       startAt: _asString(json['start_at']),
       endAt: _asString(json['end_at']),
@@ -583,6 +980,61 @@ class BookingAssignedItemModel {
       status: _asString(json['status']),
       canStart: json['can_start'] == true,
       canEnd: json['can_end'] == true,
+      sourceType: sourceType,
+      sourceTypeRaw: _asString(
+        json['source_type_raw'] ?? json['sourceTypeRaw'],
+      ),
+      coveredByPackage:
+          (json['covered_by_package'] ?? json['coveredByPackage']) == true,
+      coveredByUsagePackage:
+          (json['covered_by_usage_package'] ?? json['coveredByUsagePackage']) ==
+          true,
+      usageUnitsConsumed: _asNullableInt(
+        json['usage_units_consumed'] ?? json['usageUnitsConsumed'],
+      ),
+      usageRecordingRequired:
+          (json['usage_recording_required'] ??
+              json['usageRecordingRequired']) ==
+          true,
+      package: packageJson.isEmpty ? null : PackageMeta.fromJson(packageJson),
+      usagePackage: usagePackageJson.isEmpty
+          ? null
+          : UsagePackageMeta.fromJson(usagePackageJson),
+      followUp: followUpJson.isEmpty
+          ? null
+          : FollowUpMeta.fromJson(followUpJson),
+      newCharge: _asString(json['new_charge'], fallback: '0'),
+    );
+  }
+
+  BookingServiceLine toServiceLine(String languageCode) {
+    final serviceName = languageCode == 'ar'
+        ? (service.name.ar.isNotEmpty ? service.name.ar : service.name.en)
+        : (service.name.en.isNotEmpty ? service.name.en : service.name.ar);
+    return BookingServiceLine(
+      itemUuid: uuid,
+      serviceUuid: service.uuid.isEmpty ? null : service.uuid,
+      name: serviceName,
+      category: null,
+      price: price,
+      currency: currency,
+      durationMinutes: durationMinutes,
+      isAdded: isAdded,
+      status: status,
+      scheduledStartAt: startAt,
+      scheduledEndAt: endAt,
+      canStart: canStart,
+      canEnd: canEnd,
+      sourceType: sourceType,
+      sourceTypeRaw: sourceTypeRaw,
+      coveredByPackage: coveredByPackage,
+      coveredByUsagePackage: coveredByUsagePackage,
+      usageUnitsConsumed: usageUnitsConsumed,
+      usageRecordingRequired: usageRecordingRequired,
+      package: package,
+      usagePackage: usagePackage,
+      followUp: followUp,
+      newCharge: newCharge,
     );
   }
 }
@@ -676,6 +1128,35 @@ List<BookingServiceLine> _parseServices(dynamic value) {
           )
           .toList() ??
       [];
+}
+
+String _bookingItemSourceType(
+  Map<String, dynamic> json, {
+  required Map<String, dynamic> packageJson,
+  required Map<String, dynamic> usagePackageJson,
+  required Map<String, dynamic> followUpJson,
+}) {
+  final explicit = _asNullableString(json['source_type'] ?? json['sourceType']);
+  if (explicit != null) return explicit;
+
+  if (followUpJson.isNotEmpty) return 'follow_up';
+  if (usagePackageJson.isNotEmpty) return 'usage_based';
+  if (packageJson.isNotEmpty) {
+    final packageType = _asString(packageJson['type']).toLowerCase();
+    if (packageType.contains('usage')) return 'usage_based';
+    if (packageType.contains('multi') || packageType.contains('session')) {
+      return 'multi_session';
+    }
+    if (packageJson['session_number'] != null ||
+        packageJson['sessionNumber'] != null ||
+        _asMap(packageJson['sessions']).isNotEmpty) {
+      return 'multi_session';
+    }
+    if (_asMap(packageJson['usage']).isNotEmpty) return 'usage_based';
+    return 'single_visit_package';
+  }
+
+  return 'normal_service';
 }
 
 String? _asNullableString(dynamic value) {

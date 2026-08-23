@@ -30,12 +30,26 @@ class OnServicesWithPricesPaginationLoadingState extends BookingDetailsState {}
 
 class OnServicesWithPricesPaginationSuccessState extends BookingDetailsState {}
 
+class OnAddableItemsLoadingState extends BookingDetailsState {}
+
+class OnAddableItemsSuccessState extends BookingDetailsState {}
+
+class OnAddableItemsErrorState extends BookingDetailsState {}
+
 class OnAddBookingServiceLoadingState extends BookingDetailsState {}
 
 class OnAddBookingServiceSuccessState extends BookingDetailsState {}
 
-class OnAddBookingServiceErrorState extends BookingDetailsState {}
+class OnAddBookingServiceErrorState extends BookingDetailsState {
+  final String message;
 
-class OnBookingDetailsErrorState extends BookingDetailsState {}
+  OnAddBookingServiceErrorState({this.message = ''});
+}
+
+class OnBookingDetailsErrorState extends BookingDetailsState {
+  final String message;
+
+  OnBookingDetailsErrorState({this.message = ''});
+}
 
 class OnBookingDetailsCatchErrorState extends BookingDetailsState {}

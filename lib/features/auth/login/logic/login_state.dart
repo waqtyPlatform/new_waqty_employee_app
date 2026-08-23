@@ -18,4 +18,7 @@ class OnLoginErrorState extends LoginState {
   OnLoginErrorState({required this.message});
 }
 
-class OnLoginCatchErrorState extends LoginState {}
+class OnLoginCatchErrorState extends LoginState {
+  final String message;
+  OnLoginCatchErrorState({this.message = ''});
+}

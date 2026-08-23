@@ -29,8 +29,19 @@ class BookingDetailsApiEndPoints {
     return '${EndPoints.baseUrl}/api/employee/bookings/$uuid/available-services?page=$page';
   }
 
+  static String getAddableItems({
+    required String bookingUuid,
+    required String visitUuid,
+  }) {
+    return '${EndPoints.baseUrl}/api/employee/bookings/$bookingUuid/visits/$visitUuid/addable-items';
+  }
+
   static String addService(String uuid) {
     return '${EndPoints.baseUrl}/api/employee/bookings/$uuid/services';
+  }
+
+  static String addBookingItem(String uuid) {
+    return '${EndPoints.baseUrl}/api/employee/bookings/$uuid/items';
   }
 
   static String checkInVisit(String visitUuid) {

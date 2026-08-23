@@ -40,8 +40,8 @@ class LoginCubit extends Cubit<LoginState> {
           password: passwordController.text,
         ),
       );
-      response.fold(
-        (failure) {
+      await response.fold(
+        (failure) async {
           if (failure.message.isNotEmpty) {
             emit(OnLoginErrorState(message: failure.message));
           } else {
@@ -53,7 +53,9 @@ class LoginCubit extends Cubit<LoginState> {
           emit(OnLoginSuccessState(message: result.message));
         },
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('Login unexpected error: $error');
+      debugPrintStack(stackTrace: stackTrace);
       emit(OnLoginCatchErrorState());
     }
   }

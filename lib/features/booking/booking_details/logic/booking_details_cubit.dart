@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_addable_items_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/booking_details_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/models/services_with_prices_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/repo/booking_details_repo.dart';
@@ -14,14 +15,19 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
   BookingDetailsModel? bookingDetails;
   bool isUpdatingStatus = false;
   bool isAddingService = false;
+  String? addingItemKey;
   String? updatingVisitUuid;
   String? updatingItemUuid;
   String? reviewingVisitUuid;
+  String lastErrorMessage = '';
   List<ServiceWithPriceModel> servicesWithPrices = [];
   int servicesWithPricesCurrentPage = 1;
   int servicesWithPricesLastPage = 1;
   bool isServicesWithPricesLoading = false;
   bool isServicesWithPricesPaginationLoading = false;
+  BookingAddableItemsDataModel? addableItems;
+  String? addableItemsVisitUuid;
+  bool isAddableItemsLoading = false;
 
   void getBookingDetails(String uuid) {
     if (uuid.isEmpty) {
@@ -32,12 +38,16 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
     _bookingDetailsRepo
         .getBookingDetails(uuid)
         .then((value) {
-          value.fold((failure) => emit(OnBookingDetailsErrorState()), (
-            response,
-          ) {
-            bookingDetails = response.data;
-            emit(OnBookingDetailsSuccessState());
-          });
+          value.fold(
+            (failure) {
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
+            },
+            (response) {
+              bookingDetails = response.data;
+              emit(OnBookingDetailsSuccessState());
+            },
+          );
         })
         .catchError((error) {
           emit(OnBookingDetailsCatchErrorState());
@@ -78,7 +88,8 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
           value.fold(
             (failure) {
               isUpdatingStatus = false;
-              emit(OnBookingDetailsErrorState());
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
             },
             (response) {
               bookingDetails = response.data;
@@ -121,7 +132,8 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
             (failure) {
               isServicesWithPricesLoading = false;
               isServicesWithPricesPaginationLoading = false;
-              emit(OnBookingDetailsErrorState());
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
             },
             (response) {
               if (refresh) {
@@ -147,30 +159,165 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
         });
   }
 
+  void getAddableItems({required String visitUuid, bool refresh = false}) {
+    final bookingUuid = bookingDetails?.uuid ?? '';
+    if (bookingUuid.isEmpty || visitUuid.isEmpty) return;
+    if (isAddableItemsLoading) return;
+    if (!refresh &&
+        addableItemsVisitUuid == visitUuid &&
+        addableItems != null) {
+      return;
+    }
+
+    isAddableItemsLoading = true;
+    addableItemsVisitUuid = visitUuid;
+    emit(OnAddableItemsLoadingState());
+    _bookingDetailsRepo
+        .getAddableItems(bookingUuid: bookingUuid, visitUuid: visitUuid)
+        .then((value) {
+          value.fold(
+            (failure) {
+              isAddableItemsLoading = false;
+              lastErrorMessage = failure.message;
+              emit(OnAddableItemsErrorState());
+            },
+            (response) {
+              addableItems = response.data;
+              addableItemsVisitUuid = response.data.visitUuid.isNotEmpty
+                  ? response.data.visitUuid
+                  : visitUuid;
+              isAddableItemsLoading = false;
+              emit(OnAddableItemsSuccessState());
+            },
+          );
+        })
+        .catchError((error) {
+          isAddableItemsLoading = false;
+          emit(OnAddableItemsErrorState());
+        });
+  }
+
   void addServiceToBooking(ServiceWithPriceModel service, {String? visitUuid}) {
+    addServiceUuidToBooking(
+      serviceUuid: service.uuid,
+      visitUuid: visitUuid,
+      loadingKey: service.uuid,
+    );
+  }
+
+  void addServiceUuidToBooking({
+    required String serviceUuid,
+    String? visitUuid,
+    String? loadingKey,
+  }) {
     final uuid = bookingDetails?.uuid ?? '';
     if (uuid.isEmpty || isAddingService) return;
+    if (visitUuid?.isNotEmpty == true) {
+      addBookingItemToVisit(
+        visitUuid: visitUuid!,
+        itemType: 'normal_service',
+        serviceUuid: serviceUuid,
+        loadingKey: loadingKey ?? serviceUuid,
+      );
+      return;
+    }
     isAddingService = true;
+    addingItemKey = loadingKey ?? serviceUuid;
     emit(OnAddBookingServiceLoadingState());
     _bookingDetailsRepo
-        .addService(uuid: uuid, serviceUuid: service.uuid, visitUuid: visitUuid)
+        .addService(uuid: uuid, serviceUuid: serviceUuid, visitUuid: visitUuid)
         .then((value) {
           value.fold(
             (failure) {
               isAddingService = false;
-              emit(OnAddBookingServiceErrorState());
+              addingItemKey = null;
+              lastErrorMessage = failure.message;
+              emit(OnAddBookingServiceErrorState(message: failure.message));
             },
             (response) {
               bookingDetails = response.data;
               isAddingService = false;
+              addingItemKey = null;
               emit(OnAddBookingServiceSuccessState());
               getBookingDetails(uuid);
+              if (visitUuid?.isNotEmpty == true) {
+                getAddableItems(visitUuid: visitUuid!, refresh: true);
+              }
             },
           );
         })
         .catchError((error) {
           isAddingService = false;
-          emit(OnAddBookingServiceErrorState());
+          addingItemKey = null;
+          lastErrorMessage = error.toString();
+          emit(OnAddBookingServiceErrorState(message: lastErrorMessage));
+        });
+  }
+
+  void addBookingItemToVisit({
+    required String visitUuid,
+    required String itemType,
+    String? serviceUuid,
+    String? packageUuid,
+    String? packagePurchaseUuid,
+    String? followUpUuid,
+    int quantity = 1,
+    String? bookingMode,
+    String? loadingKey,
+  }) {
+    final uuid = bookingDetails?.uuid ?? '';
+    if (uuid.isEmpty ||
+        visitUuid.isEmpty ||
+        itemType.isEmpty ||
+        isAddingService) {
+      return;
+    }
+    isAddingService = true;
+    addingItemKey =
+        loadingKey ??
+        _bookingItemLoadingKey(
+          itemType: itemType,
+          serviceUuid: serviceUuid,
+          packageUuid: packageUuid,
+          packagePurchaseUuid: packagePurchaseUuid,
+          followUpUuid: followUpUuid,
+        );
+    emit(OnAddBookingServiceLoadingState());
+    _bookingDetailsRepo
+        .addBookingItem(
+          uuid: uuid,
+          visitUuid: visitUuid,
+          itemType: itemType,
+          serviceUuid: serviceUuid,
+          packageUuid: packageUuid,
+          packagePurchaseUuid: packagePurchaseUuid,
+          followUpUuid: followUpUuid,
+          quantity: quantity,
+          bookingMode: bookingMode,
+        )
+        .then((value) {
+          value.fold(
+            (failure) {
+              isAddingService = false;
+              addingItemKey = null;
+              lastErrorMessage = failure.message;
+              emit(OnAddBookingServiceErrorState(message: failure.message));
+            },
+            (response) {
+              bookingDetails = response.data;
+              isAddingService = false;
+              addingItemKey = null;
+              emit(OnAddBookingServiceSuccessState());
+              getBookingDetails(uuid);
+              getAddableItems(visitUuid: visitUuid, refresh: true);
+            },
+          );
+        })
+        .catchError((error) {
+          isAddingService = false;
+          addingItemKey = null;
+          lastErrorMessage = error.toString();
+          emit(OnAddBookingServiceErrorState(message: lastErrorMessage));
         });
   }
 
@@ -190,8 +337,12 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
     runBookingItemAction(itemUuid: itemUuid, action: BookingItemAction.start);
   }
 
-  void endBookingItem(String itemUuid) {
-    runBookingItemAction(itemUuid: itemUuid, action: BookingItemAction.end);
+  void endBookingItem(String itemUuid, {int? unitsConsumed}) {
+    runBookingItemAction(
+      itemUuid: itemUuid,
+      action: BookingItemAction.end,
+      unitsConsumed: unitsConsumed,
+    );
   }
 
   void runVisitAction({
@@ -210,7 +361,8 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
           value.fold(
             (failure) {
               updatingVisitUuid = null;
-              emit(OnBookingDetailsErrorState());
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
             },
             (_) {
               updatingVisitUuid = null;
@@ -228,6 +380,7 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
   void runBookingItemAction({
     required String itemUuid,
     required BookingItemAction action,
+    int? unitsConsumed,
   }) {
     final bookingUuid = bookingDetails?.uuid ?? '';
     if (bookingUuid.isEmpty || itemUuid.isEmpty || updatingItemUuid != null) {
@@ -236,12 +389,17 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
     updatingItemUuid = itemUuid;
     emit(OnBookingItemActionLoadingState());
     _bookingDetailsRepo
-        .runBookingItemAction(itemUuid: itemUuid, action: action)
+        .runBookingItemAction(
+          itemUuid: itemUuid,
+          action: action,
+          unitsConsumed: unitsConsumed,
+        )
         .then((value) {
           value.fold(
             (failure) {
               updatingItemUuid = null;
-              emit(OnBookingDetailsErrorState());
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
             },
             (_) {
               updatingItemUuid = null;
@@ -280,7 +438,8 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
           value.fold(
             (failure) {
               reviewingVisitUuid = null;
-              emit(OnBookingDetailsErrorState());
+              lastErrorMessage = failure.message;
+              emit(OnBookingDetailsErrorState(message: failure.message));
             },
             (_) {
               reviewingVisitUuid = null;
@@ -293,6 +452,29 @@ class BookingDetailsCubit extends Cubit<BookingDetailsState> {
           reviewingVisitUuid = null;
           emit(OnBookingDetailsCatchErrorState());
         });
+  }
+
+  bool get hasInsufficientUsageBalanceError {
+    final message = lastErrorMessage.toUpperCase();
+    return message.contains('INSUFFICIENT_USAGE_BALANCE') ||
+        message.contains('INSUFFICIENT BALANCE') ||
+        lastErrorMessage.contains('الرصيد غير كاف');
+  }
+
+  String _bookingItemLoadingKey({
+    required String itemType,
+    String? serviceUuid,
+    String? packageUuid,
+    String? packagePurchaseUuid,
+    String? followUpUuid,
+  }) {
+    return [
+      itemType,
+      packageUuid,
+      packagePurchaseUuid,
+      followUpUuid,
+      serviceUuid,
+    ].where((value) => value?.isNotEmpty == true).join(':');
   }
 
   static BookingDetailsCubit get(dynamic context) => BlocProvider.of(context);

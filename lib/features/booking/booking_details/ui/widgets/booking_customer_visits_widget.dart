@@ -8,11 +8,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class BookingCustomerVisitsWidget extends StatelessWidget {
   final String phone;
   final String notes;
+  final VoidCallback? onCustomerDetailsTap;
 
   const BookingCustomerVisitsWidget({
     super.key,
     required this.phone,
     required this.notes,
+    this.onCustomerDetailsTap,
   });
 
   @override
@@ -60,6 +62,15 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                 context.tr('bookingDetails.customer'),
                 style: TextStyles.font14greyColor900Weight500,
               ),
+              const Spacer(),
+              if (onCustomerDetailsTap != null)
+                GestureDetector(
+                  onTap: onCustomerDetailsTap,
+                  child: Text(
+                    context.tr('customerContext.customerDetails'),
+                    style: TextStyles.font12greenColor500W600,
+                  ),
+                ),
             ],
           ),
           verticalSpace(12),
@@ -89,7 +100,9 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
                     color: AppColors.greyColorFA,
                   ),
                   child: Text(
-                    notes.isEmpty ? context.tr('bookingDetails.noNotes') : notes,
+                    notes.isEmpty
+                        ? context.tr('bookingDetails.noNotes')
+                        : notes,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.font12greyColorA3W400,

@@ -52,6 +52,8 @@ import 'package:new_waqty_employee_app/features/booking/my_booking/data/services
 
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/repo/booking_details_repo.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/data/services/booking_details_service.dart';
+import 'package:new_waqty_employee_app/features/booking/customer_context/data/repo/customer_context_repo.dart';
+import 'package:new_waqty_employee_app/features/booking/customer_context/data/services/customer_context_service.dart';
 
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/repo/my_stats_repo.dart';
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/services/my_stats_service.dart';
@@ -136,6 +138,14 @@ class ServicesLocator {
     );
     getIt.registerLazySingleton<BookingDetailsRepo>(
       () => BookingDetailsRepo(getIt()),
+    );
+
+    /// Customer Context
+    getIt.registerLazySingleton<CustomerContextService>(
+      () => CustomerContextService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<CustomerContextRepo>(
+      () => CustomerContextRepo(getIt()),
     );
 
     /// My Stats

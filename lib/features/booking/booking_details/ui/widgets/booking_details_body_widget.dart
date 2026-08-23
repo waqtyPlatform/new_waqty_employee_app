@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -16,14 +17,27 @@ import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widge
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_customer_visits_widget.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_review_user_widget.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_services_widget.dart';
+import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_usage_units_bottom_sheet.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/widgets/booking_user_info_widget.dart';
+import 'package:new_waqty_employee_app/features/booking/customer_context/logic/customer_context_cubit.dart';
+import 'package:new_waqty_employee_app/features/booking/customer_context/logic/customer_context_state.dart';
+import 'package:new_waqty_employee_app/features/booking/customer_context/ui/widgets/customer_context_bottom_sheet.dart';
 
 class BookingDetailsBodyWidget extends StatelessWidget {
   const BookingDetailsBodyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BookingDetailsCubit, BookingDetailsState>(
+    return BlocConsumer<BookingDetailsCubit, BookingDetailsState>(
+      listenWhen: (previous, current) => current is OnBookingDetailsErrorState,
+      listener: (context, state) {
+        final cubit = BookingDetailsCubit.get(context);
+        final customerUuid = cubit.bookingDetails?.customer?.uuid ?? '';
+        if (!cubit.hasInsufficientUsageBalanceError || customerUuid.isEmpty) {
+          return;
+        }
+        _showInsufficientBalanceDialog(context, customerUuid, cubit);
+      },
       buildWhen: (previous, current) {
         return current is OnBookingDetailsLoadingState ||
             current is OnBookingDetailsSuccessState ||
@@ -74,6 +88,156 @@ class BookingDetailsBodyWidget extends StatelessWidget {
       },
     );
   }
+
+  Future<void> _showInsufficientBalanceDialog(
+    BuildContext context,
+    String customerUuid,
+    BookingDetailsCubit cubit,
+  ) async {
+    final openPackages = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: AppColors.blackColor.withValues(alpha: .4),
+      builder: (_) => BlocProvider(
+        create: (_) => CustomerContextCubit(getIt())
+          ..getCustomerContext(
+            customerUuid: customerUuid,
+            languageCode: context.locale.languageCode,
+          ),
+        child: const _InsufficientUsageBalanceSheet(),
+      ),
+    );
+
+    if (openPackages == true && context.mounted) {
+      final didAddPackage = await showCustomerContextBottomSheet(
+        context: context,
+        customerUuid: customerUuid,
+        startWithAddPackage: true,
+      );
+      if (didAddPackage == true && context.mounted) {
+        cubit.refreshBookingDetails();
+      }
+    }
+  }
+}
+
+class _InsufficientUsageBalanceSheet extends StatelessWidget {
+  const _InsufficientUsageBalanceSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CustomerContextCubit, CustomerContextState>(
+      buildWhen: (previous, current) {
+        return current is CustomerContextLoadingState ||
+            current is CustomerContextSuccessState ||
+            current is CustomerContextErrorState;
+      },
+      builder: (context, state) {
+        final cubit = CustomerContextCubit.get(context);
+        final canAddPackage =
+            cubit.contextData?.capabilities.canAssignCustomerPackage == true;
+        final isLoading =
+            state is CustomerContextLoadingState && cubit.contextData == null;
+
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(24.w, 14.h, 24.w, 34.h),
+          decoration: BoxDecoration(
+            color: AppColors.whiteColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72.w,
+                  height: 5.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffDFE3EA),
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                ),
+                verticalSpace(30),
+                Container(
+                  width: 56.r,
+                  height: 56.r,
+                  decoration: BoxDecoration(
+                    color: AppColors.warningColor0,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.inventory_2_outlined,
+                    color: AppColors.warningColor1001,
+                    size: 26.r,
+                  ),
+                ),
+                verticalSpace(18),
+                Text(
+                  context.tr('bookingDetails.insufficientUsageBalance'),
+                  textAlign: TextAlign.center,
+                  style: TextStyles.font18greyColor900Weight600,
+                ),
+                verticalSpace(10),
+                Text(
+                  isLoading
+                      ? context.tr('customerContext.loading')
+                      : context.tr(
+                          'customerContext.insufficientBalanceMessage',
+                        ),
+                  textAlign: TextAlign.center,
+                  style: TextStyles.font14greyColor500W500.copyWith(
+                    height: 1.45,
+                  ),
+                ),
+                if (isLoading) ...[
+                  verticalSpace(18),
+                  SizedBox(
+                    width: 24.r,
+                    height: 24.r,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.greenColor500,
+                    ),
+                  ),
+                ],
+                verticalSpace(28),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _CancelVisitSheetButton(
+                        title: context.tr('bookingDetails.back'),
+                        textColor: AppColors.greyColor900,
+                        backgroundColor: AppColors.whiteColor,
+                        borderColor: AppColors.greyColorE5,
+                        onTap: () => Navigator.pop(context, false),
+                      ),
+                    ),
+                    if (canAddPackage) ...[
+                      horizontalSpace(16),
+                      Expanded(
+                        child: _CancelVisitSheetButton(
+                          title: context.tr(
+                            'customerContext.addPackageForCustomer',
+                          ),
+                          textColor: AppColors.whiteColor,
+                          backgroundColor: AppColors.greenColor500,
+                          borderColor: AppColors.greenColor500,
+                          onTap: () => Navigator.pop(context, true),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _BookingDetailsContent extends StatelessWidget {
@@ -87,6 +251,7 @@ class _BookingDetailsContent extends StatelessWidget {
     final customerName = booking.customerName.isEmpty
         ? context.tr('myBooking.walkInCustomer')
         : booking.customerName;
+    final canAddItems = _canAddItemsToBooking;
     return Column(
       children: [
         verticalSpace(8),
@@ -110,7 +275,11 @@ class _BookingDetailsContent extends StatelessWidget {
             services: booking.serviceLinesForDetails(
               context.locale.languageCode,
             ),
-            onAddTap: booking.actions.canAddService
+            loadingItemUuid: cubit.updatingItemUuid,
+            onStartService: (service) =>
+                cubit.startBookingItem(service.itemUuid),
+            onEndService: (service) => _endService(context, cubit, service),
+            onAddTap: canAddItems
                 ? () => showAddServiceBottomSheet(
                     context,
                     cubit,
@@ -118,6 +287,7 @@ class _BookingDetailsContent extends StatelessWidget {
                         ? booking.totals.currency
                         : booking.currency,
                     null,
+                    booking.customer?.uuid ?? booking.user?.uuid,
                   )
                 : null,
           ),
@@ -129,12 +299,13 @@ class _BookingDetailsContent extends StatelessWidget {
               child: _BookingVisitCard(
                 visit: visit,
                 customerName: customerName,
-                onAddTap: booking.actions.canAddService
+                onAddTap: canAddItems
                     ? () => showAddServiceBottomSheet(
                         context,
                         cubit,
                         visit.totals.currency,
                         visit.uuid,
+                        booking.customer?.uuid ?? booking.user?.uuid,
                       )
                     : null,
                 cubit: cubit,
@@ -145,6 +316,12 @@ class _BookingDetailsContent extends StatelessWidget {
         BookingCustomerVisitsWidget(
           phone: booking.customer?.phone ?? booking.user?.phone ?? '',
           notes: booking.notes ?? '',
+          onCustomerDetailsTap: (booking.customer?.uuid ?? '').isEmpty
+              ? null
+              : () => showCustomerContextBottomSheet(
+                  context: context,
+                  customerUuid: booking.customer!.uuid,
+                ),
         ),
         if (booking.status.toLowerCase() == 'completed') ...[
           verticalSpace(12),
@@ -161,6 +338,26 @@ class _BookingDetailsContent extends StatelessWidget {
     );
   }
 
+  bool get _canAddItemsToBooking {
+    final status = booking.status.toLowerCase();
+    final employeeStatus = booking.employeeStatus.toLowerCase();
+    final paymentStatus = booking.paymentStatus.toLowerCase();
+    final isCancelled =
+        status == 'cancelled' ||
+        status == 'canceled' ||
+        status == 'no_show' ||
+        employeeStatus == 'cancelled' ||
+        employeeStatus == 'canceled' ||
+        employeeStatus == 'no_show';
+    if (isCancelled) return false;
+
+    final isCompleted = status == 'completed' || employeeStatus == 'completed';
+    final isPaid = paymentStatus == 'paid';
+    if (isCompleted && isPaid) return false;
+
+    return booking.actions.canAddService || !isPaid || !isCompleted;
+  }
+
   String _formatBookingDate(String value, BuildContext context) {
     final date = DateTime.tryParse(value);
     if (date == null) return value;
@@ -170,6 +367,20 @@ class _BookingDetailsContent extends StatelessWidget {
 
   String _formatBookingTime(BookingDetailsModel booking, BuildContext context) {
     return '${booking.formattedStartTime} - ${booking.formattedEndTime} \u2022 ${booking.durationMinutes} ${context.tr('bookingDetails.minutes')}';
+  }
+
+  Future<void> _endService(
+    BuildContext context,
+    BookingDetailsCubit cubit,
+    BookingServiceLine service,
+  ) async {
+    if (service.isUsageBased && service.usageRecordingRequired) {
+      final units = await showBookingUsageUnitsBottomSheet(context, service);
+      if (units == null || !context.mounted) return;
+      cubit.endBookingItem(service.itemUuid, unitsConsumed: units);
+      return;
+    }
+    cubit.endBookingItem(service.itemUuid);
   }
 }
 
@@ -300,7 +511,7 @@ class _BookingVisitCard extends StatelessWidget {
             loadingItemUuid: cubit.updatingItemUuid,
             onStartService: (service) =>
                 cubit.startBookingItem(service.itemUuid),
-            onEndService: (service) => cubit.endBookingItem(service.itemUuid),
+            onEndService: (service) => _endService(context, service),
           ),
           if (visit.customerReview != null ||
               visit.actions.canReviewCustomer) ...[
@@ -341,6 +552,19 @@ class _BookingVisitCard extends StatelessWidget {
     if (shouldCancel == true && context.mounted) {
       cubit.cancelVisit(visit.uuid ?? '');
     }
+  }
+
+  Future<void> _endService(
+    BuildContext context,
+    BookingServiceLine service,
+  ) async {
+    if (service.isUsageBased && service.usageRecordingRequired) {
+      final units = await showBookingUsageUnitsBottomSheet(context, service);
+      if (units == null || !context.mounted) return;
+      cubit.endBookingItem(service.itemUuid, unitsConsumed: units);
+      return;
+    }
+    cubit.endBookingItem(service.itemUuid);
   }
 
   String _formatVisitRange(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
+
 class BookingDetailsResponseModel {
   final bool success;
   final BookingDetailsModel data;
@@ -206,7 +208,7 @@ class BookingDetailsModel {
   static String? _timeOnly(dynamic value) {
     final text = value?.toString();
     if (text == null || text.isEmpty) return null;
-    final date = DateTime.tryParse(text);
+    final date = AppDateFormat.parseBackendDateTime(text);
     if (date != null) {
       return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:00';
     }

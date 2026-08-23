@@ -27,6 +27,17 @@ import 'package:flutter/widgets.dart';
 class AppDateFormat {
   AppDateFormat._();
 
+  /// Parses API timestamps using the Cairo wall-clock sent by the backend.
+  /// This keeps the app on Egypt time even when the device uses another zone.
+  static DateTime? parseBackendDateTime(String value) {
+    final normalized = value.trim();
+    final wallClock = RegExp(
+      r'^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?',
+    ).firstMatch(normalized)?.group(0);
+
+    return DateTime.tryParse(wallClock ?? normalized);
+  }
+
   /// مفهرسة بـ `weekday - 1` — الاتنين أول يوم في `DateTime`.
   static const List<String> _dayKeys = [
     'monday',
@@ -69,7 +80,9 @@ class AppDateFormat {
     int startWeekday = DateTime.monday,
   }) => List.generate(
     7,
-    (index) => context.tr('date.daysShort.${_dayKeys[(startWeekday - 1 + index) % 7]}'),
+    (index) => context.tr(
+      'date.daysShort.${_dayKeys[(startWeekday - 1 + index) % 7]}',
+    ),
   );
 
   static String monthName(BuildContext context, DateTime value) =>
@@ -79,15 +92,14 @@ class AppDateFormat {
       context.tr('date.monthsShort.${_monthKeys[value.month - 1]}');
 
   /// `السبت، 14 مارس` · `Saturday, March 14`
-  static String dayMonth(BuildContext context, DateTime value) =>
-      context.tr(
-        'date.patterns.dayMonth',
-        namedArgs: {
-          'day': dayName(context, value),
-          'dayNum': '${value.day}',
-          'month': monthName(context, value),
-        },
-      );
+  static String dayMonth(BuildContext context, DateTime value) => context.tr(
+    'date.patterns.dayMonth',
+    namedArgs: {
+      'day': dayName(context, value),
+      'dayNum': '${value.day}',
+      'month': monthName(context, value),
+    },
+  );
 
   /// `14 مار` · `Mar 14`
   static String monthDayShort(BuildContext context, DateTime value) =>

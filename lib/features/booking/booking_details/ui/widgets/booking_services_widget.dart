@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -442,7 +443,7 @@ class _BookingServiceLineRow extends StatelessWidget {
   }
 
   String _formatTime(String value) {
-    final date = DateTime.tryParse(value);
+    final date = AppDateFormat.parseBackendDateTime(value);
     if (date == null) return '';
     final hour = date.hour;
     final minute = date.minute.toString().padLeft(2, '0');

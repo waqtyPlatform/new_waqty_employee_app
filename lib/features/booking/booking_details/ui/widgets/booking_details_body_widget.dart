@@ -359,7 +359,7 @@ class _BookingDetailsContent extends StatelessWidget {
   }
 
   String _formatBookingDate(String value, BuildContext context) {
-    final date = DateTime.tryParse(value);
+    final date = AppDateFormat.parseBackendDateTime(value);
     if (date == null) return value;
 
     return AppDateFormat.dayMonth(context, date);
@@ -579,7 +579,7 @@ class _BookingVisitCard extends StatelessWidget {
     String value, {
     bool timeOnly = false,
   }) {
-    final date = DateTime.tryParse(value);
+    final date = AppDateFormat.parseBackendDateTime(value);
     if (date == null) return '';
     return timeOnly
         ? AppDateFormat.time(context, date)

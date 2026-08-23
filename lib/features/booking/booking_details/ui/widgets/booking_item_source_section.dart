@@ -171,7 +171,7 @@ class BookingItemSourceSection extends StatelessWidget {
   }
 
   String _formatDateOnly(BuildContext context, String value) {
-    final date = DateTime.tryParse(value);
+    final date = AppDateFormat.parseBackendDateTime(value);
     if (date == null) return value;
     return AppDateFormat.fullDate(context, date);
   }

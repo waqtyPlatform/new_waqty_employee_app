@@ -3,6 +3,7 @@ class Routes {
   static const mainNavigationScreen = "/MainNavigationScreen";
   static const loginScreen = "/LoginScreen";
   static const homeScreen = "/HomeScreen";
+  static const employeeSearchScreen = "/EmployeeSearchScreen";
   static const profileScreen = "/ProfileScreen";
   static const forgetPasswordScreen = "/ForgetPasswordScreen";
   static const verifyCodeScreen = "/VerifyCodeScreen";

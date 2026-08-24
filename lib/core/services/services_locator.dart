@@ -34,6 +34,8 @@ import 'package:new_waqty_employee_app/features/auth/login/data/services/login_s
 
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_service.dart';
+import 'package:new_waqty_employee_app/features/home/search/data/repo/employee_search_repo.dart';
+import 'package:new_waqty_employee_app/features/home/search/data/services/employee_search_service.dart';
 
 import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
@@ -67,6 +69,12 @@ class ServicesLocator {
       () => HomeService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<HomeRepo>(() => HomeRepo(getIt()));
+    getIt.registerLazySingleton<EmployeeSearchService>(
+      () => EmployeeSearchService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<EmployeeSearchRepo>(
+      () => EmployeeSearchRepo(getIt()),
+    );
 
     ///constant
     // getIt.registerLazySingleton<EndPoints>(() => EndPoints());

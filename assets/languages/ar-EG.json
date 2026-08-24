@@ -701,6 +701,18 @@
     "seeAll": "شوف الكل",
     "searchPlaceholder": "دوّر على عميل أو موعد.."
   },
+  "employeeSearch": {
+    "title": "البحث",
+    "searchHint": "ابحث باسم العميل، الهاتف، الخدمة أو التاريخ",
+    "all": "الكل",
+    "appointments": "المواعيد",
+    "customers": "العملاء",
+    "history": "تاريخ مواعيد العميل",
+    "minChars": "اكتب حرفين على الأقل للبحث",
+    "noResults": "لا توجد نتائج",
+    "noHistory": "لا توجد مواعيد لهذا العميل",
+    "appointmentsCount": "{count} مواعيد"
+  },
   "myServices": {
     "title": "خدماتي",
     "noServicesFound": "مفيش خدمات"

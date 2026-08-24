@@ -701,6 +701,18 @@
     "seeAll": "See All",
     "searchPlaceholder": "Search for client, appointment.."
   },
+  "employeeSearch": {
+    "title": "Search",
+    "searchHint": "Search by customer, phone, service or date",
+    "all": "All",
+    "appointments": "Appointments",
+    "customers": "Customers",
+    "history": "Customer appointment history",
+    "minChars": "Type at least two characters to search",
+    "noResults": "No results found",
+    "noHistory": "No appointments for this customer",
+    "appointmentsCount": "{count} appointments"
+  },
   "myServices": {
     "title": "My Services",
     "noServicesFound": "No services found"

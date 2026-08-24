@@ -6,6 +6,26 @@ class OnMyStatsLoadingState extends MyStatsState {}
 
 class OnMyStatsSuccessState extends MyStatsState {}
 
-class OnMyStatsErrorState extends MyStatsState {}
+class OnMyStatsErrorState extends MyStatsState {
+  final String message;
 
-class OnMyStatsCatchErrorState extends MyStatsState {}
+  OnMyStatsErrorState({this.message = ''});
+}
+
+class OnMyReviewsLoadingState extends MyStatsState {}
+
+class OnMyReviewsSuccessState extends MyStatsState {}
+
+class OnMyReviewsLoadingMoreState extends MyStatsState {}
+
+class OnMyReviewsErrorState extends MyStatsState {
+  final String message;
+
+  OnMyReviewsErrorState({this.message = ''});
+}
+
+class OnMyStatsCatchErrorState extends MyStatsState {
+  final String message;
+
+  OnMyStatsCatchErrorState({this.message = ''});
+}

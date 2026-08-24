@@ -45,7 +45,9 @@ class HomeLatestReviewWidget extends StatelessWidget {
           )
         else
           ReviewCardWidget(
-            reviewerName: latest.reviewerName,
+            reviewerName: latest.reviewerName.isEmpty
+                ? context.tr('home.anonymousCustomer')
+                : latest.reviewerName,
             date: latest.relativeDateLabel,
             rating: latest.rating.toString(),
             reviewText: latest.comment,

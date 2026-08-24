@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
@@ -25,36 +27,29 @@ class HomeScreen extends StatelessWidget {
       builder: (context, state) {
         final cubit = HomeCubit.get(context);
         final summary = cubit.summary;
+        final isInitialLoading =
+            state is OnHomeLoadingState ||
+            (summary == null && state is InitialState);
 
-        return Scaffold(
-          backgroundColor: AppColors.greyColor900, // Dark background for the top
-          body: SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // Top Dark Section
-                HomeHeaderWidget(
-                  employeeName: summary?.employeeName ?? '',
-                  branchName: summary?.branchName ?? '',
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: isInitialLoading
+              ? const SystemUiOverlayStyle(
+                  statusBarColor: AppColors.whiteColor,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.light,
+                )
+              : const SystemUiOverlayStyle(
+                  statusBarColor: AppColors.greyColor900,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
                 ),
-
-                const HomeSearchWidget(),
-                verticalSpace(24),
-
-                // Bottom White Section
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.whiteColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24.r),
-                        topRight: Radius.circular(24.r),
-                      ),
-                    ),
-                    child: _buildContent(context, state, summary),
-                  ),
-                ),
-              ],
+          child: Scaffold(
+            backgroundColor: isInitialLoading
+                ? AppColors.whiteColor
+                : AppColors.greyColor900,
+            body: SafeArea(
+              bottom: false,
+              child: _buildContent(context, state, summary),
             ),
           ),
         );
@@ -67,9 +62,13 @@ class HomeScreen extends StatelessWidget {
     HomeState state,
     HomeSummaryModel? summary,
   ) {
-    if (state is OnHomeLoadingState || (summary == null && state is InitialState)) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.greenColor500),
+    if (state is OnHomeLoadingState ||
+        (summary == null && state is InitialState)) {
+      return Container(
+        color: AppColors.whiteColor,
+        child: const Center(
+          child: CircularProgressIndicator(color: AppColors.greenColor500),
+        ),
       );
     }
 
@@ -82,32 +81,193 @@ class HomeScreen extends StatelessWidget {
       );
     }
 
-    return RefreshIndicator(
-      color: AppColors.greenColor500,
-      onRefresh: () async => HomeCubit.get(context).getHomeSummary(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HomeSnapshotWidget(
-              booked: summary.booked.toString(),
-              done: summary.done.toString(),
-              left: summary.left.toString(),
-              rating: summary.ratingLabel,
-            ),
-            verticalSpace(16),
-            HomeEarningsWidget(amount: summary.earningsLabel),
-            verticalSpace(16),
-            HomeUpcomingAppointmentsWidget(
-              appointments: summary.appointments,
-            ),
-            verticalSpace(16),
-            HomeLatestReviewWidget(review: summary.latestReview),
-            verticalSpace(20), // Extra space at the bottom for scroll
-          ],
+    return ColoredBox(
+      color: AppColors.whiteColor,
+      child: RefreshIndicator(
+        color: AppColors.greenColor500,
+        onRefresh: () async => HomeCubit.get(context).getHomeSummary(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _HomeTopSection(summary: summary),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeSnapshotWidget(
+                      booked: summary.booked.toString(),
+                      done: summary.done.toString(),
+                      left: summary.left.toString(),
+                      rating: summary.ratingLabel,
+                    ),
+                    verticalSpace(16),
+                    HomeEarningsWidget(
+                      amount: summary.earningsLabel,
+                      isPayrollProcessed: summary.earnings.payrollProcessed,
+                    ),
+                    verticalSpace(16),
+                    HomeUpcomingAppointmentsWidget(
+                      appointments: summary.appointments,
+                    ),
+                    verticalSpace(16),
+                    HomeLatestReviewWidget(review: summary.latestReview),
+                    verticalSpace(24),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _HomeTopSection extends StatelessWidget {
+  final HomeSummaryModel summary;
+
+  const _HomeTopSection({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(bottom: 18.h),
+      decoration: const BoxDecoration(color: AppColors.greyColor900),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HomeHeaderWidget(
+            employeeName: summary.employeeName,
+            employeeAvatarUrl: summary.employeeAvatarUrl,
+            branchName: summary.branchName,
+          ),
+          const HomeSearchWidget(),
+          verticalSpace(18),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: _HomeGreetingWidget(summary: summary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeGreetingWidget extends StatelessWidget {
+  final HomeSummaryModel summary;
+
+  const _HomeGreetingWidget({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final date = DateTime.tryParse(summary.date) ?? DateTime.now();
+    final dateLabel = AppDateFormat.dayMonth(context, date);
+    final firstName = _firstName(summary.employeeName);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(dateLabel, style: TextStyles.font12greyColor3003Weight500),
+        verticalSpace(6),
+        RichText(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          text: TextSpan(
+            style: TextStyles.font26whiteColorWeight600,
+            children: [
+              TextSpan(text: '${context.tr(_greetingKey())}, '),
+              TextSpan(
+                text: firstName,
+                style: TextStyles.font26whiteColorWeight600.copyWith(
+                  color: AppColors.greenColor500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        verticalSpace(12),
+        _ClockStatePill(summary: summary),
+      ],
+    );
+  }
+
+  String _greetingKey() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'home.goodMorning';
+    if (hour < 17) return 'home.goodAfternoon';
+    return 'home.goodEvening';
+  }
+
+  String _firstName(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    return parts.isEmpty || parts.first.isEmpty ? '' : parts.first;
+  }
+}
+
+class _ClockStatePill extends StatelessWidget {
+  final HomeSummaryModel summary;
+
+  const _ClockStatePill({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final time = summary.clockedInAt == null
+        ? ''
+        : AppDateFormat.time(context, summary.clockedInAt!);
+    final statusText = summary.clockedIn && time.isNotEmpty
+        ? context.tr('home.clockedInSince', namedArgs: {'time': time})
+        : context.tr(
+            summary.clockedIn ? 'home.clockedIn' : 'home.notClockedIn',
+          );
+
+    return Container(
+      padding: EdgeInsetsDirectional.fromSTEB(10.w, 6.h, 6.w, 6.h),
+      decoration: BoxDecoration(
+        color: AppColors.greyColor800.withValues(alpha: .65),
+        borderRadius: BorderRadius.circular(100.r),
+        border: Border.all(color: AppColors.greyColor700, width: 1.w),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8.w,
+            height: 8.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: summary.clockedIn
+                  ? AppColors.greenColor500
+                  : AppColors.whiteColor,
+            ),
+          ),
+          horizontalSpace(8),
+          Flexible(
+            child: Text(
+              statusText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.font12greyColor3003Weight500.copyWith(
+                color: AppColors.whiteColor,
+              ),
+            ),
+          ),
+          horizontalSpace(8),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+            decoration: BoxDecoration(
+              color: AppColors.greenColor500,
+              borderRadius: BorderRadius.circular(100.r),
+            ),
+            child: Text(
+              context.tr(summary.clockedIn ? 'home.active' : 'home.clockIn'),
+              style: TextStyles.font12whiteColorWeight600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -136,7 +296,7 @@ class _ErrorView extends StatelessWidget {
             TextButton(
               onPressed: onRetry,
               child: Text(
-                'Retry',
+                context.tr('common.retry'),
                 style: TextStyles.font14greenColor500Weight600,
               ),
             ),

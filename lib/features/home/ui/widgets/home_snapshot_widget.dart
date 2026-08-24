@@ -39,7 +39,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               iconColor: AppColors.blueColor100,
               iconBgColor: AppColors.blueColor0,
               value: booked,
-              label: 'Booked',
+              label: context.tr('home.booked'),
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
@@ -47,7 +47,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               iconColor: AppColors.successColor100,
               iconBgColor: AppColors.successColor0,
               value: done,
-              label: 'Done',
+              label: context.tr('home.done'),
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
@@ -55,7 +55,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               iconColor: AppColors.warningColor100,
               iconBgColor: AppColors.warningColor0,
               value: left,
-              label: 'Left',
+              label: context.tr('home.left'),
             ),
             horizontalSpace(8),
             _buildSnapshotCard(
@@ -64,7 +64,7 @@ class HomeSnapshotWidget extends StatelessWidget {
               iconBgColor:
                   AppColors.warningColor0, // Used a light warning color for bg
               value: rating,
-              label: 'Rating',
+              label: context.tr('home.rating'),
             ),
           ],
         ),

@@ -11,10 +11,8 @@ import 'appointment_card_widget.dart';
 class HomeUpcomingAppointmentsWidget extends StatelessWidget {
   final List<HomeAppointmentModel> appointments;
 
-  const HomeUpcomingAppointmentsWidget({
-    Key? key,
-    required this.appointments,
-  }) : super(key: key);
+  const HomeUpcomingAppointmentsWidget({Key? key, required this.appointments})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +59,7 @@ class HomeUpcomingAppointmentsWidget extends StatelessWidget {
                   );
                 },
                 child: AppointmentCardWidget(
+                  imageUrl: appointment.customerAvatarUrl,
                   clientName: appointment.customerName,
                   services: appointment.servicesLabel,
                   date: appointment.dateLabel,

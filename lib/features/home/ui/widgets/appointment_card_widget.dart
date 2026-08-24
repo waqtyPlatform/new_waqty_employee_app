@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -79,11 +80,11 @@ class AppointmentCardWidget extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Services:\n ',
+                        text: '${context.tr('home.services')}:\n ',
                         style: TextStyles.font12greyColor500W500,
                       ),
                       TextSpan(
-                        text: services,
+                        text: services.trim().isEmpty ? '--' : services,
                         style: TextStyles.font12greyColor500W400,
                       ),
                     ],
@@ -92,7 +93,11 @@ class AppointmentCardWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '$date • $time • $room',
+                  [
+                    date,
+                    time,
+                    room,
+                  ].where((item) => item.trim().isNotEmpty).join(' • '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyles.font12greyColor900Weight400,

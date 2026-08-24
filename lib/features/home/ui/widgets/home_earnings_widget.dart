@@ -2,13 +2,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
-import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
 class HomeEarningsWidget extends StatelessWidget {
   final String amount;
+  final bool isPayrollProcessed;
 
-  const HomeEarningsWidget({Key? key, required this.amount}) : super(key: key);
+  const HomeEarningsWidget({
+    Key? key,
+    required this.amount,
+    required this.isPayrollProcessed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +54,11 @@ class HomeEarningsWidget extends StatelessWidget {
               Text(amount, style: TextStyles.font32greyColor900Weight600),
 
               Text(
-                context.tr('home.afterPayrollProcessing'),
+                context.tr(
+                  isPayrollProcessed
+                      ? 'home.afterPayrollProcessing'
+                      : 'home.estimatedEarnings',
+                ),
                 style: TextStyles.font10greyColor3003Weight400,
               ),
             ],

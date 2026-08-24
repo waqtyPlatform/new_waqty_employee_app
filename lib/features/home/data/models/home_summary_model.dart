@@ -1,73 +1,135 @@
-/// Aggregated payload behind the home screen.
-///
-/// The backend has no single "home" endpoint, so this is assembled from four
-/// calls: today's upcoming visits, today's completed visits, today's revenue
-/// and the employee ratings feed.
 class HomeSummaryModel {
   final String employeeName;
+  final String employeeAvatarUrl;
   final String branchName;
+  final String date;
+  final String timezone;
+  final bool clockedIn;
+  final DateTime? clockedInAt;
   final int booked;
   final int done;
   final int left;
   final double rating;
   final int ratingsCount;
-  final double todayEarnings;
-  final String currency;
+  final HomeEarningsModel earnings;
   final List<HomeAppointmentModel> appointments;
   final HomeReviewModel? latestReview;
 
   const HomeSummaryModel({
     required this.employeeName,
+    required this.employeeAvatarUrl,
     required this.branchName,
+    required this.date,
+    required this.timezone,
+    required this.clockedIn,
+    required this.clockedInAt,
     required this.booked,
     required this.done,
     required this.left,
     required this.rating,
     required this.ratingsCount,
-    required this.todayEarnings,
-    required this.currency,
+    required this.earnings,
     required this.appointments,
     required this.latestReview,
   });
 
-  /// `1.0` renders as `4.2`, whole values stay short: `5` instead of `5.0`.
+  factory HomeSummaryModel.fromJson(Map<String, dynamic> json) {
+    final data = _asMap(json['data']);
+    final employee = _asMap(data['employee']);
+    final branch = _asMap(data['branch']);
+    final workingStatus = _asMap(data['working_status']);
+    final snapshot = _asMap(data['snapshot']);
+    final upcomingAppointments = _asList(data['upcoming_appointments']);
+    final latestReview = _asMap(data['latest_review']);
+
+    return HomeSummaryModel(
+      employeeName: _asString(
+        employee['name'],
+        fallback: _asString(employee['first_name']),
+      ),
+      employeeAvatarUrl: _asString(employee['avatar_url']),
+      branchName: _asString(branch['name']),
+      date: _asString(data['date']),
+      timezone: _asString(data['timezone']),
+      clockedIn: _asBool(workingStatus['clocked_in']),
+      clockedInAt: _parseDate(workingStatus['clocked_in_at']),
+      booked: _asInt(snapshot['booked']),
+      done: _asInt(snapshot['done']),
+      left: _asInt(snapshot['left']),
+      rating: _asDouble(snapshot['rating_average']),
+      ratingsCount: _asInt(snapshot['ratings_count']),
+      earnings: HomeEarningsModel.fromJson(_asMap(data['earnings'])),
+      appointments: upcomingAppointments
+          .take(5)
+          .map(HomeAppointmentModel.fromJson)
+          .toList(),
+      latestReview: latestReview.isEmpty
+          ? null
+          : HomeReviewModel.fromJson(latestReview),
+    );
+  }
+
   String get ratingLabel {
-    if (ratingsCount == 0) return '—';
+    if (ratingsCount == 0) return '--';
     if (rating == rating.roundToDouble()) return rating.toStringAsFixed(0);
     return rating.toStringAsFixed(1);
   }
 
-  String get earningsLabel => '$currency ${_money(todayEarnings)}';
+  String get earningsLabel => earnings.displayAmount;
+}
 
-  static String _money(double value) {
-    if (value == value.roundToDouble()) {
-      return value.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'),
-        (match) => '${match[1]},',
-      );
-    }
-    return value.toStringAsFixed(2);
+class HomeEarningsModel {
+  final String calculationStatus;
+  final bool payrollProcessed;
+  final double amount;
+  final String currency;
+  final List<HomeEarningsCurrencyModel> currencies;
+
+  const HomeEarningsModel({
+    required this.calculationStatus,
+    required this.payrollProcessed,
+    required this.amount,
+    required this.currency,
+    required this.currencies,
+  });
+
+  factory HomeEarningsModel.fromJson(Map<String, dynamic> json) {
+    return HomeEarningsModel(
+      calculationStatus: _asString(json['calculation_status']),
+      payrollProcessed: _asBool(json['payroll_processed']),
+      amount: _asDouble(json['amount']),
+      currency: _asString(json['currency']),
+      currencies: _asList(
+        json['currencies'],
+      ).map(HomeEarningsCurrencyModel.fromJson).toList(),
+    );
+  }
+
+  String get displayAmount {
+    if (currency.isNotEmpty) return '$currency ${_money(amount)}';
+    if (currencies.isEmpty) return '--';
+    return currencies
+        .map((item) => '${item.currency} ${_money(item.amount)}')
+        .join(' · ');
   }
 }
 
-/// One row of `GET /api/employee/booking-visits`.
-class HomeVisitsPageModel {
-  final List<HomeAppointmentModel> appointments;
-  final int total;
+class HomeEarningsCurrencyModel {
+  final String currency;
+  final double amount;
+  final double attributedServiceValue;
 
-  const HomeVisitsPageModel({required this.appointments, required this.total});
+  const HomeEarningsCurrencyModel({
+    required this.currency,
+    required this.amount,
+    required this.attributedServiceValue,
+  });
 
-  factory HomeVisitsPageModel.fromJson(Map<String, dynamic> json) {
-    final rows = json['data'] is List ? json['data'] as List : const [];
-    return HomeVisitsPageModel(
-      appointments: rows
-          .whereType<Map>()
-          .map(
-            (row) =>
-                HomeAppointmentModel.fromJson(Map<String, dynamic>.from(row)),
-          )
-          .toList(),
-      total: _asInt(_asMap(_asMap(json['meta'])['pagination'])['total']),
+  factory HomeEarningsCurrencyModel.fromJson(Map<String, dynamic> json) {
+    return HomeEarningsCurrencyModel(
+      currency: _asString(json['currency']),
+      amount: _asDouble(json['amount']),
+      attributedServiceValue: _asDouble(json['attributed_service_value']),
     );
   }
 }
@@ -75,157 +137,89 @@ class HomeVisitsPageModel {
 class HomeAppointmentModel {
   final String visitUuid;
   final String bookingUuid;
+  final String status;
   final String customerName;
+  final String customerAvatarUrl;
   final String servicesLabel;
-  final String branchName;
-  final int? queueNumber;
+  final String resourceName;
   final DateTime? scheduledStartAt;
+  final DateTime? scheduledEndAt;
 
   const HomeAppointmentModel({
     required this.visitUuid,
     required this.bookingUuid,
+    required this.status,
     required this.customerName,
+    required this.customerAvatarUrl,
     required this.servicesLabel,
-    required this.branchName,
-    required this.queueNumber,
+    required this.resourceName,
     required this.scheduledStartAt,
+    required this.scheduledEndAt,
   });
 
   factory HomeAppointmentModel.fromJson(Map<String, dynamic> json) {
-    final booking = _asMap(json['booking']);
     final customer = _asMap(json['customer'] ?? json['user']);
-    final services = (json['services'] is List ? json['services'] as List : [])
-        .whereType<Map>()
+    final services = _asList(json['services'])
         .map((service) => _asString(service['name']))
         .where((name) => name.isNotEmpty)
         .toList();
+    final resource = _asMap(json['resource']);
 
     return HomeAppointmentModel(
-      visitUuid: _asString(json['uuid']),
-      bookingUuid: _asString(booking['uuid']),
+      visitUuid: _asString(json['visit_uuid'] ?? json['uuid']),
+      bookingUuid: _asString(
+        json['booking_uuid'] ?? _asMap(json['booking'])['uuid'],
+      ),
+      status: _asString(json['status']),
       customerName: _asString(customer['name']),
+      customerAvatarUrl: _asString(customer['avatar_url']),
       servicesLabel: services.join('، '),
-      branchName: _asString(_asMap(json['branch'])['name']),
-      queueNumber: _asNullableInt(json['daily_queue_number']),
-      scheduledStartAt: DateTime.tryParse(
-        _asString(json['scheduled_start_at']),
-      )?.toLocal(),
+      resourceName: _asString(resource['name']),
+      scheduledStartAt: _parseDate(json['scheduled_start_at']),
+      scheduledEndAt: _parseDate(json['scheduled_end_at']),
     );
   }
 
   String get dateLabel => _formatDate(scheduledStartAt);
 
-  String get timeLabel => _formatTime(scheduledStartAt);
-
-  /// Third segment of the card subtitle — the queue slot when the backend
-  /// assigned one, otherwise the branch.
-  String get slotLabel =>
-      queueNumber == null ? branchName : '#${queueNumber!}';
-
-  String get avatarLetter {
-    final name = customerName.trim();
-    return name.isEmpty ? '?' : String.fromCharCode(name.runes.first);
+  String get timeLabel {
+    final start = _formatTime(scheduledStartAt);
+    final end = _formatTime(scheduledEndAt);
+    if (start.isEmpty) return end;
+    if (end.isEmpty) return start;
+    return '$start - $end';
   }
-}
 
-/// Only the two fields the home header renders — the profile feature owns the
-/// full `auth/me` shape.
-class HomeProfileModel {
-  final String name;
-  final String branchName;
-
-  const HomeProfileModel({required this.name, required this.branchName});
-
-  factory HomeProfileModel.fromJson(Map<String, dynamic> json) {
-    final data = _asMap(json['data']);
-    return HomeProfileModel(
-      name: _asString(data['name']),
-      branchName: _asString(_asMap(data['branch'])['name']),
-    );
-  }
-}
-
-class HomeRevenueModel {
-  final double totalRevenue;
-  final int completedBookings;
-
-  const HomeRevenueModel({
-    required this.totalRevenue,
-    required this.completedBookings,
-  });
-
-  factory HomeRevenueModel.fromJson(Map<String, dynamic> json) {
-    final data = _asMap(json['data']);
-    return HomeRevenueModel(
-      totalRevenue: _asDouble(data['total_revenue']),
-      completedBookings: _asInt(data['completed_bookings']),
-    );
-  }
-}
-
-class HomeRatingsModel {
-  final double average;
-  final int count;
-  final HomeReviewModel? latest;
-
-  const HomeRatingsModel({
-    required this.average,
-    required this.count,
-    required this.latest,
-  });
-
-  /// The endpoint returns a paginated list with no aggregate, so the average is
-  /// computed over the rows actually fetched. See [HomeService.getRatings] for
-  /// the page size that bounds it.
-  factory HomeRatingsModel.fromJson(Map<String, dynamic> json) {
-    final rows = (json['data'] is List ? json['data'] as List : const [])
-        .whereType<Map>()
-        .map((row) => Map<String, dynamic>.from(row))
-        .toList();
-
-    final scores = rows
-        .map((row) => _asDouble(row['rating']))
-        .where((score) => score > 0)
-        .toList();
-
-    rows.sort((a, b) {
-      final left = DateTime.tryParse(_asString(a['rated_at']));
-      final right = DateTime.tryParse(_asString(b['rated_at']));
-      if (left == null || right == null) return 0;
-      return right.compareTo(left);
-    });
-
-    return HomeRatingsModel(
-      average: scores.isEmpty
-          ? 0
-          : scores.reduce((a, b) => a + b) / scores.length,
-      count: scores.length,
-      latest: rows.isEmpty ? null : HomeReviewModel.fromJson(rows.first),
-    );
-  }
+  String get slotLabel => resourceName;
 }
 
 class HomeReviewModel {
   final String reviewerName;
+  final String reviewerAvatarUrl;
   final int rating;
   final String comment;
   final DateTime? ratedAt;
+  final bool isAnonymous;
 
   const HomeReviewModel({
     required this.reviewerName,
+    required this.reviewerAvatarUrl,
     required this.rating,
     required this.comment,
     required this.ratedAt,
+    required this.isAnonymous,
   });
 
   factory HomeReviewModel.fromJson(Map<String, dynamic> json) {
-    final user = _asMap(json['user']);
+    final customer = _asMap(json['customer'] ?? json['user']);
     final isAnonymous = _asBool(json['is_anonymous']);
     return HomeReviewModel(
-      reviewerName: isAnonymous ? 'Anonymous' : _asString(user['name']),
+      reviewerName: isAnonymous ? '' : _asString(customer['name']),
+      reviewerAvatarUrl: isAnonymous ? '' : _asString(customer['avatar_url']),
       rating: _asInt(json['rating']),
       comment: _asString(json['comment']),
-      ratedAt: DateTime.tryParse(_asString(json['rated_at']))?.toLocal(),
+      ratedAt: _parseDate(json['rated_at'] ?? json['created_at']),
+      isAnonymous: isAnonymous,
     );
   }
 
@@ -272,6 +266,31 @@ String _formatTime(DateTime? date) {
   return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
 }
 
+String _money(double value) {
+  if (value == value.roundToDouble()) {
+    return value
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+$)'),
+          (match) => '${match[1]},',
+        );
+  }
+  return value.toStringAsFixed(2);
+}
+
+DateTime? _parseDate(dynamic value) {
+  final text = _asString(value);
+  if (text.isEmpty) return null;
+  return DateTime.tryParse(text)?.toLocal();
+}
+
+List<Map<String, dynamic>> _asList(dynamic value) {
+  return (value is List ? value : const [])
+      .whereType<Map>()
+      .map((item) => Map<String, dynamic>.from(item))
+      .toList();
+}
+
 Map<String, dynamic> _asMap(dynamic value) {
   if (value is Map<String, dynamic>) return value;
   if (value is Map) return Map<String, dynamic>.from(value);
@@ -282,13 +301,6 @@ int _asInt(dynamic value, {int fallback = 0}) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '') ?? fallback;
-}
-
-int? _asNullableInt(dynamic value) {
-  if (value == null) return null;
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value.toString());
 }
 
 double _asDouble(dynamic value, {double fallback = 0}) {

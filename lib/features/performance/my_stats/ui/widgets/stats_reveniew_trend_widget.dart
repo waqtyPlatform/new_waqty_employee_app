@@ -1,23 +1,21 @@
+import 'dart:math' as math;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/performance/my_stats/data/models/my_stats_response_model.dart';
 
 class StatsReveniewTrendWidget extends StatelessWidget {
-  final double maxValue;
-  // final List<double> data;
-  const StatsReveniewTrendWidget({
-    super.key,
-    required this.maxValue,
-    // required this.data,
-  });
+  final List<MyStatsRevenueSeriesModel> series;
+  const StatsReveniewTrendWidget({super.key, required this.series});
 
   @override
   Widget build(BuildContext context) {
-    // Example data based on the provided design image
-    final List<double> data = [1200, 1450, 0, 1800, 950, 1350, 0];
+    final data = series.map((item) => item.numericValue).toList();
+    final maxValue = _maxValue(data);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -32,13 +30,11 @@ class StatsReveniewTrendWidget extends StatelessWidget {
           BoxShadow(
             color: AppColors.greyColor900.withValues(alpha: .04),
             blurRadius: 2,
-            spreadRadius: 0,
             offset: const Offset(0, 1),
           ),
           BoxShadow(
             color: AppColors.greyColor900.withValues(alpha: .05),
             blurRadius: 3,
-            spreadRadius: 0,
             offset: const Offset(0, 1),
           ),
         ],
@@ -51,67 +47,117 @@ class StatsReveniewTrendWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight500,
           ),
           verticalSpace(12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Y-axis labels
-              SizedBox(
-                height: 140.h,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(5, (index) {
-                    double val = maxValue - (index * (maxValue / 4));
-                    String text = val == val.toInt()
-                        ? val.toInt().toString()
-                        : val.toStringAsFixed(1);
-                    return Text(text, style: TextStyles.font10greyColorA3w400);
-                  }),
+          if (series.isEmpty)
+            SizedBox(
+              height: 140.h,
+              child: Center(
+                child: Text(
+                  context.tr('myStats.emptyChart'),
+                  style: TextStyles.font12greyColorA3W400,
                 ),
               ),
-              horizontalSpace(12),
-              // Graph area
-              Expanded(
-                child: SizedBox(
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
                   height: 140.h,
-                  child: Stack(
-                    children: [
-                      // Render the chart filling available height and width
-                      Positioned.fill(
-                        bottom: 30.h, // Leave space for X-axis labels
-                        child: CustomPaint(
-                          painter: _ChartPainter(
-                            data: data,
-                            maxData: maxValue,
-                            lineColor: AppColors.greenColor500,
-                            gradientColor: AppColors.greenColor500,
-                          ),
-                        ),
-                      ),
-                      // Align X-axis labels at the bottom
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children:
-                              ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                                  .map(
-                                    (e) => Text(
-                                      e,
-                                      style: TextStyles.font10greyColorA3w400,
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                      ),
-                    ],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(5, (index) {
+                      final val = maxValue - (index * (maxValue / 4));
+                      final text = val == val.toInt()
+                          ? val.toInt().toString()
+                          : val.toStringAsFixed(1);
+                      return Text(
+                        text,
+                        style: TextStyles.font10greyColorA3w400,
+                      );
+                    }),
                   ),
                 ),
-              ),
-            ],
-          ),
+                horizontalSpace(12),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final chartWidth = math.max(
+                        constraints.maxWidth,
+                        series.length * 48.w,
+                      );
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: chartWidth,
+                          height: 140.h,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                bottom: 30.h,
+                                child: CustomPaint(
+                                  painter: _ChartPainter(
+                                    data: data,
+                                    maxData: maxValue,
+                                    lineColor: AppColors.greenColor500,
+                                    gradientColor: AppColors.greenColor500,
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: series
+                                      .map(
+                                        (item) => SizedBox(
+                                          width: 46.w,
+                                          child: Text(
+                                            _dateLabel(item),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyles
+                                                .font10greyColorA3w400,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
+  }
+
+  String _dateLabel(MyStatsRevenueSeriesModel item) {
+    final parsed = DateTime.tryParse(item.date);
+    if (parsed != null) return '${parsed.month}/${parsed.day}';
+
+    final text = item.label.trim();
+    if (text.length <= 6) return text;
+
+    final datePart = RegExp(r'(\d{4})-(\d{1,2})-(\d{1,2})').firstMatch(text);
+    if (datePart != null) return '${datePart.group(2)}/${datePart.group(3)}';
+
+    return text;
+  }
+
+  double _maxValue(List<double> values) {
+    final max = values.fold<double>(
+      0,
+      (value, item) => item > value ? item : value,
+    );
+    return max <= 0 ? 1 : max;
   }
 }
 
@@ -132,51 +178,54 @@ class _ChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 
-    final double stepX = size.width / (data.length - 1);
+    if (data.length == 1) {
+      final paint = Paint()
+        ..color = lineColor
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+      final y = size.height - (data.first / maxData) * size.height;
+      canvas.drawCircle(Offset(size.width / 2, y), 3, paint);
+      return;
+    }
 
-    final Path path = Path();
-    final List<Offset> points = [];
+    final stepX = size.width / (data.length - 1);
+    final path = Path();
+    final points = <Offset>[];
 
-    for (int i = 0; i < data.length; i++) {
-      final double x = i * stepX;
-      // y is inverted because 0 is at the top of the canvas
-      final double y = size.height - (data[i] / maxData) * size.height;
+    for (var i = 0; i < data.length; i++) {
+      final x = i * stepX;
+      final y = size.height - (data[i] / maxData) * size.height;
       points.add(Offset(x, y));
     }
 
     path.moveTo(points.first.dx, points.first.dy);
 
-    // Apply cubic bezier curves to smooth the lines connecting the data points
-    for (int i = 0; i < points.length - 1; i++) {
+    for (var i = 0; i < points.length - 1; i++) {
       final p0 = points[i];
       final p1 = points[i + 1];
-
-      // A simple control point halfway on the x-axis gives a smooth S-curve
-      final double controlPointX = p0.dx + (p1.dx - p0.dx) / 2;
-
+      final controlPointX = p0.dx + (p1.dx - p0.dx) / 2;
       path.cubicTo(controlPointX, p0.dy, controlPointX, p1.dy, p1.dx, p1.dy);
     }
 
-    // Draw the subtle gradient fill below the line
-    final Path fillPath = Path.from(path);
-    fillPath.lineTo(size.width, size.height);
-    fillPath.lineTo(0, size.height);
-    fillPath.close();
+    final fillPath = Path.from(path)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
 
-    final Paint fillPaint = Paint()
+    final fillPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
           gradientColor.withValues(alpha: 0.15),
-          gradientColor.withValues(alpha: 0.0),
+          gradientColor.withValues(alpha: 0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     canvas.drawPath(fillPath, fillPaint);
 
-    // Draw the green line itself
-    final Paint linePaint = Paint()
+    final linePaint = Paint()
       ..color = lineColor
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke

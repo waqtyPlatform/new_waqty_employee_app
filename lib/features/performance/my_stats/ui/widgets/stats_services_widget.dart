@@ -1,48 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/performance/my_stats/data/models/my_stats_response_model.dart';
 
 class StatsServicesWidget extends StatelessWidget {
-  const StatsServicesWidget({super.key});
+  final List<MyStatsServiceModel> services;
+
+  const StatsServicesWidget({super.key, required this.services});
 
   @override
   Widget build(BuildContext context) {
-    // Dummy data matching the image
-    final services = [
-      _ServiceItemData(
-        title: 'Haircut',
-        count: 18,
-        value: '2,700',
-        percentage: 0.9,
-      ),
-      _ServiceItemData(
-        title: 'Beard Trim',
-        count: 12,
-        value: '960',
-        percentage: 0.55,
-      ),
-      _ServiceItemData(
-        title: 'Hair Color',
-        count: 4,
-        value: '1,200',
-        percentage: 0.05,
-      ),
-      _ServiceItemData(
-        title: 'Keratin Treatment',
-        count: 2,
-        value: '1,000',
-        percentage: 0.01,
-      ),
-      _ServiceItemData(
-        title: 'Beard Design',
-        count: 6,
-        value: '720',
-        percentage: 0.15,
-      ),
-    ];
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -71,34 +41,66 @@ class StatsServicesWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Services', style: TextStyles.font14greyColor900Weight500),
-          verticalSpace(12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: services.length,
-            separatorBuilder: (context, index) => verticalSpace(16),
-            itemBuilder: (context, index) {
-              return _buildServiceItem(services[index]);
-            },
+          Text(
+            context.tr('myStats.services'),
+            style: TextStyles.font14greyColor900Weight500,
           ),
+          verticalSpace(12),
+          if (services.isEmpty)
+            Text(
+              context.tr('myStats.noServices'),
+              style: TextStyles.font12greyColorA3W400,
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: services.length,
+              separatorBuilder: (context, index) => verticalSpace(16),
+              itemBuilder: (context, index) {
+                return _buildServiceItem(context, services[index]);
+              },
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildServiceItem(_ServiceItemData item) {
+  Widget _buildServiceItem(BuildContext context, MyStatsServiceModel item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.title, style: TextStyles.font14greyColor900Weight500),
-            Text(
-              '${item.count}x · EGP ${item.value}',
-              style: TextStyles.font12greyColorA3W400,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.serviceName.isEmpty ? '-' : item.serviceName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.start,
+                    style: TextStyles.font14greyColor900Weight500,
+                  ),
+                  verticalSpace(2),
+                  Text(
+                    context.tr(
+                      'myStats.completedServiceCount',
+                      namedArgs: {'count': '${item.completedItemsCount}'},
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.start,
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
+                ],
+              ),
             ),
+            horizontalSpace(12),
+            Text(item.valueLabel, style: TextStyles.font12greyColorA3W400),
           ],
         ),
         verticalSpace(8),
@@ -118,7 +120,9 @@ class StatsServicesWidget extends StatelessWidget {
                 ),
                 Container(
                   height: 6.h,
-                  width: constraints.maxWidth * item.percentage,
+                  width:
+                      constraints.maxWidth *
+                      (item.sharePercentage.clamp(0, 100) / 100),
                   decoration: BoxDecoration(
                     color: AppColors.greenColor500, // Standard green for bars
                     borderRadius: BorderRadius.circular(10.r),
@@ -131,18 +135,4 @@ class StatsServicesWidget extends StatelessWidget {
       ],
     );
   }
-}
-
-class _ServiceItemData {
-  final String title;
-  final int count;
-  final String value;
-  final double percentage;
-
-  _ServiceItemData({
-    required this.title,
-    required this.count,
-    required this.value,
-    required this.percentage,
-  });
 }

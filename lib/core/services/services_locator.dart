@@ -59,6 +59,8 @@ import 'package:new_waqty_employee_app/features/booking/customer_context/data/se
 
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/repo/my_stats_repo.dart';
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/services/my_stats_service.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/data/repo/my_reviews_repo.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/data/services/my_reviews_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -161,6 +163,12 @@ class ServicesLocator {
       () => MyStatsService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<MyStatsRepo>(() => MyStatsRepo(getIt()));
+
+    /// My Reviews
+    getIt.registerLazySingleton<MyReviewsService>(
+      () => MyReviewsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<MyReviewsRepo>(() => MyReviewsRepo(getIt()));
 
     /// My Services
     getIt.registerLazySingleton<MyServicesService>(

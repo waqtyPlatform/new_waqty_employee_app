@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:new_waqty_employee_app/features/performance/my_stats/data/models/my_reviews_response_model.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/data/models/my_reviews_response_model.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/data/services/my_reviews_api_end_points.dart';
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/models/my_stats_response_model.dart';
 import 'package:new_waqty_employee_app/features/performance/my_stats/data/services/my_stats_api_end_points.dart';
 
@@ -146,7 +147,7 @@ void main() {
       '/api/employee/performance?period=month',
     );
 
-    final ratingsUrl = MyStatsApiEndPoints.ratings(
+    final ratingsUrl = MyReviewsApiEndPoints.ratings(
       rating: 5,
       page: 2,
       perPage: 15,

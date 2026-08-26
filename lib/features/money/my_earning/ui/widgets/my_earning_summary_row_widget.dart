@@ -1,23 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_cubit.dart';
 
 class MyEarningSummaryRowWidget extends StatelessWidget {
   const MyEarningSummaryRowWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final preview = context.watch<MyEarningCubit>().preview;
     return Row(
       children: [
         Expanded(
           child: _MoneySummaryCardWidget(
             icon: Icons.account_balance_outlined,
             label: context.tr('myEarning.salary'),
-            amount: 'EGP 3,000',
+            amount: preview?.money(preview.salary) ?? '-',
           ),
         ),
         horizontalSpace(8),
@@ -25,7 +28,7 @@ class MyEarningSummaryRowWidget extends StatelessWidget {
           child: _MoneySummaryCardWidget(
             icon: Icons.trending_up,
             label: context.tr('myEarning.commission'),
-            amount: 'EGP 2,100',
+            amount: preview?.money(preview.commission) ?? '-',
             iconColor: AppColors.warningColor1001,
             iconBackground: AppColors.warningColor1002,
           ),
@@ -35,7 +38,17 @@ class MyEarningSummaryRowWidget extends StatelessWidget {
           child: _MoneySummaryCardWidget(
             icon: Icons.card_giftcard_outlined,
             label: context.tr('myEarning.bonus'),
-            amount: '+ EGP 250',
+            amount: preview?.money(preview.bonus, plus: true) ?? '-',
+          ),
+        ),
+        horizontalSpace(8),
+        Expanded(
+          child: _MoneySummaryCardWidget(
+            icon: Icons.remove_circle_outline,
+            label: context.tr('myEarning.deductions'),
+            amount: preview?.money(preview.shownDeduction, minus: true) ?? '-',
+            iconColor: AppColors.errorColor2002,
+            iconBackground: AppColors.errorColor2003,
           ),
         ),
       ],

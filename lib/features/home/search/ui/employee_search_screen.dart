@@ -10,23 +10,8 @@ import 'package:new_waqty_employee_app/features/home/search/logic/employee_searc
 import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_state.dart';
 import 'package:new_waqty_employee_app/features/home/search/ui/widgets/employee_search_results_widget.dart';
 
-class EmployeeSearchScreen extends StatefulWidget {
+class EmployeeSearchScreen extends StatelessWidget {
   const EmployeeSearchScreen({super.key});
-
-  @override
-  State<EmployeeSearchScreen> createState() => _EmployeeSearchScreenState();
-}
-
-class _EmployeeSearchScreenState extends State<EmployeeSearchScreen> {
-  bool _isLoaded = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_isLoaded) return;
-    _isLoaded = true;
-    EmployeeSearchCubit.get(context).init(context.locale.languageCode);
-  }
 
   @override
   Widget build(BuildContext context) {

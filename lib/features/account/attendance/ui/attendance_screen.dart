@@ -10,25 +10,8 @@ import 'package:new_waqty_employee_app/features/account/attendance/data/models/a
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_state.dart';
 
-class AttendanceScreen extends StatefulWidget {
+class AttendanceScreen extends StatelessWidget {
   const AttendanceScreen({super.key});
-
-  @override
-  State<AttendanceScreen> createState() => _AttendanceScreenState();
-}
-
-class _AttendanceScreenState extends State<AttendanceScreen> {
-  bool _didLoadAttendance = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_didLoadAttendance) return;
-    _didLoadAttendance = true;
-    AttendanceCubit.get(
-      context,
-    ).loadAttendanceHistory(languageCode: context.locale.languageCode);
-  }
 
   @override
   Widget build(BuildContext context) {

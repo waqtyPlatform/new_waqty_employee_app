@@ -1,9 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class BonusTotalCardWidget extends StatelessWidget {
@@ -11,6 +14,7 @@ class BonusTotalCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bonuses = context.watch<BonusesCubit>().bonuses;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -32,11 +36,14 @@ class BonusTotalCardWidget extends StatelessWidget {
           ),
           verticalSpace(8),
           Text(
-            context.tr('myEarning.totalBonusMarch'),
+            context.tr('myEarning.totalBonus'),
             style: TextStyles.font12greyColorA3W400,
           ),
           verticalSpace(6),
-          Text('EGP 250', style: TextStyles.font32greyColor900Weight600),
+          Text(
+            formatMoney(bonuses?.total ?? 0, bonuses?.currency ?? ''),
+            style: TextStyles.font32greyColor900Weight600,
+          ),
         ],
       ),
     );

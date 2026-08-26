@@ -4,6 +4,7 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/logic/my_booking_cubit.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/ui/widgets/my_booking_canceled_list_widget.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/ui/widgets/my_booking_completed_list_widget.dart';
+import 'package:new_waqty_employee_app/features/booking/my_booking/ui/widgets/my_booking_shimmer_loading_widget.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/ui/widgets/my_booking_upcoming_list_widget.dart';
 
 class MyBookingListContentWidget extends StatelessWidget {
@@ -26,13 +27,7 @@ class MyBookingListContentWidget extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     if (cubit.isBookingsLoading) {
-      return const SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          height: 400,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
+      return const MyBookingShimmerLoadingWidget();
     }
 
     if (cubit.bookings.isEmpty) {

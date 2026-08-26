@@ -1,16 +1,20 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_detail_row_widget.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
 
 class PayslipEmployeeDetailsCardWidget extends StatelessWidget {
   const PayslipEmployeeDetailsCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final employee =
+        context.watch<PayslipDetailsCubit>().details?.employee ?? {};
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -25,19 +29,27 @@ class PayslipEmployeeDetailsCardWidget extends StatelessWidget {
           verticalSpace(10),
           PayslipDetailRowWidget(
             label: context.tr('myEarning.name'),
-            value: context.tr('myEarning.employeeName'),
+            value: employee['name']?.isNotEmpty == true
+                ? employee['name']!
+                : '-',
           ),
           PayslipDetailRowWidget(
             label: context.tr('myEarning.employeeId'),
-            value: 'EMP-0042',
+            value: employee['code']?.isNotEmpty == true
+                ? employee['code']!
+                : '-',
           ),
           PayslipDetailRowWidget(
             label: context.tr('myEarning.role'),
-            value: context.tr('myEarning.employeeRole'),
+            value: employee['role']?.isNotEmpty == true
+                ? employee['role']!
+                : '-',
           ),
           PayslipDetailRowWidget(
             label: context.tr('myEarning.branch'),
-            value: context.tr('myEarning.employeeBranch'),
+            value: employee['branch']?.isNotEmpty == true
+                ? employee['branch']!
+                : '-',
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 class Routes {
   static const splashScreen = "/SplashScreen";
+  static const noInternetScreen = "/NoInternetScreen";
   static const mainNavigationScreen = "/MainNavigationScreen";
   static const loginScreen = "/LoginScreen";
   static const homeScreen = "/HomeScreen";
@@ -36,4 +37,5 @@ class Routes {
   static const payslipDetailsScreen = "/PayslipDetailsScreen";
   static const bonusesScreen = "/BonusesScreen";
   static const deductionsScreen = "/DeductionsScreen";
+  static const myReviewsScreen = "/MyReviewsScreen";
 }

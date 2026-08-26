@@ -1,61 +1,54 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/payslips/data/models/payslip_model.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/logic/payslips_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/payslips/logic/payslips_state.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class PayslipsListWidget extends StatelessWidget {
   const PayslipsListWidget({super.key});
 
-  static const List<PayslipModel> _payslips = [
-    PayslipModel(
-      monthKey: 'payslipMarch2026',
-      amount: 'EGP 5,350',
-      status: PayslipStatus.pending,
-    ),
-    PayslipModel(
-      monthKey: 'payslipFebruary2026',
-      amount: 'EGP 5,120',
-      status: PayslipStatus.paid,
-    ),
-    PayslipModel(
-      monthKey: 'payslipJanuary2026',
-      amount: 'EGP 4,980',
-      status: PayslipStatus.paid,
-    ),
-    PayslipModel(
-      monthKey: 'payslipDecember2025',
-      amount: 'EGP 4,650',
-      status: PayslipStatus.paid,
-    ),
-    PayslipModel(
-      monthKey: 'payslipOctober2025',
-      amount: 'EGP 5,200',
-      status: PayslipStatus.paid,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final cubit = context.watch<PayslipsCubit>();
+    final payslips = cubit.payslips;
+    if (payslips.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.only(top: 80.h),
+        child: Text(
+          context.tr('myEarning.noData'),
+          style: TextStyles.font14greyColor500W400,
+        ),
+      );
+    }
     return Column(
-      children: _payslips
-          .map(
-            (payslip) => Padding(
-              padding: EdgeInsets.only(bottom: 10.h),
-              child: _PayslipListItemWidget(payslip: payslip),
+      children: [
+        ...payslips.map(
+          (payslip) => Padding(
+            padding: EdgeInsets.only(bottom: 10.h),
+            child: _PayslipListItemWidget(payslip: payslip),
+          ),
+        ),
+        if (cubit.state is PayslipsLoadingMoreState)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            child: const CircularProgressIndicator(
+              color: AppColors.greenColor500,
             ),
-          )
-          .toList(),
+          ),
+      ],
     );
   }
 }
 
 class _PayslipListItemWidget extends StatelessWidget {
-  final PayslipModel payslip;
+  final MoneyPayslipSummary payslip;
 
   const _PayslipListItemWidget({required this.payslip});
 
@@ -79,7 +72,7 @@ class _PayslipListItemWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.tr('myEarning.${payslip.monthKey}'),
+                    payslip.label.isNotEmpty ? payslip.label : payslip.month,
                     style: TextStyles.font16greyColor900Weight600,
                   ),
                   verticalSpace(6),
@@ -88,7 +81,7 @@ class _PayslipListItemWidget extends StatelessWidget {
               ),
             ),
             Text(
-              payslip.amount,
+              formatMoney(payslip.netPay, payslip.currency),
               style: TextStyles.font14greenColor500Weight600,
             ),
             horizontalSpace(10),

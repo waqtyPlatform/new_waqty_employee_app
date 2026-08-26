@@ -12,12 +12,14 @@ class HomeHeaderWidget extends StatelessWidget {
   final String employeeName;
   final String employeeAvatarUrl;
   final String branchName;
+  final VoidCallback? onAvatarTap;
 
   const HomeHeaderWidget({
     super.key,
     required this.employeeName,
     required this.employeeAvatarUrl,
     required this.branchName,
+    this.onAvatarTap,
   });
 
   String get _initial {
@@ -34,7 +36,14 @@ class HomeHeaderWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _HeaderAvatar(imageUrl: employeeAvatarUrl, initial: _initial),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onAvatarTap,
+            child: _HeaderAvatar(
+              imageUrl: employeeAvatarUrl,
+              initial: _initial,
+            ),
+          ),
           horizontalSpace(8),
           Expanded(
             child: Column(

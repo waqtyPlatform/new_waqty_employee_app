@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/logic/daily_earning_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class DailyEarningSummaryCardWidget extends StatelessWidget {
   final String dayEarnings;
@@ -13,6 +16,8 @@ class DailyEarningSummaryCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final details = context.watch<DailyEarningDetailsCubit>().details;
+    final currency = details?.currency ?? '';
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -26,27 +31,35 @@ class DailyEarningSummaryCardWidget extends StatelessWidget {
           ),
           verticalSpace(12),
           _SummaryLineWidget(
-            label: context.tr('myEarning.serviceRevenue'),
-            value: 'EGP 650',
+            label: context.tr('myEarning.serviceValueGenerated'),
+            value: details == null
+                ? '-'
+                : formatMoney(details.serviceValueGenerated, currency),
           ),
           _SummaryLineWidget(
-            label: '- ${context.tr('myEarning.extraction')}',
-            value: '-EGP 110',
-            color: AppColors.errorColor2002,
-          ),
-          _SummaryLineWidget(
-            label: context.tr('myEarning.netRevenue'),
-            value: 'EGP 540',
-          ),
-          _SummaryLineWidget(
-            label: context.tr('myEarning.commissionPercent'),
-            value: 'EGP 27',
+            label: context.tr('myEarning.commissionEarned'),
+            value: details == null
+                ? '-'
+                : formatMoney(details.commissionEarned, currency),
             valueColor: AppColors.greenColor500,
+          ),
+          _SummaryLineWidget(
+            label: context.tr('myEarning.bonuses'),
+            value: details == null ? '-' : formatMoney(details.bonus, currency),
+          ),
+          _SummaryLineWidget(
+            label: context.tr('myEarning.deductions'),
+            value: details == null
+                ? '-'
+                : formatMoney(details.deduction, currency, minus: true),
+            valueColor: AppColors.errorColor2002,
           ),
           Divider(color: AppColors.greyColor1001.withValues(alpha: .22)),
           _SummaryLineWidget(
             label: context.tr('myEarning.dayEarnings'),
-            value: dayEarnings,
+            value: details == null
+                ? dayEarnings
+                : formatMoney(details.netEarnings, currency),
             isTotal: true,
             valueColor: AppColors.greenColor500,
           ),
@@ -59,14 +72,12 @@ class DailyEarningSummaryCardWidget extends StatelessWidget {
 class _SummaryLineWidget extends StatelessWidget {
   final String label;
   final String value;
-  final Color? color;
   final Color? valueColor;
   final bool isTotal;
 
   const _SummaryLineWidget({
     required this.label,
     required this.value,
-    this.color,
     this.valueColor,
     this.isTotal = false,
   });
@@ -84,7 +95,7 @@ class _SummaryLineWidget extends StatelessWidget {
                   (isTotal
                           ? TextStyles.font14greyColor900Weight600
                           : TextStyles.font14greyColor500W400)
-                      .copyWith(color: color),
+                      .copyWith(),
             ),
           ),
           horizontalSpace(12),
@@ -94,7 +105,7 @@ class _SummaryLineWidget extends StatelessWidget {
                 (isTotal
                         ? TextStyles.font14greenColor500Weight600
                         : TextStyles.font14greyColor900Weight500)
-                    .copyWith(color: valueColor ?? color),
+                    .copyWith(color: valueColor),
           ),
         ],
       ),

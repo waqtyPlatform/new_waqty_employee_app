@@ -13,27 +13,8 @@ import 'package:new_waqty_employee_app/features/account/my_services/logic/my_ser
 import 'package:new_waqty_employee_app/features/account/my_services/ui/widgets/profile_service_items_widget.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/widgets/my_services_shimmer_loading.dart';
 
-class MyServicesScreen extends StatefulWidget {
+class MyServicesScreen extends StatelessWidget {
   const MyServicesScreen({super.key});
-
-  @override
-  State<MyServicesScreen> createState() => _MyServicesScreenState();
-}
-
-class _MyServicesScreenState extends State<MyServicesScreen> {
-  @override
-  void initState() {
-    super.initState();
-    MyServicesCubit.get(context).clearGetAllServices();
-    MyServicesCubit.get(context).getAllServices();
-    MyServicesCubit.get(context).scrollListenerMyServicesScrollController();
-  }
-
-  @override
-  void dispose() {
-    MyServicesCubit.get(context).myServicesScrollController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +72,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.greyColor900.withOpacity(0.04),
+                        color: AppColors.greyColor900.withValues(alpha: .04),
                         blurRadius: 4,
                         spreadRadius: 0,
                         offset: const Offset(0, 1),
@@ -119,48 +100,43 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                           ),
                         );
                       } else {
-                        return Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            controller: MyServicesCubit.get(
-                              context,
-                            ).myServicesScrollController,
-                            itemCount:
-                                MyServicesCubit.get(context).myServices.length +
-                                1,
-                            itemBuilder: (context, index) {
-                              /// Items
-                              if (index <
-                                  MyServicesCubit.get(
-                                    context,
-                                  ).myServices.length) {
-                                return ProfileServiceItemsWidget(
-                                  items:
+                        return ListView.builder(
+                          controller: MyServicesCubit.get(
+                            context,
+                          ).myServicesScrollController,
+                          itemCount:
+                              MyServicesCubit.get(context).myServices.length +
+                              1,
+                          itemBuilder: (context, index) {
+                            /// Items
+                            if (index <
+                                MyServicesCubit.get(
+                                  context,
+                                ).myServices.length) {
+                              return ProfileServiceItemsWidget(
+                                items: MyServicesCubit.get(
+                                  context,
+                                ).myServices[index],
+                              );
+                            }
+
+                            /// Loader تحت
+                            return MyServicesCubit.get(
+                                      context,
+                                    ).myServicesCurrentPage <
                                     MyServicesCubit.get(
                                       context,
-                                    ).myServices[index],
-
-                                );
-                              }
-
-                              /// Loader تحت
-                              return MyServicesCubit.get(
-                                        context,
-                                      ).myServicesCurrentPage <
-                                      MyServicesCubit.get(
-                                        context,
-                                      ).myServicesLastPage
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.greenColor500,
-                                        ),
+                                    ).myServicesLastPage
+                                ? Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.greenColor500,
                                       ),
-                                    )
-                                  : const SizedBox();
-                            },
-                          ),
+                                    ),
+                                  )
+                                : const SizedBox();
+                          },
                         );
                       }
                     },

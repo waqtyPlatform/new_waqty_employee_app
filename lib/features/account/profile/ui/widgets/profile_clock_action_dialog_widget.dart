@@ -60,10 +60,6 @@ class ProfileClockActionDialogWidget extends StatefulWidget {
 
 class _ProfileClockActionDialogWidgetState
     extends State<ProfileClockActionDialogWidget> {
-  static const double _branchLatitude = 30.0444;
-  static const double _branchLongitude = 31.2357;
-  static const double _branchRangeMeters = 100;
-
   ProfileAttendanceAction? _loadingAction;
   Position? _currentPositionValue;
   bool _isCheckingBranchRange = true;
@@ -124,7 +120,7 @@ class _ProfileClockActionDialogWidgetState
               style: TextStyles.font14greyColorA3W400,
             ),
             verticalSpace(16),
-            const _ClockBranchInfoWidget(),
+            _ClockBranchInfoWidget(cubit: widget.cubit),
             verticalSpace(12),
             _BranchRangeWidget(
               isChecking: _isCheckingBranchRange,
@@ -199,8 +195,17 @@ class _ProfileClockActionDialogWidgetState
     try {
       final position = _currentPositionValue ?? await _currentPosition(context);
       if (position == null) return;
+      final isWithinBranchRange = _isPositionWithinBranchRange(position);
       _updateBranchRangeStatus(position);
       if (!context.mounted) return;
+      if (isWithinBranchRange == false) {
+        AppConstant.toast(
+          context.tr('profile.outsideBranchRange'),
+          false,
+          context,
+        );
+        return;
+      }
 
       final succeeded = await widget.cubit.runAttendanceAction(
         action: action,
@@ -244,18 +249,39 @@ class _ProfileClockActionDialogWidgetState
   }
 
   void _updateBranchRangeStatus(Position position) {
-    final distance = Geolocator.distanceBetween(
-      position.latitude,
-      position.longitude,
-      _branchLatitude,
-      _branchLongitude,
-    );
+    final isWithinBranchRange = _isPositionWithinBranchRange(position);
     if (!mounted) return;
     setState(() {
       _currentPositionValue = position;
       _isCheckingBranchRange = false;
-      _isWithinBranchRange = distance <= _branchRangeMeters;
+      _isWithinBranchRange = isWithinBranchRange;
     });
+  }
+
+  bool? _isPositionWithinBranchRange(Position position) {
+    final profileBranch =
+        widget.cubit.profileResponseModel?.customer.branchModel;
+    final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
+    final branchLatitude = profileBranch?.latitude ?? sessionBranch?.latitude;
+    final branchLongitude =
+        profileBranch?.longitude ?? sessionBranch?.longitude;
+    final branchRangeMeters =
+        profileBranch?.attendanceRangeMeters ??
+        sessionBranch?.attendanceRangeMeters;
+    if (branchLatitude == null ||
+        branchLongitude == null ||
+        branchRangeMeters == null ||
+        branchRangeMeters <= 0) {
+      return null;
+    }
+
+    final distance = Geolocator.distanceBetween(
+      position.latitude,
+      position.longitude,
+      branchLatitude,
+      branchLongitude,
+    );
+    return distance <= branchRangeMeters;
   }
 
   Future<Position?> _currentPosition(BuildContext context) async {
@@ -308,10 +334,10 @@ class _ProfileClockActionDialogWidgetState
     } catch (_) {
       if (context.mounted) {
         AppConstant.toast(
-            context.tr('profile.locationPermissionRequired'),
-            false,
-            context,
-          );
+          context.tr('profile.locationPermissionRequired'),
+          false,
+          context,
+        );
       }
       return null;
     }
@@ -341,10 +367,21 @@ class _ClockDialogHeaderWidget extends StatelessWidget {
 }
 
 class _ClockBranchInfoWidget extends StatelessWidget {
-  const _ClockBranchInfoWidget();
+  final ProfileCubit cubit;
+
+  const _ClockBranchInfoWidget({required this.cubit});
 
   @override
   Widget build(BuildContext context) {
+    final profileBranchName =
+        cubit.profileResponseModel?.customer.branchModel.name;
+    final sessionBranchName = cubit.currentAttendanceSession?.branch?.name;
+    final branchName = profileBranchName?.trim().isNotEmpty == true
+        ? profileBranchName!
+        : sessionBranchName?.trim().isNotEmpty == true
+        ? sessionBranchName!
+        : context.tr('branchContact.branchName');
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12.8.r),
@@ -366,7 +403,7 @@ class _ClockBranchInfoWidget extends StatelessWidget {
               horizontalSpace(8),
               Expanded(
                 child: Text(
-                  context.tr('branchContact.branchName'),
+                  branchName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyles.font14greyColor900Weight500,
@@ -421,12 +458,16 @@ class _BranchRangeWidget extends StatelessWidget {
         ? AppColors.greyColorA3
         : isWithinRange == true
         ? AppColors.greenColor500
-        : AppColors.errorColor100;
+        : isWithinRange == false
+        ? AppColors.errorColor100
+        : AppColors.warningColor1001;
     final titleKey = isChecking
         ? 'profile.checkingBranchRange'
         : isWithinRange == true
         ? 'profile.withinBranchRange'
-        : 'profile.outsideBranchRange';
+        : isWithinRange == false
+        ? 'profile.outsideBranchRange'
+        : 'profile.branchRangeServerCheck';
 
     return Row(
       mainAxisSize: MainAxisSize.min,

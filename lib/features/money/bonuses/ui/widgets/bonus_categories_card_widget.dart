@@ -1,9 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class BonusCategoriesCardWidget extends StatelessWidget {
@@ -11,6 +14,8 @@ class BonusCategoriesCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categories =
+        context.watch<BonusesCubit>().bonuses?.categories ?? const [];
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -23,31 +28,19 @@ class BonusCategoriesCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
-          _BonusCategoryRowWidget(
-            titleKey: 'bonusPunctuality',
-            subtitleKey: 'bonusPunctualitySubtitle',
-            amount: 'EGP 100',
-            icon: Icons.workspace_premium_outlined,
-            iconColor: AppColors.greenColor500,
-            iconBackgroundColor: AppColors.greenColor500.withValues(alpha: .06),
-          ),
-          _BonusCategoryRowWidget(
-            titleKey: 'bonusPerformance',
-            subtitleKey: 'bonusPerformanceSubtitle',
-            amount: 'EGP 75',
-            icon: Icons.workspace_premium_outlined,
-            iconColor: AppColors.warningColor1001,
-            iconBackgroundColor: AppColors.warningColor1002,
-          ),
-          _BonusCategoryRowWidget(
-            titleKey: 'bonusTarget',
-            subtitleKey: 'bonusTargetSubtitle',
-            amount: 'EGP 75',
-            icon: Icons.workspace_premium_outlined,
-            iconColor: AppColors.greenColor500,
-            iconBackgroundColor: AppColors.greenColor500.withValues(alpha: .06),
-            showDivider: false,
-          ),
+          if (categories.isEmpty)
+            Text(
+              context.tr('myEarning.noData'),
+              style: TextStyles.font12greyColorA3W400,
+            )
+          else
+            ...List.generate(
+              categories.length,
+              (index) => _BonusCategoryRowWidget(
+                item: categories[index],
+                showDivider: index != categories.length - 1,
+              ),
+            ),
         ],
       ),
     );
@@ -55,23 +48,10 @@ class BonusCategoriesCardWidget extends StatelessWidget {
 }
 
 class _BonusCategoryRowWidget extends StatelessWidget {
-  final String titleKey;
-  final String subtitleKey;
-  final String amount;
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBackgroundColor;
+  final MoneyLineItem item;
   final bool showDivider;
 
-  const _BonusCategoryRowWidget({
-    required this.titleKey,
-    required this.subtitleKey,
-    required this.amount,
-    required this.icon,
-    required this.iconColor,
-    required this.iconBackgroundColor,
-    this.showDivider = true,
-  });
+  const _BonusCategoryRowWidget({required this.item, this.showDivider = true});
 
   @override
   Widget build(BuildContext context) {
@@ -94,10 +74,14 @@ class _BonusCategoryRowWidget extends StatelessWidget {
             width: 32.r,
             height: 32.r,
             decoration: BoxDecoration(
-              color: iconBackgroundColor,
+              color: AppColors.greenColor500.withValues(alpha: .06),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: iconColor, size: 15.r),
+            child: Icon(
+              Icons.workspace_premium_outlined,
+              color: AppColors.greenColor500,
+              size: 15.r,
+            ),
           ),
           horizontalSpace(10),
           Expanded(
@@ -105,21 +89,28 @@ class _BonusCategoryRowWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('myEarning.$titleKey'),
+                  item.title.isEmpty
+                      ? context.tr('myEarning.bonus')
+                      : item.title,
                   style: TextStyles.font14greyColor900Weight500,
                 ),
-                verticalSpace(3),
-                Text(
-                  context.tr('myEarning.$subtitleKey'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyles.font12greyColorA3W400,
-                ),
+                if (item.subtitle.isNotEmpty) ...[
+                  verticalSpace(3),
+                  Text(
+                    item.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
+                ],
               ],
             ),
           ),
           horizontalSpace(12),
-          Text(amount, style: TextStyles.font14greenColor500Weight600),
+          Text(
+            formatMoney(item.amount, item.currency, plus: true),
+            style: TextStyles.font14greenColor500Weight600,
+          ),
         ],
       ),
     );

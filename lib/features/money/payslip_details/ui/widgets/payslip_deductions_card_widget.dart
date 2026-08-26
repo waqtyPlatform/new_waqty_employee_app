@@ -1,11 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_detail_row_widget.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class PayslipDeductionsCardWidget extends StatelessWidget {
   final bool isPaid;
@@ -14,6 +17,8 @@ class PayslipDeductionsCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final details = context.watch<PayslipDetailsCubit>().details;
+    final deductions = details?.deductions ?? const <MoneyLineItem>[];
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -26,34 +31,36 @@ class PayslipDeductionsCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(10),
-          if (isPaid)
+          if (deductions.isEmpty)
             Text(
               context.tr('myEarning.noDeductionsThisMonth'),
               style: TextStyles.font14greyColor500W400,
             )
           else ...[
-            _DeductionLineWidget(
-              title: context.tr('myEarning.lateArrivalPenalty'),
-              date: context.tr('myEarning.dec3'),
-              amount: '- EGP 60',
-              icon: Icons.error_outline,
-            ),
-            _DeductionLineWidget(
-              title: context.tr('myEarning.uniformReplacement'),
-              date: context.tr('myEarning.dec11'),
-              amount: '- EGP 95',
-              icon: Icons.checkroom_outlined,
-            ),
-            _DeductionLineWidget(
-              title: context.tr('myEarning.materialWastage'),
-              date: context.tr('myEarning.dec20'),
-              amount: '- EGP 95',
-              icon: Icons.water_drop_outlined,
+            ...deductions.map(
+              (item) => _DeductionLineWidget(
+                title: item.title,
+                date: item.subtitle,
+                amount: formatMoney(
+                  item.amount,
+                  item.currency.isNotEmpty
+                      ? item.currency
+                      : details?.currency ?? '',
+                  minus: true,
+                ),
+                icon: Icons.error_outline,
+              ),
             ),
             Divider(color: AppColors.greyColor1001.withValues(alpha: .22)),
             PayslipDetailRowWidget(
               label: context.tr('myEarning.totalDeductions'),
-              value: '- EGP 250',
+              value: details == null
+                  ? '-'
+                  : formatMoney(
+                      details.totalDeductions,
+                      details.currency,
+                      minus: true,
+                    ),
               valueColor: AppColors.errorColor2002,
               isTotal: true,
             ),

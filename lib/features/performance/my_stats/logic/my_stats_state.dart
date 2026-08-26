@@ -12,18 +12,6 @@ class OnMyStatsErrorState extends MyStatsState {
   OnMyStatsErrorState({this.message = ''});
 }
 
-class OnMyReviewsLoadingState extends MyStatsState {}
-
-class OnMyReviewsSuccessState extends MyStatsState {}
-
-class OnMyReviewsLoadingMoreState extends MyStatsState {}
-
-class OnMyReviewsErrorState extends MyStatsState {
-  final String message;
-
-  OnMyReviewsErrorState({this.message = ''});
-}
-
 class OnMyStatsCatchErrorState extends MyStatsState {
   final String message;
 

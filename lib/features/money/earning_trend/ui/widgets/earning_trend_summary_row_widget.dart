@@ -1,34 +1,44 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/logic/earning_trend_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class EarningTrendSummaryRowWidget extends StatelessWidget {
   const EarningTrendSummaryRowWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final summary = context.watch<EarningTrendCubit>().trend?.summary;
     return Row(
       children: [
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: 'EGP 3280',
+            value: summary == null
+                ? '-'
+                : formatMoney(summary.total, summary.currency),
             label: context.tr('myEarning.total'),
           ),
         ),
         horizontalSpace(8),
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: 'EGP 547',
+            value: summary == null
+                ? '-'
+                : formatMoney(summary.avgDay, summary.currency),
             label: context.tr('myEarning.avgDay'),
           ),
         ),
         horizontalSpace(8),
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: 'EGP 680',
+            value: summary == null
+                ? '-'
+                : formatMoney(summary.bestDay, summary.currency),
             label: context.tr('myEarning.bestDay'),
           ),
         ),

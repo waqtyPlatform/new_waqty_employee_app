@@ -3,7 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/core/widgets/no_internet_screen.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/ui/biometric_lock_screen.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/ui/biometric_settings_screen.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/ui/disable_biometric_screen.dart';
@@ -79,13 +81,33 @@ import 'package:new_waqty_employee_app/features/money/payslips/data/repo/payslip
 import 'package:new_waqty_employee_app/features/money/payslips/data/services/payslips_service.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/logic/payslips_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/ui/payslips_screen.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/logic/my_reviews_cubit.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/ui/my_reviews_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     // To prevent cast errors if arguments are null or not a map
     final dynamic args = settings.arguments ?? <String, dynamic>{};
+    if (_shouldOpenNoInternet(settings.name)) {
+      return MaterialPageRoute(
+        builder: (context) => NoInternetScreen(
+          onTryAgain: () async {
+            if (!MyConnectivity.isOnline()) return;
+            if (!context.mounted) return;
+            Navigator.pushReplacementNamed(
+              context,
+              settings.name!,
+              arguments: settings.arguments,
+            );
+          },
+        ),
+      );
+    }
 
     switch (settings.name) {
+      case Routes.noInternetScreen:
+        return MaterialPageRoute(builder: (_) => const NoInternetScreen());
+
       case Routes.splashScreen:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
@@ -102,17 +124,20 @@ class RouteGenerator {
       case Routes.homeScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => HomeCubit(getIt()),
+            create: (context) => HomeCubit(getIt())..init(),
             child: const HomeScreen(),
           ),
         );
 
       case Routes.employeeSearchScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => EmployeeSearchCubit(getIt()),
-            child: const EmployeeSearchScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => EmployeeSearchCubit(getIt())..init(languageCode),
+              child: const EmployeeSearchScreen(),
+            );
+          },
         );
 
       case Routes.loginScreen:
@@ -171,7 +196,7 @@ class RouteGenerator {
       case Routes.myServicesScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => MyServicesCubit(getIt()),
+            create: (context) => MyServicesCubit(getIt())..init(),
             child: const MyServicesScreen(),
           ),
         );
@@ -186,36 +211,50 @@ class RouteGenerator {
 
       case Routes.workingHoursScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => WorkingHoursCubit(getIt()),
-            child: const WorkingHoursScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  WorkingHoursCubit(getIt())..init(languageCode: languageCode),
+              child: const WorkingHoursScreen(),
+            );
+          },
         );
 
       case Routes.attendanceScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => AttendanceCubit(getIt()),
-            child: const AttendanceScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  AttendanceCubit(getIt())..init(languageCode: languageCode),
+              child: const AttendanceScreen(),
+            );
+          },
         );
 
       case Routes.branchContactScreen:
         return MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (_) =>
-                BranchContactCubit(getIt())
-                  ..getBranchContact(context.locale.languageCode),
-            child: const BranchContactScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  BranchContactCubit(getIt())..getBranchContact(languageCode),
+              child: const BranchContactScreen(),
+            );
+          },
         );
 
       case Routes.helpQuestionsScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => HelpQuestionsCubit(getIt()),
-            child: const HelpQuestionsScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  HelpQuestionsCubit(getIt())..init(languageCode: languageCode),
+              child: const HelpQuestionsScreen(),
+            );
+          },
         );
 
       case Routes.contactManagerScreen:
@@ -236,12 +275,15 @@ class RouteGenerator {
 
       case Routes.notificationSettingScreen:
         return MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (_) =>
-                NotificationSettingCubit(getIt())
-                  ..getNotificationSettings(context.locale.languageCode),
-            child: const NotificationSettingScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  NotificationSettingCubit(getIt())
+                    ..getNotificationSettings(languageCode),
+              child: const NotificationSettingScreen(),
+            );
+          },
         );
 
       case Routes.changePinCurrentScreen:
@@ -336,12 +378,16 @@ class RouteGenerator {
 
       case Routes.earningTrendDetailsScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => EarningTrendCubit(
-              const EarningTrendRepo(EarningTrendService()),
-            ),
-            child: const EarningTrendDetailsScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            final month = args is Map ? args['month']?.toString() : null;
+            return BlocProvider(
+              create: (_) => EarningTrendCubit(
+                EarningTrendRepo(EarningTrendService(apiConsumer: getIt())),
+              )..init(languageCode: languageCode, month: month),
+              child: const EarningTrendDetailsScreen(),
+            );
+          },
         );
 
       case Routes.dailyEarningDetailsScreen:
@@ -353,20 +399,30 @@ class RouteGenerator {
                 amount: 'EGP 680',
               );
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => DailyEarningDetailsCubit(
-              const DailyEarningDetailsRepo(DailyEarningDetailsService()),
-            ),
-            child: DailyEarningDetailsScreen(args: dailyArgs),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => DailyEarningDetailsCubit(
+                DailyEarningDetailsRepo(
+                  DailyEarningDetailsService(apiConsumer: getIt()),
+                ),
+              )..init(date: dailyArgs.date, languageCode: languageCode),
+              child: DailyEarningDetailsScreen(args: dailyArgs),
+            );
+          },
         );
 
       case Routes.payslipsScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => PayslipsCubit(const PayslipsRepo(PayslipsService())),
-            child: const PayslipsScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => PayslipsCubit(
+                PayslipsRepo(PayslipsService(apiConsumer: getIt())),
+              )..init(languageCode: languageCode),
+              child: const PayslipsScreen(),
+            );
+          },
         );
 
       case Routes.payslipDetailsScreen:
@@ -378,34 +434,71 @@ class RouteGenerator {
                 isPaid: true,
               );
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => PayslipDetailsCubit(
-              const PayslipDetailsRepo(PayslipDetailsService()),
-            ),
-            child: PayslipDetailsScreen(args: payslipArgs),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  PayslipDetailsCubit(
+                    PayslipDetailsRepo(
+                      PayslipDetailsService(apiConsumer: getIt()),
+                    ),
+                  )..loadDetails(
+                    uuid: payslipArgs.uuid,
+                    languageCode: languageCode,
+                  ),
+              child: PayslipDetailsScreen(args: payslipArgs),
+            );
+          },
         );
 
       case Routes.bonusesScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => BonusesCubit(const BonusesRepo(BonusesService())),
-            child: const BonusesScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => BonusesCubit(
+                BonusesRepo(BonusesService(apiConsumer: getIt())),
+              )..init(languageCode: languageCode),
+              child: const BonusesScreen(),
+            );
+          },
         );
 
       case Routes.deductionsScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) =>
-                DeductionsCubit(const DeductionsRepo(DeductionsService())),
-            child: const DeductionsScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => DeductionsCubit(
+                DeductionsRepo(DeductionsService(apiConsumer: getIt())),
+              )..init(languageCode: languageCode),
+              child: const DeductionsScreen(),
+            );
+          },
+        );
+
+      case Routes.myReviewsScreen:
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  MyReviewsCubit(getIt())..init(languageCode: languageCode),
+              child: const MyReviewsScreen(),
+            );
+          },
         );
 
       default:
         return null;
     }
+  }
+
+  static bool _shouldOpenNoInternet(String? routeName) {
+    if (MyConnectivity.isOnline()) return false;
+    return routeName != null &&
+        routeName != Routes.splashScreen &&
+        routeName != Routes.noInternetScreen;
   }
 }
 

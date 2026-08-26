@@ -7,7 +7,10 @@ import 'package:new_waqty_employee_app/features/account/working_hours/logic/work
 class WorkingHoursCubit extends Cubit<WorkingHoursState> {
   final WorkingHoursRepo _workingHoursRepo;
 
-  WorkingHoursCubit(this._workingHoursRepo) : super(WorkingHoursInitialState());
+  WorkingHoursCubit(this._workingHoursRepo)
+    : super(WorkingHoursInitialState()) {
+    scrollListenerMyWorkingHoursScrollController();
+  }
 
   static WorkingHoursCubit get(BuildContext context) =>
       BlocProvider.of(context);
@@ -22,6 +25,11 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
   bool isGettingWorkingHours = false;
   String? expandedWorkingHourUuid;
   String languageCode = 'en';
+
+  void init({required String languageCode}) {
+    clearGetAllWorkingHours();
+    getWorkingHours(languageCode: languageCode);
+  }
 
   void clearGetAllWorkingHours() {
     myWorkingHoursCurrentPage = 1;
@@ -105,5 +113,11 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
     if (requestedPage > 1 && myWorkingHoursCurrentPage == requestedPage) {
       myWorkingHoursCurrentPage--;
     }
+  }
+
+  @override
+  Future<void> close() {
+    myWorkingHoursScrollController.dispose();
+    return super.close();
   }
 }

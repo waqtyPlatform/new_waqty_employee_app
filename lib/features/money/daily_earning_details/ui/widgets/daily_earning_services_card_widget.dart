@@ -1,48 +1,22 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/models/daily_earning_service_model.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/logic/daily_earning_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class DailyEarningServicesCardWidget extends StatelessWidget {
   const DailyEarningServicesCardWidget({super.key});
 
-  static const List<DailyEarningServiceModel> _services = [
-    DailyEarningServiceModel(
-      serviceName: 'Haircut',
-      customerName: 'Nour',
-      time: '11:00 AM',
-      amount: 'EGP 150',
-      extraction: 'EGP 15',
-    ),
-    DailyEarningServiceModel(
-      serviceName: 'Beard Trim',
-      customerName: 'Nour',
-      time: '11:30 AM',
-      amount: 'EGP 80',
-      extraction: 'EGP 5',
-    ),
-    DailyEarningServiceModel(
-      serviceName: 'Hair Color',
-      customerName: 'Layla',
-      time: '9:00 AM',
-      amount: 'EGP 300',
-      extraction: 'EGP 80',
-    ),
-    DailyEarningServiceModel(
-      serviceName: 'Beard Design',
-      customerName: 'Ahmed',
-      time: '2:00 PM',
-      amount: 'EGP 120',
-      extraction: 'EGP 10',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final details = context.watch<DailyEarningDetailsCubit>().details;
+    final services = details?.services ?? [];
+    final fallbackCurrency = details?.currency ?? '';
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -55,9 +29,18 @@ class DailyEarningServicesCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
-          ..._services.map(
-            (service) => _DailyServiceItemWidget(service: service),
-          ),
+          if (services.isEmpty)
+            Text(
+              context.tr('myEarning.noData'),
+              style: TextStyles.font12greyColorA3W400,
+            )
+          else
+            ...services.map(
+              (service) => _DailyServiceItemWidget(
+                service: service,
+                fallbackCurrency: fallbackCurrency,
+              ),
+            ),
         ],
       ),
     );
@@ -65,12 +48,19 @@ class DailyEarningServicesCardWidget extends StatelessWidget {
 }
 
 class _DailyServiceItemWidget extends StatelessWidget {
-  final DailyEarningServiceModel service;
+  final DailyServiceMoneyItem service;
+  final String fallbackCurrency;
 
-  const _DailyServiceItemWidget({required this.service});
+  const _DailyServiceItemWidget({
+    required this.service,
+    required this.fallbackCurrency,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final currency = service.currency.isNotEmpty
+        ? service.currency
+        : fallbackCurrency;
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       decoration: BoxDecoration(
@@ -128,12 +118,15 @@ class _DailyServiceItemWidget extends StatelessWidget {
                       ),
                     ),
                     horizontalSpace(6),
-                    Text(service.time, style: TextStyles.font12greyColorA3W400),
+                    Text(
+                      _formatTime(context, service.completedAt),
+                      style: TextStyles.font12greyColorA3W400,
+                    ),
                   ],
                 ),
                 verticalSpace(2),
                 Text(
-                  '${context.tr('myEarning.extraction')}: -${service.extraction}',
+                  '${context.tr('myEarning.commissionEarned')}: ${formatMoney(service.commissionAmount, currency)}',
                   style: TextStyles.font10greyColorA3w400.copyWith(
                     color: AppColors.greyColor300,
                   ),
@@ -142,9 +135,18 @@ class _DailyServiceItemWidget extends StatelessWidget {
             ),
           ),
           horizontalSpace(8),
-          Text(service.amount, style: TextStyles.font14greenColor500Weight600),
+          Text(
+            formatMoney(service.serviceValueGenerated, currency),
+            style: TextStyles.font14greenColor500Weight600,
+          ),
         ],
       ),
     );
   }
+}
+
+String _formatTime(BuildContext context, String value) {
+  final date = DateTime.tryParse(value);
+  if (date == null) return value;
+  return DateFormat('h:mm a', context.locale.toString()).format(date);
 }

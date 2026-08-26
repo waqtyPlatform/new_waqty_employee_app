@@ -39,7 +39,6 @@ class WorkingHoursSummaryWidget extends StatelessWidget {
           child: WorkingHoursSummaryCardWidget(
             value: WorkingHoursDurationFormatter.format(cubit.totalNetMinutes),
 
-
             label: context.tr('workingHours.netHours'),
             valueColor: AppColors.greenColor500,
           ),

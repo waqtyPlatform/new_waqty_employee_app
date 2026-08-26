@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/models/daily_earning_details_args.dart';
+import 'package:new_waqty_employee_app/features/money/daily_earning_details/logic/daily_earning_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class DailyEarningStatsRowWidget extends StatelessWidget {
@@ -14,16 +17,12 @@ class DailyEarningStatsRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appointmentCount =
-        RegExp(r'\d+')
-            .firstMatch(context.tr('myEarning.${args.appointmentsKey}'))
-            ?.group(0) ??
-        '7';
+    final details = context.watch<DailyEarningDetailsCubit>().details;
     return Row(
       children: [
         Expanded(
           child: _DailyStatCardWidget(
-            value: appointmentCount,
+            value: (details?.appointmentsCount ?? 0).toString(),
             label: context.tr('myEarning.appointments'),
             valueColor: AppColors.greenColor500,
           ),
@@ -31,7 +30,7 @@ class DailyEarningStatsRowWidget extends StatelessWidget {
         horizontalSpace(8),
         Expanded(
           child: _DailyStatCardWidget(
-            value: '4',
+            value: (details?.servicesCount ?? 0).toString(),
             label: context.tr('myEarning.services'),
             valueColor: AppColors.greyColor900,
           ),
@@ -39,7 +38,9 @@ class DailyEarningStatsRowWidget extends StatelessWidget {
         horizontalSpace(8),
         Expanded(
           child: _DailyStatCardWidget(
-            value: '650',
+            value: details == null
+                ? '-'
+                : formatMoney(details.serviceValueGenerated, details.currency),
             label: context.tr('myEarning.revenue'),
             valueColor: AppColors.warningColor1001,
           ),

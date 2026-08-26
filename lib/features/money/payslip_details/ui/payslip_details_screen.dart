@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
@@ -10,6 +11,8 @@ import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets
 import 'package:new_waqty_employee_app/features/money/shared/widgets/payslip_header_widget.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_net_pay_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_deductions_card_widget.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_state.dart';
 
 class PayslipDetailsScreen extends StatelessWidget {
   final PayslipDetailsArgs args;
@@ -21,28 +24,48 @@ class PayslipDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 28.h),
-          child: Column(
-            children: [
-              const PayslipHeaderWidget(titleKey: 'myEarning.payslipDetails'),
-              verticalSpace(16),
-              PayslipDetailsHeroCardWidget(args: args),
-              verticalSpace(12),
-              const PayslipEmployeeDetailsCardWidget(),
-              verticalSpace(12),
-              PayslipEarningsCardWidget(isPaid: args.isPaid),
-              verticalSpace(12),
-              PayslipDeductionsCardWidget(isPaid: args.isPaid),
-              verticalSpace(12),
-              PayslipNetPayCardWidget(amount: args.amount),
-              if (args.isPaid) ...[
-                verticalSpace(18),
-                const PayslipDownloadButtonWidget(),
-              ],
-            ],
-          ),
+        child: BlocBuilder<PayslipDetailsCubit, PayslipDetailsState>(
+          buildWhen: (previous, current) =>
+              current is PayslipDetailsLoadingState ||
+              current is PayslipDetailsSuccessState ||
+              current is PayslipDetailsErrorState,
+          builder: (context, state) {
+            if (state is PayslipDetailsLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.greenColor500,
+                ),
+              );
+            }
+            if (state is PayslipDetailsErrorState) {
+              return Center(child: Text(state.message));
+            }
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 28.h),
+              child: Column(
+                children: [
+                  const PayslipHeaderWidget(
+                    titleKey: 'myEarning.payslipDetails',
+                  ),
+                  verticalSpace(16),
+                  PayslipDetailsHeroCardWidget(args: args),
+                  verticalSpace(12),
+                  const PayslipEmployeeDetailsCardWidget(),
+                  verticalSpace(12),
+                  PayslipEarningsCardWidget(isPaid: args.isPaid),
+                  verticalSpace(12),
+                  PayslipDeductionsCardWidget(isPaid: args.isPaid),
+                  verticalSpace(12),
+                  PayslipNetPayCardWidget(amount: args.amount),
+                  if (args.isPaid) ...[
+                    verticalSpace(18),
+                    const PayslipDownloadButtonWidget(),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

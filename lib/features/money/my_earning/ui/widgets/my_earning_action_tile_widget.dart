@@ -1,10 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class MyEarningPayslipsTileWidget extends StatelessWidget {
@@ -26,11 +28,37 @@ class MyEarningBonusesTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final preview = context.watch<MyEarningCubit>().preview;
     return MyEarningActionTileWidget(
       title: context.tr('myEarning.bonuses'),
-      subtitle: context.tr('myEarning.bonusEarnedThisMonth'),
+      subtitle: preview == null
+          ? ''
+          : context.tr(
+              'myEarning.amountThisMonth',
+              namedArgs: {'amount': preview.money(preview.bonus)},
+            ),
       icon: Icons.card_giftcard_outlined,
       onTap: () => Navigator.pushNamed(context, Routes.bonusesScreen),
+    );
+  }
+}
+
+class MyEarningDeductionsTileWidget extends StatelessWidget {
+  const MyEarningDeductionsTileWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = context.watch<MyEarningCubit>().preview;
+    return MyEarningActionTileWidget(
+      title: context.tr('myEarning.deductions'),
+      subtitle: preview == null
+          ? ''
+          : context.tr(
+              'myEarning.amountThisMonth',
+              namedArgs: {'amount': preview.money(preview.shownDeduction)},
+            ),
+      icon: Icons.remove_circle_outline,
+      onTap: () => Navigator.pushNamed(context, Routes.deductionsScreen),
     );
   }
 }

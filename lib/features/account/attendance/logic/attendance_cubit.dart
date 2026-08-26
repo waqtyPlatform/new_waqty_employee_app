@@ -20,6 +20,10 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   );
   String languageCode = 'en';
 
+  void init({required String languageCode}) {
+    loadAttendanceHistory(languageCode: languageCode);
+  }
+
   Future<void> loadAttendanceHistory({String? languageCode}) async {
     if (languageCode != null) {
       this.languageCode = languageCode;

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/models/my_booking_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/logic/my_booking_cubit.dart';
+import 'package:new_waqty_employee_app/features/booking/my_booking/ui/widgets/my_booking_shimmer_loading_widget.dart';
 
 import 'my_booking_item_card_widget.dart';
 
@@ -38,7 +39,7 @@ class MyBookingCompletedListWidget extends StatelessWidget {
         separatorBuilder: (_, __) => verticalSpace(12),
         itemBuilder: (context, index) {
           if (index == bookings.length) {
-            return const Center(child: CircularProgressIndicator());
+            return const MyBookingPaginationSkeletonWidget();
           }
           final cubit = MyBookingCubit.get(context);
           final booking = bookings[index];

@@ -1,11 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_detail_row_widget.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class PayslipEarningsCardWidget extends StatelessWidget {
   final bool isPaid;
@@ -14,8 +17,8 @@ class PayslipEarningsCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final commission = isPaid ? 'EGP 1,870' : 'EGP 1,400';
-    final grossPay = isPaid ? 'EGP 5,120' : 'EGP 4,650';
+    final details = context.watch<PayslipDetailsCubit>().details;
+    final earnings = details?.earnings ?? const <MoneyLineItem>[];
 
     return Container(
       width: double.infinity,
@@ -29,25 +32,30 @@ class PayslipEarningsCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(10),
-          PayslipDetailRowWidget(
-            label: context.tr('myEarning.basicSalary'),
-            value: 'EGP 3,000',
-            icon: Icons.account_balance_outlined,
-          ),
-          PayslipDetailRowWidget(
-            label: context.tr('myEarning.commission'),
-            value: commission,
-            icon: Icons.trending_up,
-          ),
-          PayslipDetailRowWidget(
-            label: context.tr('myEarning.bonus'),
-            value: 'EGP 250',
-            icon: Icons.card_giftcard_outlined,
-          ),
+          if (earnings.isEmpty)
+            Text(
+              context.tr('myEarning.noData'),
+              style: TextStyles.font14greyColor500W400,
+            )
+          else
+            ...earnings.map(
+              (item) => PayslipDetailRowWidget(
+                label: item.title,
+                value: formatMoney(
+                  item.amount,
+                  item.currency.isNotEmpty
+                      ? item.currency
+                      : details?.currency ?? '',
+                ),
+                icon: _icon(item.type),
+              ),
+            ),
           Divider(color: AppColors.greyColor1001.withValues(alpha: .22)),
           PayslipDetailRowWidget(
             label: context.tr('myEarning.grossPay'),
-            value: grossPay,
+            value: details == null
+                ? '-'
+                : formatMoney(details.grossPay, details.currency),
             valueColor: AppColors.greenColor500,
             isTotal: true,
           ),
@@ -55,4 +63,11 @@ class PayslipEarningsCardWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+IconData _icon(String type) {
+  if (type.contains('salary')) return Icons.account_balance_outlined;
+  if (type.contains('commission')) return Icons.trending_up;
+  if (type.contains('bonus')) return Icons.card_giftcard_outlined;
+  return Icons.payments_outlined;
 }

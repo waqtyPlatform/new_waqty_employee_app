@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_clock_action_dialog_widget.dart';
 import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_state.dart';
+import 'package:new_waqty_employee_app/features/main_navigation/cubit/main_navigation_cubit.dart';
 
 import 'widgets/home_header_widget.dart';
 import 'widgets/home_search_widget.dart';
@@ -16,6 +20,7 @@ import 'widgets/home_snapshot_widget.dart';
 import 'widgets/home_earnings_widget.dart';
 import 'widgets/home_upcoming_appointments_widget.dart';
 import 'widgets/home_latest_review_widget.dart';
+import 'widgets/home_shimmer_loading_widget.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -64,12 +69,7 @@ class HomeScreen extends StatelessWidget {
   ) {
     if (state is OnHomeLoadingState ||
         (summary == null && state is InitialState)) {
-      return Container(
-        color: AppColors.whiteColor,
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.greenColor500),
-        ),
-      );
+      return const HomeShimmerLoadingWidget();
     }
 
     if (summary == null) {
@@ -144,6 +144,7 @@ class _HomeTopSection extends StatelessWidget {
             employeeName: summary.employeeName,
             employeeAvatarUrl: summary.employeeAvatarUrl,
             branchName: summary.branchName,
+            onAvatarTap: () => MainNavigationCubit.get(context).changeTab(4),
           ),
           const HomeSearchWidget(),
           verticalSpace(18),
@@ -224,52 +225,77 @@ class _ClockStatePill extends StatelessWidget {
             summary.clockedIn ? 'home.clockedIn' : 'home.notClockedIn',
           );
 
-    return Container(
-      padding: EdgeInsetsDirectional.fromSTEB(10.w, 6.h, 6.w, 6.h),
-      decoration: BoxDecoration(
-        color: AppColors.greyColor800.withValues(alpha: .65),
-        borderRadius: BorderRadius.circular(100.r),
-        border: Border.all(color: AppColors.greyColor700, width: 1.w),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8.w,
-            height: 8.h,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: summary.clockedIn
-                  ? AppColors.greenColor500
-                  : AppColors.whiteColor,
-            ),
-          ),
-          horizontalSpace(8),
-          Flexible(
-            child: Text(
-              statusText,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyles.font12greyColor3003Weight500.copyWith(
-                color: AppColors.whiteColor,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _openProfileClockDialog(context),
+      child: Container(
+        padding: EdgeInsetsDirectional.fromSTEB(10.w, 6.h, 6.w, 6.h),
+        decoration: BoxDecoration(
+          color: AppColors.greyColor800.withValues(alpha: .65),
+          borderRadius: BorderRadius.circular(100.r),
+          border: Border.all(color: AppColors.greyColor700, width: 1.w),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8.w,
+              height: 8.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: summary.clockedIn
+                    ? AppColors.greenColor500
+                    : AppColors.whiteColor,
               ),
             ),
-          ),
-          horizontalSpace(8),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-            decoration: BoxDecoration(
-              color: AppColors.greenColor500,
-              borderRadius: BorderRadius.circular(100.r),
+            horizontalSpace(8),
+            Flexible(
+              child: Text(
+                statusText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyles.font12greyColor3003Weight500.copyWith(
+                  color: AppColors.whiteColor,
+                ),
+              ),
             ),
-            child: Text(
-              context.tr(summary.clockedIn ? 'home.active' : 'home.clockIn'),
-              style: TextStyles.font12whiteColorWeight600,
+            horizontalSpace(8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+              decoration: BoxDecoration(
+                color: AppColors.greenColor500,
+                borderRadius: BorderRadius.circular(100.r),
+              ),
+              child: Text(
+                context.tr(summary.clockedIn ? 'home.active' : 'home.clockIn'),
+                style: TextStyles.font12whiteColorWeight600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _openProfileClockDialog(BuildContext context) async {
+    final homeCubit = HomeCubit.get(context);
+    final profileCubit = ProfileCubit(getIt());
+
+    try {
+      await profileCubit.init();
+      if (!context.mounted) return;
+      await ProfileClockActionDialogWidget.show(
+        context,
+        isClockedIn: profileCubit.isClockedIn,
+        isOnBreak: profileCubit.isOnBreak,
+        cubit: profileCubit,
+      );
+      if (context.mounted) {
+        homeCubit.getHomeSummary();
+      }
+    } finally {
+      await profileCubit.close();
+    }
   }
 }
 

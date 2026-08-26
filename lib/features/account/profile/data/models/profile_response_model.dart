@@ -5,7 +5,7 @@ class ProfileResponseModel {
 
   factory ProfileResponseModel.fromJson(Map<String, dynamic> json) {
     return ProfileResponseModel(
-      customer: ProfileCustomer.fromJson(json['data']),
+      customer: ProfileCustomer.fromJson(_asMap(json['data'])),
     );
   }
 }
@@ -31,13 +31,13 @@ class ProfileCustomer {
 
   factory ProfileCustomer.fromJson(Map<String, dynamic> json) {
     return ProfileCustomer(
-      uuid: json['uuid'] ?? '',
-      name: json['name'] ?? '',
-      phone: json['phone'] ?? '',
-      email: json['email'] ?? '',
+      uuid: json['uuid']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
       active: json['active'] ?? true,
       blocked: json['blocked'] ?? false,
-      branchModel: BranchModel.fromJson(json['branch']),
+      branchModel: BranchModel.fromJson(_asMap(json['branch'])),
     );
   }
 }
@@ -45,10 +45,43 @@ class ProfileCustomer {
 class BranchModel {
   final String uuid;
   final String name;
+  final double? latitude;
+  final double? longitude;
+  final double? attendanceRangeMeters;
 
-  BranchModel({required this.uuid, required this.name});
+  BranchModel({
+    required this.uuid,
+    required this.name,
+    this.latitude,
+    this.longitude,
+    this.attendanceRangeMeters,
+  });
 
   factory BranchModel.fromJson(Map<String, dynamic> json) {
-    return BranchModel(uuid: json['uuid'] ?? '', name: json['name'] ?? '');
+    return BranchModel(
+      uuid: json['uuid']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      latitude: _asDouble(json['latitude']),
+      longitude: _asDouble(json['longitude']),
+      attendanceRangeMeters:
+          _asDouble(json['attendance_range_meters']) ??
+          _asDouble(json['attendance_radius_meters']) ??
+          _asDouble(json['allowed_attendance_range_meters']) ??
+          _asDouble(json['allowed_branch_range_meters']) ??
+          _asDouble(json['branch_range_meters']) ??
+          _asDouble(json['geofence_radius_meters']),
+    );
   }
+}
+
+double? _asDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) return Map<String, dynamic>.from(value);
+  return <String, dynamic>{};
 }

@@ -19,11 +19,13 @@ class PayslipModel {
 }
 
 class PayslipDetailsArgs {
+  final String uuid;
   final String monthKey;
   final String amount;
   final bool isPaid;
 
   const PayslipDetailsArgs({
+    this.uuid = '',
     required this.monthKey,
     required this.amount,
     required this.isPaid,
@@ -31,8 +33,9 @@ class PayslipDetailsArgs {
 
   factory PayslipDetailsArgs.fromMap(Map<dynamic, dynamic> map) {
     return PayslipDetailsArgs(
+      uuid: map['uuid']?.toString() ?? '',
       monthKey: map['monthKey']?.toString() ?? 'payslipFebruary2026',
-      amount: map['amount']?.toString() ?? 'EGP 5,120',
+      amount: map['amount']?.toString() ?? '-',
       isPaid: map['isPaid'] == true,
     );
   }

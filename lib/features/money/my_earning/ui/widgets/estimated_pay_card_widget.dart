@@ -1,15 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_cubit.dart';
 
 class EstimatedPayCardWidget extends StatelessWidget {
   const EstimatedPayCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final preview = context.watch<MyEarningCubit>().preview;
+    final selectedMonth = context.read<MyEarningCubit>().selectedMonth;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -53,7 +57,7 @@ class EstimatedPayCardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr('myEarning.estimatedNetPay'),
+                context.tr(preview?.payTitleKey ?? 'myEarning.estimatedNetPay'),
                 style: TextStyles.font12whiteColorWeight600.copyWith(
                   color: AppColors.whiteColor.withValues(alpha: .65),
                   fontWeight: FontWeight.w500,
@@ -61,7 +65,7 @@ class EstimatedPayCardWidget extends StatelessWidget {
               ),
               verticalSpace(8),
               Text(
-                'EGP 5,350',
+                preview?.money(preview.netPay) ?? '-',
                 style: TextStyles.font32greyColor900Weight600.copyWith(
                   color: AppColors.whiteColor,
                   fontSize: 40.sp,
@@ -81,7 +85,7 @@ class EstimatedPayCardWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100.r),
                     ),
                     child: Text(
-                      context.tr('myEarning.pending'),
+                      context.tr(preview?.payStatusKey ?? 'myEarning.pending'),
                       style: TextStyles.font10greyColorA3W600.copyWith(
                         color: AppColors.whiteColor,
                       ),
@@ -90,7 +94,12 @@ class EstimatedPayCardWidget extends StatelessWidget {
                   horizontalSpace(8),
                   Expanded(
                     child: Text(
-                      context.tr('myEarning.closesDate'),
+                      context.tr(
+                        'myEarning.closesDate',
+                        namedArgs: {
+                          'date': _closingDate(context, selectedMonth),
+                        },
+                      ),
                       style: TextStyles.font12whiteColorWeight600.copyWith(
                         color: AppColors.whiteColor.withValues(alpha: .55),
                         fontWeight: FontWeight.w400,
@@ -124,6 +133,16 @@ class EstimatedPayCardWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+String _closingDate(BuildContext context, String selectedMonth) {
+  final parts = selectedMonth.split('-');
+  if (parts.length != 2) return '';
+  final year = int.tryParse(parts.first);
+  final month = int.tryParse(parts.last);
+  if (year == null || month == null) return '';
+  final lastDay = DateTime(year, month + 1, 0);
+  return DateFormat('d MMMM', context.locale.toString()).format(lastDay);
 }
 
 class _DecorativeCircle extends StatelessWidget {

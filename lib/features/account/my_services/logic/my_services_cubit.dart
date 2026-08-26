@@ -7,19 +7,26 @@ import 'package:new_waqty_employee_app/features/account/my_services/logic/my_ser
 class MyServicesCubit extends Cubit<MyServicesState> {
   final MyServicesRepo _myServicesRepo;
 
-  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState());
+  MyServicesCubit(this._myServicesRepo) : super(MyServicesInitialState()) {
+    scrollListenerMyServicesScrollController();
+  }
 
   ScrollController myServicesScrollController = ScrollController();
   List<MyServiceModel> myServices = [];
   int myServicesCurrentPage = 1;
-  late int myServicesLastPage;
+  int myServicesLastPage = 1;
 
-  clearGetAllServices() {
+  void init() {
+    clearGetAllServices();
+    getAllServices();
+  }
+
+  void clearGetAllServices() {
     myServicesCurrentPage = 1;
     myServices = [];
   }
 
-  scrollListenerMyServicesScrollController() {
+  void scrollListenerMyServicesScrollController() {
     myServicesScrollController.addListener(() {
       if (myServicesCurrentPage < myServicesLastPage) {
         if (myServicesScrollController.position.pixels ==
@@ -31,7 +38,7 @@ class MyServicesCubit extends Cubit<MyServicesState> {
     });
   }
 
-  getAllServices() {
+  void getAllServices() {
     emit(OnGetAllServicesLoadingState());
     _myServicesRepo
         .getAllServices(myServicesCurrentPage)
@@ -52,5 +59,11 @@ class MyServicesCubit extends Cubit<MyServicesState> {
         });
   }
 
-  static MyServicesCubit get(context) => BlocProvider.of(context);
+  @override
+  Future<void> close() {
+    myServicesScrollController.dispose();
+    return super.close();
+  }
+
+  static MyServicesCubit get(BuildContext context) => BlocProvider.of(context);
 }

@@ -15,6 +15,10 @@ class HelpQuestionsCubit extends Cubit<HelpQuestionsState> {
   List<HelpQuestionModel> filteredFaqs = [];
   String? expandedFaqUuid;
 
+  void init({required String languageCode}) {
+    getFaqs(languageCode);
+  }
+
   void getFaqs(String languageCode) {
     emit(GetFaqsLoadingState());
     _helpQuestionsRepo

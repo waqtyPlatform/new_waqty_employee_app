@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/data/models/payslip_model.dart';
+import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class PayslipDetailsHeroCardWidget extends StatelessWidget {
   final PayslipDetailsArgs args;
@@ -13,6 +16,8 @@ class PayslipDetailsHeroCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final detail = context.watch<PayslipDetailsCubit>().details;
+    final summary = detail?.summary;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(18.r),
@@ -32,18 +37,24 @@ class PayslipDetailsHeroCardWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  context.tr('myEarning.${args.monthKey}'),
+                  summary?.label.isNotEmpty == true
+                      ? summary!.label
+                      : args.monthKey,
                   style: TextStyles.font14greyColor900Weight500.copyWith(
                     color: AppColors.whiteColor,
                   ),
                 ),
               ),
-              _PayslipDetailsStatusPillWidget(isPaid: args.isPaid),
+              _PayslipDetailsStatusPillWidget(
+                status: summary?.status ?? (args.isPaid ? 'paid' : 'pending'),
+              ),
             ],
           ),
           verticalSpace(18),
           Text(
-            args.amount,
+            detail == null
+                ? args.amount
+                : formatMoney(detail.netPay, detail.currency),
             style: TextStyles.font32greyColor900Weight600.copyWith(
               color: AppColors.whiteColor,
             ),
@@ -55,9 +66,9 @@ class PayslipDetailsHeroCardWidget extends StatelessWidget {
 }
 
 class _PayslipDetailsStatusPillWidget extends StatelessWidget {
-  final bool isPaid;
+  final String status;
 
-  const _PayslipDetailsStatusPillWidget({required this.isPaid});
+  const _PayslipDetailsStatusPillWidget({required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +83,7 @@ class _PayslipDetailsStatusPillWidget extends StatelessWidget {
         ),
       ),
       child: Text(
-        context.tr(isPaid ? 'myEarning.paid' : 'myEarning.pending'),
+        context.tr('myEarning.$status'),
         style: TextStyles.font10greyColorA3W600.copyWith(
           color: AppColors.whiteColor,
         ),

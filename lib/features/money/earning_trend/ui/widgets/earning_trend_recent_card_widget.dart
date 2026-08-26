@@ -1,56 +1,21 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/earning_trend/data/models/earning_trend_item_model.dart';
+import 'package:new_waqty_employee_app/features/money/earning_trend/logic/earning_trend_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class EarningTrendRecentCardWidget extends StatelessWidget {
   const EarningTrendRecentCardWidget({super.key});
 
-  static const List<EarningTrendItemModel> _items = [
-    EarningTrendItemModel(
-      dateKey: 'recentTue3Mar',
-      appointmentsKey: 'appointments7',
-      amount: 'EGP 680',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentMon2Mar',
-      appointmentsKey: 'appointments6',
-      amount: 'EGP 540',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentSun1Mar',
-      appointmentsKey: 'appointments5',
-      amount: 'EGP 420',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentSat28Feb',
-      appointmentsKey: 'appointments6',
-      amount: 'EGP 540',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentFri27Feb',
-      appointmentsKey: 'appointments5',
-      amount: 'EGP 420',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentThu26Feb',
-      appointmentsKey: 'appointments7',
-      amount: 'EGP 680',
-    ),
-    EarningTrendItemModel(
-      dateKey: 'recentWed25Feb',
-      appointmentsKey: 'appointments0',
-      amount: '-',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final items = context.watch<EarningTrendCubit>().trend?.buckets ?? [];
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
@@ -63,7 +28,13 @@ class EarningTrendRecentCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
-          ..._items.map((item) => _TrendRecentItemWidget(item: item)),
+          if (items.isEmpty)
+            Text(
+              context.tr('myEarning.noData'),
+              style: TextStyles.font12greyColorA3W400,
+            )
+          else
+            ...items.map((item) => _TrendRecentItemWidget(item: item)),
         ],
       ),
     );
@@ -71,22 +42,25 @@ class EarningTrendRecentCardWidget extends StatelessWidget {
 }
 
 class _TrendRecentItemWidget extends StatelessWidget {
-  final EarningTrendItemModel item;
+  final MoneyTrendBucket item;
 
   const _TrendRecentItemWidget({required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final hasAmount = item.amount != '-';
+    final date = item.date.isNotEmpty ? item.date : item.weekStart;
+    final amount = formatMoney(item.netEarnings, item.currency);
+    final hasAmount = date.isNotEmpty;
     return GestureDetector(
-      onTap: hasAmount
+      onTap: date.isNotEmpty
           ? () => Navigator.pushNamed(
               context,
               Routes.dailyEarningDetailsScreen,
               arguments: {
-                'dateKey': item.dateKey,
-                'appointmentsKey': item.appointmentsKey,
-                'amount': item.amount,
+                'date': date,
+                'dateKey': item.label.isNotEmpty ? item.label : date,
+                'appointmentsKey': item.appointmentsCount.toString(),
+                'amount': amount,
               },
             )
           : null,
@@ -126,14 +100,17 @@ class _TrendRecentItemWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.tr('myEarning.${item.dateKey}'),
+                    item.label.isNotEmpty ? item.label : date,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.font14greyColor900Weight600,
                   ),
                   verticalSpace(2),
                   Text(
-                    context.tr('myEarning.${item.appointmentsKey}'),
+                    context.tr(
+                      'myEarning.appointmentsCount',
+                      namedArgs: {'count': item.appointmentsCount.toString()},
+                    ),
                     style: TextStyles.font12greyColorA3W400,
                   ),
                 ],
@@ -141,7 +118,7 @@ class _TrendRecentItemWidget extends StatelessWidget {
             ),
             horizontalSpace(8),
             Text(
-              item.amount,
+              amount,
               style: hasAmount
                   ? TextStyles.font14greenColor500Weight600
                   : TextStyles.font14greyColor900Weight600.copyWith(

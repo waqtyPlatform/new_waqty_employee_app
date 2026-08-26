@@ -1,9 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
 class BonusAllCardWidget extends StatelessWidget {
@@ -11,6 +14,8 @@ class BonusAllCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bonuses = context.watch<BonusesCubit>().bonuses;
+    final items = bonuses?.items ?? const [];
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -23,35 +28,39 @@ class BonusAllCardWidget extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
-          _BonusEntryRowWidget(
-            titleKey: 'punctualityBonus',
-            dateKey: 'mar142026',
-            amount: '+ EGP 100',
-          ),
-          _BonusEntryRowWidget(
-            titleKey: 'fiveStarReviewStreak',
-            dateKey: 'mar102026',
-            amount: '+ EGP 75',
-          ),
-          _BonusEntryRowWidget(
-            titleKey: 'monthlyTargetBonus',
-            dateKey: 'mar142026',
-            amount: '+ EGP 75',
-            isExpanded: true,
-            showDivider: false,
-          ),
-          Divider(color: AppColors.greyColor1001.withValues(alpha: .35)),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.tr('myEarning.total'),
-                  style: TextStyles.font14greyColor900Weight600,
-                ),
+          if (items.isEmpty)
+            Text(
+              context.tr('myEarning.noData'),
+              style: TextStyles.font12greyColorA3W400,
+            )
+          else ...[
+            ...List.generate(
+              items.length,
+              (index) => _BonusEntryRowWidget(
+                item: items[index],
+                showDivider: index != items.length - 1,
               ),
-              Text('+ EGP 250', style: TextStyles.font14greenColor500Weight600),
-            ],
-          ),
+            ),
+            Divider(color: AppColors.greyColor1001.withValues(alpha: .35)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    context.tr('myEarning.total'),
+                    style: TextStyles.font14greyColor900Weight600,
+                  ),
+                ),
+                Text(
+                  formatMoney(
+                    bonuses?.total ?? 0,
+                    bonuses?.currency ?? '',
+                    plus: true,
+                  ),
+                  style: TextStyles.font14greenColor500Weight600,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -59,19 +68,10 @@ class BonusAllCardWidget extends StatelessWidget {
 }
 
 class _BonusEntryRowWidget extends StatelessWidget {
-  final String titleKey;
-  final String dateKey;
-  final String amount;
-  final bool isExpanded;
+  final MoneyLineItem item;
   final bool showDivider;
 
-  const _BonusEntryRowWidget({
-    required this.titleKey,
-    required this.dateKey,
-    required this.amount,
-    this.isExpanded = false,
-    this.showDivider = true,
-  });
+  const _BonusEntryRowWidget({required this.item, this.showDivider = true});
 
   @override
   Widget build(BuildContext context) {
@@ -97,30 +97,35 @@ class _BonusEntryRowWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr('myEarning.$titleKey'),
+                      item.title.isEmpty
+                          ? context.tr('myEarning.bonus')
+                          : item.title,
                       style: TextStyles.font14greyColor900Weight500,
                     ),
-                    verticalSpace(3),
-                    Text(
-                      context.tr('myEarning.$dateKey'),
-                      style: TextStyles.font12greyColorA3W400,
-                    ),
+                    if (item.subtitle.isNotEmpty) ...[
+                      verticalSpace(3),
+                      Text(
+                        item.subtitle,
+                        style: TextStyles.font12greyColorA3W400,
+                      ),
+                    ],
                   ],
                 ),
               ),
               horizontalSpace(12),
-              Text(amount, style: TextStyles.font14greenColor500Weight600),
+              Text(
+                formatMoney(item.amount, item.currency, plus: true),
+                style: TextStyles.font14greenColor500Weight600,
+              ),
               horizontalSpace(6),
               Icon(
-                isExpanded
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
+                Icons.keyboard_arrow_down,
                 color: AppColors.greyColor100,
                 size: 18.r,
               ),
             ],
           ),
-          if (isExpanded) ...[
+          if (item.source.isNotEmpty) ...[
             verticalSpace(10),
             Container(
               width: double.infinity,
@@ -129,10 +134,7 @@ class _BonusEntryRowWidget extends StatelessWidget {
                 color: AppColors.greyColorFA,
                 borderRadius: BorderRadius.circular(6.r),
               ),
-              child: Text(
-                context.tr('myEarning.monthlyTargetBonusDescription'),
-                style: TextStyles.font12greyColorA3W400,
-              ),
+              child: Text(item.source, style: TextStyles.font12greyColorA3W400),
             ),
           ],
         ],

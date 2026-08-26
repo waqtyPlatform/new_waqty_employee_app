@@ -1,6 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/services/check_network.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/core/widgets/no_internet_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/profile_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
@@ -37,25 +40,37 @@ class MainNavigationScreenView extends StatelessWidget {
         return current is MainNavigationTabChanged;
       },
       builder: (context, state) {
+        final currentIndex = MainNavigationCubit.get(context).currentIndex;
+        final isOnline = MyConnectivity.isOnline();
         return SafeArea(
           top: false,
           bottom: false,
           child: Scaffold(
             backgroundColor: AppColors.whiteColor,
-            body: _buildBody(MainNavigationCubit.get(context).currentIndex),
-            bottomNavigationBar: CustomBottomNavBar(
-              currentIndex: MainNavigationCubit.get(context).currentIndex,
-              onTap: (index) {
-                MainNavigationCubit.get(context).changeTab(index);
-              },
-            ),
+            body: isOnline
+                ? _buildBody(context, currentIndex)
+                : NoInternetScreen(
+                    onTryAgain: () async {
+                      if (!MyConnectivity.isOnline()) return;
+                      MainNavigationCubit.get(context).changeTab(currentIndex);
+                    },
+                  ),
+            bottomNavigationBar: isOnline
+                ? CustomBottomNavBar(
+                    currentIndex: currentIndex,
+                    onTap: (index) {
+                      MainNavigationCubit.get(context).changeTab(index);
+                    },
+                  )
+                : null,
           ),
         );
       },
     );
   }
 
-  Widget _buildBody(int currentIndex) {
+  Widget _buildBody(BuildContext context, int currentIndex) {
+    final languageCode = context.locale.languageCode;
     switch (currentIndex) {
       case 0:
         return BlocProvider(
@@ -69,7 +84,9 @@ class MainNavigationScreenView extends StatelessWidget {
         );
       case 2:
         return BlocProvider(
-          create: (context) => MyStatsCubit(getIt()),
+          create: (context) =>
+              MyStatsCubit(getIt())
+                ..loadPerformance(languageCode: languageCode),
           child: const MyStatsScreen(),
         );
       case 3:

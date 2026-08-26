@@ -8,48 +8,12 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/performance/my_stats/data/models/my_reviews_response_model.dart';
-import 'package:new_waqty_employee_app/features/performance/my_stats/logic/my_stats_cubit.dart';
-import 'package:new_waqty_employee_app/features/performance/my_stats/logic/my_stats_state.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/data/models/my_reviews_response_model.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/logic/my_reviews_cubit.dart';
+import 'package:new_waqty_employee_app/features/performance/my_reviews/logic/my_reviews_state.dart';
 
-class MyReviewsScreen extends StatefulWidget {
+class MyReviewsScreen extends StatelessWidget {
   const MyReviewsScreen({super.key});
-
-  @override
-  State<MyReviewsScreen> createState() => _MyReviewsScreenState();
-}
-
-class _MyReviewsScreenState extends State<MyReviewsScreen> {
-  late final ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      MyStatsCubit.get(
-        context,
-      ).loadReviews(languageCode: context.locale.languageCode);
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    final position = _scrollController.position;
-    if (position.pixels >= position.maxScrollExtent - 120) {
-      MyStatsCubit.get(
-        context,
-      ).loadMoreReviews(languageCode: context.locale.languageCode);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,14 +62,14 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
         ),
       ),
       body: SafeArea(
-        child: BlocBuilder<MyStatsCubit, MyStatsState>(
+        child: BlocBuilder<MyReviewsCubit, MyReviewsState>(
           buildWhen: (previous, current) =>
               current is OnMyReviewsLoadingState ||
               current is OnMyReviewsSuccessState ||
               current is OnMyReviewsLoadingMoreState ||
               current is OnMyReviewsErrorState,
           builder: (context, state) {
-            final cubit = MyStatsCubit.get(context);
+            final cubit = MyReviewsCubit.get(context);
             final isInitialLoading =
                 state is OnMyReviewsLoadingState && cubit.reviews.isEmpty;
             if (isInitialLoading) {
@@ -123,7 +87,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                 refresh: true,
               ),
               child: ListView(
-                controller: _scrollController,
+                controller: cubit.scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
                 children: [
@@ -411,7 +375,7 @@ class _ReviewsErrorState extends StatelessWidget {
             ),
             verticalSpace(12),
             TextButton(
-              onPressed: () => MyStatsCubit.get(
+              onPressed: () => MyReviewsCubit.get(
                 context,
               ).loadReviews(languageCode: context.locale.languageCode),
               child: Text(context.tr('common.retry')),

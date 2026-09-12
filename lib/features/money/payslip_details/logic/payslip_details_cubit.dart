@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/data/repo/payslip_details_repo.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -9,7 +10,7 @@ class PayslipDetailsCubit extends Cubit<PayslipDetailsState> {
   PayslipDetailsCubit(this.repo) : super(PayslipDetailsInitialState());
 
   MoneyPayslipDetailModel? details;
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
 
   Future<void> loadDetails({required String uuid, String? languageCode}) async {
     if (uuid.isEmpty) {

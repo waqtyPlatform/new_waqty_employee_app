@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_storage_keys.dart';
 
@@ -10,6 +11,7 @@ enum AppLockDestination { login, biometric, pin, home }
 
 class AppPinService {
   final FlutterSecureStorage _secureStorage;
+  final PushDeviceService _pushDeviceService;
 
   static const int _saltLength = 32;
   static const int _hashLength = 32;
@@ -18,7 +20,7 @@ class AppPinService {
   static const int _temporaryLockThreshold = 3;
   static const int _forceLogoutThreshold = 5;
 
-  const AppPinService(this._secureStorage);
+  const AppPinService(this._secureStorage, this._pushDeviceService);
 
   Future<bool> isPinEnabled() async {
     final enabled = await _secureStorage.read(
@@ -245,6 +247,12 @@ class AppPinService {
   }
 
   Future<void> logoutAndClearSecurityData() async {
+    final token = await _secureStorage.read(
+      key: ConstantKeys.saveTokenToShared,
+    );
+    if (token != null && token.isNotEmpty) {
+      await _pushDeviceService.detachCurrentDevice(token);
+    }
     await clearLoginToken();
     await clearSecurityData();
   }

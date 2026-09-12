@@ -6,6 +6,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
+import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/repo/attendance_repo.dart';
@@ -34,8 +35,8 @@ import 'package:new_waqty_employee_app/features/auth/login/data/services/login_s
 
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_service.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/repo/employee_search_repo.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/services/employee_search_service.dart';
+import 'package:new_waqty_employee_app/features/search/data/repo/employee_search_repo.dart';
+import 'package:new_waqty_employee_app/features/search/data/services/employee_search_service.dart';
 
 import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
@@ -97,7 +98,12 @@ class ServicesLocator {
       () => LocalAuthentication(),
     );
     getIt.registerLazySingleton<DeviceInfoPlugin>(() => DeviceInfoPlugin());
-    getIt.registerLazySingleton<AppPinService>(() => AppPinService(getIt()));
+    getIt.registerLazySingleton<PushDeviceService>(
+      () => PushDeviceService(getIt(), getIt()),
+    );
+    getIt.registerLazySingleton<AppPinService>(
+      () => AppPinService(getIt(), getIt()),
+    );
     getIt.registerLazySingleton<BiometricAuthService>(
       () => BiometricAuthService(getIt(), getIt()),
     );

@@ -74,12 +74,14 @@ class MainNavigationScreenView extends StatelessWidget {
     switch (currentIndex) {
       case 0:
         return BlocProvider(
-          create: (context) => HomeCubit(getIt())..init(),
+          create: (context) =>
+              HomeCubit(getIt())..init(languageCode: languageCode),
           child: const HomeScreen(),
         );
       case 1:
         return BlocProvider(
-          create: (context) => MyBookingCubit(getIt())..init(),
+          create: (context) =>
+              MyBookingCubit(getIt())..init(languageCode: languageCode),
           child: const MyBookingScreen(),
         );
       case 2:
@@ -98,7 +100,8 @@ class MainNavigationScreenView extends StatelessWidget {
         );
       default:
         return BlocProvider(
-          create: (context) => HomeCubit(getIt())..init(),
+          create: (context) =>
+              HomeCubit(getIt())..init(languageCode: languageCode),
           child: const HomeScreen(),
         );
     }

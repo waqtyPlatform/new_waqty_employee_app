@@ -15,6 +15,7 @@ class OfflineAlertDialog {
     return showModalBottomSheet<void>(
       context: navigatorKey.currentContext!,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
       barrierColor: AppColors.blackColor.withValues(alpha: .35),
       builder: (_) => const _OfflineBottomSheetWidget(),
@@ -34,11 +35,14 @@ class _OfflineBottomSheetWidgetState extends State<_OfflineBottomSheetWidget> {
   bool _isLoading = false;
 
   Future<void> _tryAgain() async {
+    if (_isLoading) return;
     setState(() => _isLoading = true);
     final isOnline = await MyConnectivity.refreshStatus();
     if (!mounted) return;
     setState(() => _isLoading = false);
-    if (isOnline) Navigator.pop(context);
+    if (isOnline) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
   }
 
   @override

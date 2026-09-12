@@ -6,9 +6,9 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/search_widget.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_cubit.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_state.dart';
-import 'package:new_waqty_employee_app/features/home/search/ui/widgets/employee_search_results_widget.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_cubit.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_state.dart';
+import 'package:new_waqty_employee_app/features/search/ui/widgets/employee_search_results_widget.dart';
 
 class EmployeeSearchScreen extends StatelessWidget {
   const EmployeeSearchScreen({super.key});

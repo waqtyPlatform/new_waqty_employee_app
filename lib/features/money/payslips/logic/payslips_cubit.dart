@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/data/repo/payslips_repo.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/logic/payslips_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -9,7 +10,7 @@ class PayslipsCubit extends Cubit<PayslipsState> {
   PayslipsCubit(this.repo) : super(PayslipsInitialState());
 
   final List<MoneyPayslipSummary> payslips = [];
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
   int page = 1;
   int lastPage = 1;
   bool isLoadingMore = false;

@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:new_waqty_employee_app/core/exceptions/exceptions.dart';
 import 'package:new_waqty_employee_app/core/exceptions/failure.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/models/employee_search_models.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/services/employee_search_service.dart';
+import 'package:new_waqty_employee_app/features/search/data/models/employee_search_models.dart';
+import 'package:new_waqty_employee_app/features/search/data/services/employee_search_service.dart';
 
 class EmployeeSearchRepo {
   final EmployeeSearchService _service;

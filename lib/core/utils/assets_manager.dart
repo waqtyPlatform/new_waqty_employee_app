@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class ImageAsset {
   ///animation
   //   static const String collectionDoneAnimation = 'assets/animation/confirm_collection_animation.json';
@@ -13,6 +11,8 @@ class ImageAsset {
   //   static const String backGroundImage = 'assets/images/back_ground_image.png';
   static const String logoImage = 'assets/images/splash_image.png';
   static const String logo2Image = 'assets/images/logo.png';
+  static const String appIconImage = 'assets/images/app_icon.png';
+  static const String appLogoMarkImage = 'assets/images/app_logo_mark.png';
   static const String doneImage = 'assets/images/done.png';
   //   static const String chartBackGroundImage = 'assets/images/chart_background_image.png';
   //   static const String notFoundImage = 'assets/images/not_found.png';

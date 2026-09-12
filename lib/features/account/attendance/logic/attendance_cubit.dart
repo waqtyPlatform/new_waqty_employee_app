@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/models/attendance_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/repo/attendance_repo.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_state.dart';
@@ -18,7 +19,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     absent: 0,
     earlyLeave: 0,
   );
-  String languageCode = 'en';
+  String languageCode = AppLanguage.currentCode;
 
   void init({required String languageCode}) {
     loadAttendanceHistory(languageCode: languageCode);

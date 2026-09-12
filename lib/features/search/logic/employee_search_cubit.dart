@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/models/employee_search_models.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/repo/employee_search_repo.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_state.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
+import 'package:new_waqty_employee_app/features/search/data/models/employee_search_models.dart';
+import 'package:new_waqty_employee_app/features/search/data/repo/employee_search_repo.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_state.dart';
 
 class EmployeeSearchCubit extends Cubit<EmployeeSearchState> {
   final EmployeeSearchRepo _repo;
@@ -15,7 +16,7 @@ class EmployeeSearchCubit extends Cubit<EmployeeSearchState> {
   Timer? _debounce;
   int _requestVersion = 0;
 
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
   String selectedType = 'all';
   String? selectedCustomerUuid;
   String errorMessage = '';

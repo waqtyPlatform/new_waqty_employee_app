@@ -18,10 +18,7 @@ class LoginService {
   Future<LoginResponseModel> login(LoginRequestModel parameter) async {
     final response = await apiConsumer.post(
       LoginApiEndPoints.login,
-      LoginRequestModel(
-        email: parameter.email,
-        password: parameter.password,
-      ).toJson(),
+      parameter.toJson(),
       _headers(),
     );
     final body = _decodeBody(response.body);
@@ -51,7 +48,6 @@ class LoginService {
     return {
       ConstantKeys.contentType: ConstantKeys.applicationJson,
       ConstantKeys.acceptText: ConstantKeys.applicationJson,
-      ConstantKeys.acceptLanguage: 'ar',
     };
   }
 

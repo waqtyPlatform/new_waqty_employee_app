@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/data/models/notification_setting_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/data/repo/notification_setting_repo.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_state.dart';
@@ -12,7 +13,7 @@ class NotificationSettingCubit extends Cubit<NotificationSettingState> {
 
   NotificationSettingsModel? notificationSettings;
   String? updatingKey;
-  String languageCode = 'en';
+  String languageCode = AppLanguage.currentCode;
 
   void getNotificationSettings(String languageCode) {
     this.languageCode = languageCode;

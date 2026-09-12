@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/booking/customer_context/data/models/customer_context_model.dart';
 import 'package:new_waqty_employee_app/features/booking/customer_context/data/repo/customer_context_repo.dart';
 import 'package:new_waqty_employee_app/features/booking/customer_context/logic/customer_context_state.dart';
@@ -12,7 +13,7 @@ class CustomerContextCubit extends Cubit<CustomerContextState> {
   String errorMessage = '';
   String? assigningPackageUuid;
   String customerUuid = '';
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
 
   void getCustomerContext({
     required String customerUuid,

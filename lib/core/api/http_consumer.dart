@@ -5,6 +5,7 @@ import 'package:new_waqty_employee_app/core/api/app_interceptor.dart';
 import 'package:new_waqty_employee_app/core/api/end_points.dart';
 import 'package:new_waqty_employee_app/core/api/status_code.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
+import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
@@ -99,6 +100,7 @@ class HttpConsumer implements ApiConsumer {
   ) async {
     return _sendWithRefresh(
       headers: headers,
+      includeContentType: false,
       request: (requestHeaders) =>
           _sendMultipart(path: path, body: body, headers: requestHeaders),
     );
@@ -147,8 +149,15 @@ class HttpConsumer implements ApiConsumer {
     required Map<String, String>? headers,
     required Future<http.Response> Function(Map<String, String>? headers)
     request,
+    bool includeContentType = true,
   }) async {
-    final preparedHeaders = await _headersAfterPreemptiveRefresh(headers);
+    final defaultHeaders = _headersWithDefaults(
+      headers,
+      includeContentType: includeContentType,
+    );
+    final preparedHeaders = await _headersAfterPreemptiveRefresh(
+      defaultHeaders,
+    );
     final response = await request(preparedHeaders);
     if (response.statusCode != 401) {
       return response;
@@ -201,11 +210,13 @@ class HttpConsumer implements ApiConsumer {
     final response = await _rawClient.post(
       Uri.parse('${EndPoints.baseUrl}/api/employee/auth/refresh'),
       headers: {
+        ConstantKeys.contentType: ConstantKeys.applicationJson,
         ConstantKeys.acceptText: ConstantKeys.applicationJson,
         ConstantKeys.acceptLanguage: language,
         ConstantKeys.appAuthorization:
             '${ConstantKeys.appBearer} $currentToken',
       },
+      body: jsonEncode(await getIt<PushDeviceService>().buildDevicePayload()),
     );
 
     if (response.statusCode == 401 || response.statusCode == 403) {
@@ -235,6 +246,7 @@ class HttpConsumer implements ApiConsumer {
     if (expiresIn != null && expiresIn > 0) {
       await _storeTokenExpiresAt(expiresIn);
     }
+    await getIt<PushDeviceService>().registerCurrentDevice();
     return _RefreshTokenResult.success;
   }
 
@@ -299,9 +311,26 @@ class HttpConsumer implements ApiConsumer {
     return retryHeaders;
   }
 
-  String _fallbackLanguageCode() {
+  Map<String, String> _headersWithDefaults(
+    Map<String, String>? headers, {
+    required bool includeContentType,
+  }) {
+    final defaultHeaders = Map<String, String>.from(headers ?? {});
+    if (includeContentType) {
+      defaultHeaders[ConstantKeys.contentType] = ConstantKeys.applicationJson;
+    }
+    defaultHeaders[ConstantKeys.acceptText] = ConstantKeys.applicationJson;
+    defaultHeaders[ConstantKeys.acceptLanguage] = _currentLanguageCode();
+    return defaultHeaders;
+  }
+
+  String _currentLanguageCode() {
     final context = navigatorKey.currentContext;
     return context?.locale.languageCode == 'en' ? 'en' : 'ar';
+  }
+
+  String _fallbackLanguageCode() {
+    return _currentLanguageCode();
   }
 
   Future<void> _clearSessionAndOpenLogin() async {

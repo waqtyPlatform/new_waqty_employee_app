@@ -41,8 +41,8 @@ import 'package:new_waqty_employee_app/features/account/working_hours/ui/working
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/login_screen.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_cubit.dart';
-import 'package:new_waqty_employee_app/features/home/search/ui/employee_search_screen.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_cubit.dart';
+import 'package:new_waqty_employee_app/features/search/ui/employee_search_screen.dart';
 import 'package:new_waqty_employee_app/features/home/ui/home_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/profile_screen.dart';
@@ -123,10 +123,14 @@ class RouteGenerator {
         );
       case Routes.homeScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => HomeCubit(getIt())..init(),
-            child: const HomeScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  HomeCubit(getIt())..init(languageCode: languageCode),
+              child: const HomeScreen(),
+            );
+          },
         );
 
       case Routes.employeeSearchScreen:

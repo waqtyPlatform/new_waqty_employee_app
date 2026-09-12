@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/performance/my_reviews/data/models/my_reviews_response_model.dart';
 import 'package:new_waqty_employee_app/features/performance/my_reviews/data/repo/my_reviews_repo.dart';
 import 'package:new_waqty_employee_app/features/performance/my_reviews/logic/my_reviews_state.dart';
@@ -20,7 +21,7 @@ class MyReviewsCubit extends Cubit<MyReviewsState> {
   bool isReviewsLoading = false;
   bool isReviewsLoadingMore = false;
   String reviewsErrorMessage = '';
-  String _languageCode = 'ar';
+  String _languageCode = AppLanguage.currentCode;
 
   void init({required String languageCode}) {
     _languageCode = languageCode;

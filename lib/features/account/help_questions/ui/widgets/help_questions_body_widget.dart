@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_state.dart';
@@ -42,6 +43,13 @@ class HelpQuestionsBodyWidget extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
             child: Column(
               children: [
+                Image.asset(
+                  ImageAsset.appIconImage,
+                  width: 92.r,
+                  height: 92.r,
+                  fit: BoxFit.contain,
+                ),
+                SizedBox(height: 16.h),
                 HelpSearchWidget(
                   controller: cubit.searchController,
                   onChanged: cubit.searchFaqs,

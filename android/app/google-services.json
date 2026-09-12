@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982037073726",
+    "project_id": "waqty-39eb1",
+    "storage_bucket": "waqty-39eb1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982037073726:android:bce37fb73005497d13e66f",
+        "android_client_info": {
+          "package_name": "com.waqtyservices.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrks_yHBA6QnH0YMXvGtVEWR4g9frHEDA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

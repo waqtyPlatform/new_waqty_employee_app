@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/data/repo/bonuses_repo.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -9,7 +10,7 @@ class BonusesCubit extends Cubit<BonusesState> {
   BonusesCubit(this.repo) : super(BonusesInitialState());
 
   MoneyBonusResponse? bonuses;
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
 
   Future<void> init({String? languageCode}) async {
     if (languageCode != null) this.languageCode = languageCode;

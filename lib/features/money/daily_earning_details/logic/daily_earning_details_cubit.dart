@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/repo/daily_earning_details_repo.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/logic/daily_earning_details_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -10,7 +11,7 @@ class DailyEarningDetailsCubit extends Cubit<DailyEarningDetailsState> {
     : super(DailyEarningDetailsInitialState());
 
   DailyMoneyDetailModel? details;
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
   String selectedDate = '';
 
   void init({required String date, String? languageCode}) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/models/working_hours_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_state.dart';
@@ -24,7 +25,7 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
   int totalNetMinutes = 0;
   bool isGettingWorkingHours = false;
   String? expandedWorkingHourUuid;
-  String languageCode = 'en';
+  String languageCode = AppLanguage.currentCode;
 
   void init({required String languageCode}) {
     clearGetAllWorkingHours();

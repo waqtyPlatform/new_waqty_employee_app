@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/models/my_booking_response_model.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/data/repo/my_booking_repo.dart';
 import 'package:new_waqty_employee_app/features/booking/my_booking/logic/my_booking_state.dart';
@@ -19,7 +20,7 @@ class MyBookingCubit extends Cubit<MyBookingState> {
   int bookingsLastPage = 1;
   bool isBookingsLoading = false;
   bool isBookingsPaginationLoading = false;
-  String languageCode = 'en';
+  String languageCode = AppLanguage.currentCode;
   String? cancellingVisitUuid;
 
   String get selectedTab {

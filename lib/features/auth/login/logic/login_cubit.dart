@@ -1,4 +1,6 @@
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
+import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/auth/login/data/models/login_request_model.dart';
 import 'package:new_waqty_employee_app/features/auth/login/data/repo/login_repo.dart';
@@ -38,6 +40,7 @@ class LoginCubit extends Cubit<LoginState> {
         LoginRequestModel(
           email: emailController.text,
           password: passwordController.text,
+          deviceData: await getIt<PushDeviceService>().buildDevicePayload(),
         ),
       );
       await response.fold(
@@ -50,6 +53,7 @@ class LoginCubit extends Cubit<LoginState> {
         },
         (result) async {
           await cashUserData(result);
+          await getIt<PushDeviceService>().registerCurrentDevice();
           emit(OnLoginSuccessState(message: result.message));
         },
       );

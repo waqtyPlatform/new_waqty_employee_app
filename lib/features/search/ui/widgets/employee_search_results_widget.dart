@@ -9,9 +9,9 @@ import 'package:new_waqty_employee_app/core/utils/extentions.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
-import 'package:new_waqty_employee_app/features/home/search/data/models/employee_search_models.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_cubit.dart';
-import 'package:new_waqty_employee_app/features/home/search/logic/employee_search_state.dart';
+import 'package:new_waqty_employee_app/features/search/data/models/employee_search_models.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_cubit.dart';
+import 'package:new_waqty_employee_app/features/search/logic/employee_search_state.dart';
 
 class EmployeeSearchResultsWidget extends StatelessWidget {
   const EmployeeSearchResultsWidget({super.key});

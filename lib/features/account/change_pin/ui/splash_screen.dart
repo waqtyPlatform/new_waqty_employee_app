@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
+import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 
@@ -53,13 +54,21 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.lock_outline,
-              color: AppColors.greenColor500,
-              size: 54.r,
+            Image.asset(
+              ImageAsset.appLogoMarkImage,
+              width: 108.r,
+              height: 108.r,
+              fit: BoxFit.contain,
             ),
             SizedBox(height: 12.h),
-            Text('Waqty', style: TextStyles.font24greyColor900Weight600),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Text(
+                'وقتي للموظفين | Waqty Staff',
+                textAlign: TextAlign.center,
+                style: TextStyles.font18greyColor900Weight600,
+              ),
+            ),
             SizedBox(height: 18.h),
             SizedBox(
               width: 24.r,

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/earning_trend/data/repo/earning_trend_repo.dart';
 import 'package:new_waqty_employee_app/features/money/earning_trend/logic/earning_trend_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -12,7 +13,7 @@ class EarningTrendCubit extends Cubit<EarningTrendState> {
 
   EarningTrendPeriod selectedPeriod = EarningTrendPeriod.weekly;
   MoneyTrendModel? trend;
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
   String selectedMonth = _monthKey(DateTime.now());
 
   void init({String? languageCode, String? month}) {

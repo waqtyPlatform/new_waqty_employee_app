@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
+import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
+import 'package:new_waqty_employee_app/firebase_options.dart';
 import 'package:new_waqty_employee_app/my_app.dart';
 
 import 'core/services/cache_helper.dart';
@@ -12,6 +16,13 @@ import 'observer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -23,6 +34,7 @@ Future<void> main() async {
   //
   await CacheHelper.init();
   await MyConnectivity.initialise();
+  await getIt<PushDeviceService>().initialize();
   Bloc.observer = Observer();
 
   // End locations

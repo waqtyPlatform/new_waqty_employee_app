@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/data/repo/my_earning_repo.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
@@ -13,7 +14,7 @@ class MyEarningCubit extends Cubit<MyEarningState> {
   MyEarningPeriod selectedPeriod = MyEarningPeriod.thisMonth;
   EmployeeMoneyPreviewModel? preview;
   MoneyTrendModel? weeklyTrend;
-  String languageCode = 'ar';
+  String languageCode = AppLanguage.currentCode;
   String selectedMonth = _monthKey(DateTime.now());
   bool isPreviewLoading = false;
 

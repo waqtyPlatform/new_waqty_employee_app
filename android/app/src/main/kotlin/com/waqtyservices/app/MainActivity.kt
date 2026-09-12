@@ -1,4 +1,4 @@
-package com.example.new_waqty_employee_app
+package com.waqtyservices.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

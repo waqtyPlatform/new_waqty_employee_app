@@ -4,9 +4,11 @@ import 'package:local_auth/local_auth.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
+import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
+import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
-import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/repo/attendance_repo.dart';
@@ -98,8 +100,14 @@ class ServicesLocator {
       () => LocalAuthentication(),
     );
     getIt.registerLazySingleton<DeviceInfoPlugin>(() => DeviceInfoPlugin());
-    getIt.registerLazySingleton<PushDeviceService>(
-      () => PushDeviceService(getIt(), getIt()),
+    getIt.registerLazySingleton<LocalNotificationService>(
+      () => LocalNotificationService(),
+    );
+    getIt.registerLazySingleton<EmployeeNotificationApiService>(
+      () => EmployeeNotificationApiService(getIt()),
+    );
+    getIt.registerLazySingleton<FirebaseNotificationService>(
+      () => FirebaseNotificationService(getIt(), getIt()),
     );
     getIt.registerLazySingleton<AppPinService>(
       () => AppPinService(getIt(), getIt()),

@@ -4,6 +4,12 @@ class EndPoints {
   // static const String baseUrl = "https://waqty.alemtayaz.shop/public";
   // static const String _imageBaseUrl = "storage/app/public/";
 
+  static const String employeeAuthRefresh =
+      "$baseUrl/api/employee/auth/refresh";
+  static const String employeeAuthLogout = "$baseUrl/api/employee/auth/logout";
+  static const String employeeDeviceToken =
+      "$baseUrl/api/employee/device-token";
+
   // String getImageFromApi(String imageUrl) {
   //   return baseUrl + _imageBaseUrl + imageUrl;
   // }

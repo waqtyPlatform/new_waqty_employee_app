@@ -5,7 +5,7 @@ import 'package:new_waqty_employee_app/core/api/app_interceptor.dart';
 import 'package:new_waqty_employee_app/core/api/end_points.dart';
 import 'package:new_waqty_employee_app/core/api/status_code.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
-import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
+import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
@@ -208,7 +208,7 @@ class HttpConsumer implements ApiConsumer {
         failedRequestHeaders?[ConstantKeys.acceptLanguage] ??
         _fallbackLanguageCode();
     final response = await _rawClient.post(
-      Uri.parse('${EndPoints.baseUrl}/api/employee/auth/refresh'),
+      Uri.parse(EndPoints.employeeAuthRefresh),
       headers: {
         ConstantKeys.contentType: ConstantKeys.applicationJson,
         ConstantKeys.acceptText: ConstantKeys.applicationJson,
@@ -216,7 +216,9 @@ class HttpConsumer implements ApiConsumer {
         ConstantKeys.appAuthorization:
             '${ConstantKeys.appBearer} $currentToken',
       },
-      body: jsonEncode(await getIt<PushDeviceService>().buildDevicePayload()),
+      body: jsonEncode(
+        await getIt<FirebaseNotificationService>().buildDevicePayload(),
+      ),
     );
 
     if (response.statusCode == 401 || response.statusCode == 403) {
@@ -246,7 +248,7 @@ class HttpConsumer implements ApiConsumer {
     if (expiresIn != null && expiresIn > 0) {
       await _storeTokenExpiresAt(expiresIn);
     }
-    await getIt<PushDeviceService>().registerCurrentDevice();
+    await getIt<FirebaseNotificationService>().registerCurrentDevice();
     return _RefreshTokenResult.success;
   }
 

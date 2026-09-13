@@ -68,6 +68,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     final isValid = await _appPinService.verifyPin(pin);
     if (isValid) {
       await _appPinService.resetFailedAttempts();
+      await _appPinService.registerPushDevice();
       remainingLockSeconds = 0;
       emit(AppPinVerifiedState());
       return;
@@ -263,6 +264,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     );
     if (authenticated) {
       await _appPinService.saveBiometricLastUsedNow();
+      await _appPinService.registerPushDevice();
       await _loadBiometricDetails();
       emit(BiometricAuthSuccessState());
       return;
@@ -311,9 +313,11 @@ class AppPinCubit extends Cubit<AppPinState> {
   Future<void> _loadBiometricDetails() async {
     final biometricAuthService = _biometricAuthService;
     biometricDeviceName =
-        await biometricAuthService?.getDeviceName() ?? 'biometricLogin.thisDevice'.tr();
+        await biometricAuthService?.getDeviceName() ??
+        'biometricLogin.thisDevice'.tr();
     biometricMethod =
-        await biometricAuthService?.getBiometricMethodLabel() ?? 'biometricLogin.methodFallback'.tr();
+        await biometricAuthService?.getBiometricMethodLabel() ??
+        'biometricLogin.methodFallback'.tr();
     final enabledAt = await _appPinService.getBiometricEnabledAt();
     final lastUsedAt = await _appPinService.getBiometricLastUsedAt();
     biometricEnabledAtText = _formatBiometricDate(enabledAt);

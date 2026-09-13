@@ -1,152 +1,254 @@
-// import 'dart:convert';
-// import 'dart:io';
-//
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter/material.dart';
-// import 'package:magic/core/services/local_notification_service.dart';
-//
-//
-// class FirebaseNotificationService {
-//   static final _firebaseMessage = FirebaseMessaging.instance;
-//
-//
-//
-//   static Future init() async {
-//     await _firebaseMessage.requestPermission(
-//       alert: true,
-//       announcement: false,
-//       badge: true,
-//       carPlay: false,
-//       criticalAlert: false,
-//       provisional: false,
-//       sound: true,
-//     );
-//     await getDeviceToken();
-//
-//     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-//       print(' on message  onMessage onMessage onMessage onMessage');
-//       debugPrint("on Tap on Tap on Tap on Tap onMessage  ${message.data}");
-//
-//       if (!Platform.isIOS) {
-//         LocalNotificationService.showNotification(
-//           title: message.notification!.title.toString(),
-//           body: message.notification!.body.toString(),
-//           // payload: {
-//           //   'navigate': 'true',
-//           //   'click_action': message.data['click_action'].toString(),
-//           //   'receiveId':
-//           //   jsonDecode(message.data['details'].toString())['receiveId'],
-//           //   'orderId':
-//           //   jsonDecode(message.data['details'].toString())['orderId'],
-//           //   'name': jsonDecode(message.data['details'].toString())['name'],
-//           //   'phone': jsonDecode(message.data['details'].toString())['phone'],
-//           //   'image': jsonDecode(message.data['details'].toString())['image'],
-//           // },
-//         );
-//       }
-//
-//       // if (message.data['type'].toString() == 'chat') {
-//       //   LocalNotificationService.awesomeNotifications
-//       //       .incrementGlobalBadgeCounter();
-//       //   notificationCount++;
-//       //   ButtonBarHomeCubit.get(NinjaApp.navigatorKey.currentContext)
-//       //       .changeState();
-//       // }
-//
-//       // if (message.notification != null &&
-//       //     NinjaApp.navigatorKey.currentContext != null) {
-//       //   // if (message.notification!.body.toString().contains("وصل طلب جديد")) {
-//       //   //   HomeProviderCubit.get(NinjaApp.navigatorKey.currentContext!)
-//       //   //       .getHomeProviderData();
-//       //   // }
-//       // }
-//     });
-//
-//     _firebaseMessage.getInitialMessage().then((RemoteMessage? message) {
-//       if (message != null) {
-//         // _navigateToBlackScreen(message.data);
-//       }
-//     });
-//
-//     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-//       debugPrint(
-//           "on Tap on Tap on Tap on Tap onMessageOpenedApp  ${message.data}");
-//       // if (message.notification != null &&
-//       //     NinjaApp.navigatorKey.currentContext != null) {
-//       //   _navigateToBlackScreen(message.data);
-//       // }
-//     });
-//   }
-//
-//   static Future<String> getDeviceToken() async {
-//     String? token = await _firebaseMessage.getToken();
-//     if (token == null) return "";
-//     print("token $token");
-//     return token;
-//   }
-//
-//   // static void _navigateToBlackScreen(Map<String, dynamic> data) {
-//   //   print("object12212121212112");
-//   //   // var cc=data['details'].toString();
-//   //   // print(cc);
-//   //   // // cc['name']
-//   //   // var c2 = jsonDecode(data['details'].toString())['receiveId'];
-//   //   // print(c2);
-//   //   //
-//   //   // print("object12212121212112weewewewwewe");
-//   //
-//   //   // if (data['click_action'] == "send_chat") {
-//   //   //
-//   //   //   // PusherService(NinjaApp.navigatorKey.currentContext!).initPusher();
-//   //   //
-//   //   //   // ChatCubit.get(NinjaApp.navigatorKey.currentContext!).clearChatData();
-//   //   //   // ChatCubit.get(NinjaApp.navigatorKey.currentContext!).getAllMessages(
-//   //   //   //     int.tryParse(jsonDecode(data['details'].toString())['orderId'].toString())??0,
-//   //   //   //     int.tryParse(jsonDecode(data['details'].toString())['receiveId'].toString())??0);
-//   //   //   //
-//   //   //
-//   //   //
-//   //   //   // NinjaApp.navigatorKey.currentContext!
-//   //   //   //     .pushNamed(Routes.chatDetailsScreen, arguments: {
-//   //   //   //   'myId': AuthenticationCubit.get(NinjaApp.navigatorKey.currentContext!)
-//   //   //   //       .userInfo!
-//   //   //   //       .data
-//   //   //   //       .id,
-//   //   //   //   'receiveId': jsonDecode(data['details'].toString())['receiveId'],
-//   //   //   //   'orderId': jsonDecode(data['details'].toString())['orderId'],
-//   //   //   //   'name': jsonDecode(data['details'].toString())['name'],
-//   //   //   //   'phone': jsonDecode(data['details'].toString())['phone'],
-//   //   //   //   'image': EndPoints.getImageFromApi(jsonDecode(data['details'].toString())['image']),
-//   //   //   // });
-//   //   // }
-//   //   // else if (data['click_action'] == "USER_CONFIRMED") {
-//   //   //   ButtonBarHomeCubit.get(NinjaApp.navigatorKey.currentContext)
-//   //   //       .changeIndex(0);
-//   //   //   NinjaApp.navigatorKey.currentContext!
-//   //   //       .pushNamed(Routes.buttonBarHomeScreen);
-//   //   // }
-//   //   // else if (data['click_action'] == "NINJA_APPROVED") {
-//   //   //   ButtonBarHomeCubit.get(NinjaApp.navigatorKey.currentContext)
-//   //   //       .changeIndex(2);
-//   //   //   NinjaApp.navigatorKey.currentContext!
-//   //   //       .pushNamed(Routes.buttonBarHomeScreen);
-//   //   // }
-//   //   // else if (data['click_action'] == "NINJA_ACCOUNT_APPROVED" ||
-//   //   //     data['click_action'] == "NINJA_ACCOUNT_REJECTED" ||
-//   //   //     data['click_action'] == "DATA_ERROR" ||
-//   //   //     data['click_action'] == "NEW_ORDER_FOR_NINJA" ||
-//   //   //     data['click_action'] == "user-canceled-order") {
-//   //   //   ButtonBarProviderCubit.get(NinjaApp.navigatorKey.currentContext)
-//   //   //       .changeIndex(0);
-//   //   //   NinjaApp.navigatorKey.currentContext!
-//   //   //       .pushNamed(Routes.buttonBarProviderScreen);
-//   //   // }
-//   //   // else if (data['click_action'] == "NINJA_CONFIRMED" ||
-//   //   //     data['click_action'] == "sendOrderHour") {
-//   //   //   ButtonBarProviderCubit.get(NinjaApp.navigatorKey.currentContext)
-//   //   //       .changeIndex(2);
-//   //   //   NinjaApp.navigatorKey.currentContext!
-//   //   //       .pushNamed(Routes.buttonBarProviderScreen);
-//   //   // }
-//   // }
-// }
+import 'dart:async';
+import 'dart:math';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
+import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
+import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
+import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
+import 'package:new_waqty_employee_app/firebase_options.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (!_isSupportedNotificationPlatform) return;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await LocalNotificationService.initializedNotification();
+  await FirebaseNotificationService.showRemoteMessage(message);
+}
+
+class FirebaseNotificationService {
+  final FlutterSecureStorage _secureStorage;
+  final EmployeeNotificationApiService _notificationApiService;
+
+  static const _deviceIdKey = 'PUSH_DEVICE_ID';
+
+  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+  StreamSubscription<RemoteMessage>? _openedMessageSubscription;
+  bool _initialized = false;
+  bool _isLoggingOut = false;
+  int _registrationGeneration = 0;
+
+  FirebaseNotificationService(
+    this._secureStorage,
+    this._notificationApiService,
+  );
+
+  Future<void> initialize() async {
+    if (_initialized || !_isSupportedNotificationPlatform) return;
+    _initialized = true;
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await LocalNotificationService.initializedNotification();
+    await _requestPermission();
+
+    _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
+      showRemoteMessage,
+    );
+    _openedMessageSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _handleOpenedMessage,
+    );
+
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      _handleOpenedMessage(initialMessage);
+    }
+
+    unawaited(registerCurrentDevice());
+    _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
+        .listen((_) {
+          unawaited(registerCurrentDevice());
+        });
+  }
+
+  Future<Map<String, dynamic>> buildDevicePayload({
+    bool includeToken = true,
+  }) async {
+    if (!_isSupportedNotificationPlatform) return <String, dynamic>{};
+
+    final payload = <String, dynamic>{
+      'device_id': await _deviceId(),
+      'platform': _platform,
+    };
+    final appVersion = await _appVersion();
+    if (appVersion != null && appVersion.isNotEmpty) {
+      payload['app_version'] = appVersion;
+    }
+
+    if (includeToken) {
+      final token = await getCurrentFcmToken();
+      if (token != null && token.isNotEmpty) {
+        payload['fcm_token'] = token;
+      }
+    }
+
+    return payload;
+  }
+
+  Future<void> registerCurrentDevice() async {
+    if (!_isSupportedNotificationPlatform || _isLoggingOut) return;
+    final generation = _registrationGeneration;
+    final token = await CacheHelper.getSecuredString(
+      ConstantKeys.saveTokenToShared,
+    );
+    if (token.isEmpty) return;
+
+    final payload = await buildDevicePayload();
+    if (payload['fcm_token'] == null) return;
+    if (_isLoggingOut || generation != _registrationGeneration) return;
+
+    final latestToken = await CacheHelper.getSecuredString(
+      ConstantKeys.saveTokenToShared,
+    );
+    if (latestToken != token) return;
+
+    await _notificationApiService.registerDeviceToken(
+      token: token,
+      payload: payload,
+    );
+  }
+
+  Future<bool> detachCurrentDevice(String token) async {
+    if (!_isSupportedNotificationPlatform || token.isEmpty) return false;
+    _isLoggingOut = true;
+    _registrationGeneration++;
+    try {
+      final payload = await _logoutPayload();
+      var response = await _notificationApiService.logoutDevice(
+        token: token,
+        payload: payload,
+      );
+      if (response?.statusCode == 401) {
+        final refreshedToken = await _notificationApiService.refreshToken(
+          token: token,
+          payload: await buildDevicePayload(),
+        );
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          response = await _notificationApiService.logoutDevice(
+            token: refreshedToken,
+            payload: payload,
+          );
+        }
+      }
+      return response?.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void completeLocalLogout() {
+    _registrationGeneration++;
+    _isLoggingOut = false;
+  }
+
+  Future<String?> getCurrentFcmToken() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken().timeout(
+        const Duration(seconds: 5),
+      );
+      if (token == null || token.length > 255) return null;
+      return token;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> showRemoteMessage(RemoteMessage message) async {
+    if (!_shouldShowLocalRemoteMessage) return;
+
+    final title =
+        message.notification?.title ??
+        message.data['title']?.toString() ??
+        message.data['notification_title']?.toString() ??
+        '';
+    final body =
+        message.notification?.body ??
+        message.data['body']?.toString() ??
+        message.data['notification_body']?.toString() ??
+        '';
+    await LocalNotificationService.showNotification(
+      title: title,
+      body: body,
+      payload: message.data,
+    );
+  }
+
+  Future<void> _requestPermission() async {
+    try {
+      await FirebaseMessaging.instance
+          .requestPermission(alert: true, badge: true, sound: true)
+          .timeout(const Duration(seconds: 5));
+    } catch (_) {}
+  }
+
+  void _handleOpenedMessage(RemoteMessage message) {
+    // Navigation will be wired here when backend click-action payloads are final.
+  }
+
+  Future<Map<String, dynamic>> _logoutPayload() async {
+    final token = await getCurrentFcmToken();
+    if (token == null || token.isEmpty) return <String, dynamic>{};
+    return {'fcm_token': token};
+  }
+
+  Future<String> _deviceId() async {
+    final existing = await _secureStorage.read(key: _deviceIdKey);
+    if (existing != null && existing.isNotEmpty) return existing;
+
+    final value = _newUuidV4();
+    await _secureStorage.write(key: _deviceIdKey, value: value);
+    return value;
+  }
+
+  String _newUuidV4() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    final hex = bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join();
+    return '${hex.substring(0, 8)}-'
+        '${hex.substring(8, 12)}-'
+        '${hex.substring(12, 16)}-'
+        '${hex.substring(16, 20)}-'
+        '${hex.substring(20)}';
+  }
+
+  Future<String?> _appVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final build = info.buildNumber.isEmpty ? '' : '+${info.buildNumber}';
+      final version = '${info.version}$build';
+      if (version.length <= 30) return version;
+      return info.version.length <= 30 ? info.version : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String get _platform {
+    return defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+  }
+
+  void dispose() {
+    _tokenRefreshSubscription?.cancel();
+    _foregroundMessageSubscription?.cancel();
+    _openedMessageSubscription?.cancel();
+  }
+}
+
+bool get _isSupportedNotificationPlatform {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+}
+
+bool get _shouldShowLocalRemoteMessage {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android;
+}

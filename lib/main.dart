@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
-import 'package:new_waqty_employee_app/core/services/push_notifications/push_device_service.dart';
+import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
+import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
 import 'package:new_waqty_employee_app/firebase_options.dart';
 import 'package:new_waqty_employee_app/my_app.dart';
 
@@ -30,11 +31,11 @@ Future<void> main() async {
 
   await EasyLocalization.ensureInitialized();
   await ServicesLocator.init();
-  // await BluetoothPermissionHandler.init(false);
-  //
+
   await CacheHelper.init();
   await MyConnectivity.initialise();
-  await getIt<PushDeviceService>().initialize();
+  await getIt<LocalNotificationService>().initialize();
+  await getIt<FirebaseNotificationService>().initialize();
   Bloc.observer = Observer();
 
   // End locations

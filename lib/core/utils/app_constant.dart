@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:toastification/toastification.dart';
 
+import '../services/geocoding_service.dart';
 import 'app_colors_white_theme.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:geocoding/geocoding.dart';
 
 bool isLoggedInUser = false;
 bool isOnBoarding = true;
@@ -142,26 +140,17 @@ class AppConstant {
     return "$dayText $startTime - $endTime";
   }
 
-
   static Future<void> openPhoneCall(String phoneNumber) async {
     final String cleanedPhone = phoneNumber.replaceAll(RegExp(r'\s+'), '');
 
-    final Uri phoneUri = Uri(
-      scheme: 'tel',
-      path: cleanedPhone,
-    );
+    final Uri phoneUri = Uri(scheme: 'tel', path: cleanedPhone);
 
     if (!await canLaunchUrl(phoneUri)) {
       throw Exception('Could not open phone dialer');
     }
 
-    await launchUrl(
-      phoneUri,
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
   }
-
-
 
   // static String getMonthName(int monthNumber) {
   //    if (monthNumber < 1 || monthNumber > 12) {
@@ -197,31 +186,14 @@ class AppConstant {
     }
   }
 
-
   static Future<String?> getAddressFromLatLng({
     required double latitude,
     required double longitude,
   }) async {
-    try {
-      final List<Placemark> placemarks =
-      await placemarkFromCoordinates(latitude, longitude);
-
-      if (placemarks.isEmpty) return null;
-
-      final Placemark place = placemarks.first;
-
-      final addressParts = [
-        place.street,
-        place.subLocality,
-        place.locality,
-        place.administrativeArea,
-        place.country,
-      ].where((e) => e != null && e.trim().isNotEmpty).toList();
-
-      return addressParts.join(', ');
-    } catch (e) {
-      return null;
-    }
+    return GeocodingService.getAddressFromLatLng(
+      latitude: latitude,
+      longitude: longitude,
+    );
   }
   //
   // static Future<String> getLocationFromCoordinates(
@@ -267,8 +239,6 @@ class AppConstant {
   //     return "${(distanceInMeters).toStringAsFixed(2)}m";
   //   }
   // }
-
-
 
   static String convertTo12Hour(String time24) {
     final parts = time24.split(':');

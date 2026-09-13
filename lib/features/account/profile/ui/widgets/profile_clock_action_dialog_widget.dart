@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:new_waqty_employee_app/core/services/location_service.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
@@ -193,12 +193,17 @@ class _ProfileClockActionDialogWidgetState
     final navigator = Navigator.of(context);
     final parentContext = navigator.context;
     try {
-      final position = _currentPositionValue ?? await _currentPosition(context);
-      if (position == null) return;
-      final isWithinBranchRange = _isPositionWithinBranchRange(position);
-      _updateBranchRangeStatus(position);
+      final attendanceLocation = await _attendanceLocation();
+      final position = attendanceLocation.position;
+      if (position == null) {
+        if (!context.mounted) return;
+        _showLocationFailureMessage(context, attendanceLocation.failure);
+        return;
+      }
+
+      _updateBranchRangeStatus(attendanceLocation);
       if (!context.mounted) return;
-      if (isWithinBranchRange == false) {
+      if (attendanceLocation.isWithinBranchRange == false) {
         AppConstant.toast(
           context.tr('profile.outsideBranchRange'),
           false,
@@ -236,111 +241,86 @@ class _ProfileClockActionDialogWidgetState
   }
 
   Future<void> _loadBranchRangeStatus() async {
-    final position = await _currentPosition(context);
+    final attendanceLocation = await _attendanceLocation();
     if (!mounted) return;
-    if (position == null) {
+    if (attendanceLocation.position == null) {
       setState(() {
         _isCheckingBranchRange = false;
         _isWithinBranchRange = null;
       });
       return;
     }
-    _updateBranchRangeStatus(position);
+    _updateBranchRangeStatus(attendanceLocation);
   }
 
-  void _updateBranchRangeStatus(Position position) {
-    final isWithinBranchRange = _isPositionWithinBranchRange(position);
+  void _updateBranchRangeStatus(AttendanceLocationResult attendanceLocation) {
+    final position = attendanceLocation.position;
+    if (position == null) return;
     if (!mounted) return;
     setState(() {
       _currentPositionValue = position;
       _isCheckingBranchRange = false;
-      _isWithinBranchRange = isWithinBranchRange;
+      _isWithinBranchRange = attendanceLocation.isWithinBranchRange;
     });
   }
 
-  bool? _isPositionWithinBranchRange(Position position) {
+  Future<AttendanceLocationResult> _attendanceLocation() {
+    final cachedPosition = _currentPositionValue;
+    if (cachedPosition != null) {
+      final distance = YourLocation.distanceFromPositionToBranch(
+        position: cachedPosition,
+        branchLatitude: _branchLatitude,
+        branchLongitude: _branchLongitude,
+      );
+      return Future.value(
+        AttendanceLocationResult(
+          position: cachedPosition,
+          distanceMeters: distance,
+          isWithinBranchRange: YourLocation.isWithinBranchRange(
+            distanceMeters: distance,
+            branchRangeMeters: _branchRangeMeters,
+          ),
+        ),
+      );
+    }
+
+    return YourLocation.getAttendanceLocation(
+      branchLatitude: _branchLatitude,
+      branchLongitude: _branchLongitude,
+      branchRangeMeters: _branchRangeMeters,
+    );
+  }
+
+  double? get _branchLatitude {
     final profileBranch =
         widget.cubit.profileResponseModel?.customer.branchModel;
     final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
-    final branchLatitude = profileBranch?.latitude ?? sessionBranch?.latitude;
-    final branchLongitude =
-        profileBranch?.longitude ?? sessionBranch?.longitude;
-    final branchRangeMeters =
-        profileBranch?.attendanceRangeMeters ??
-        sessionBranch?.attendanceRangeMeters;
-    if (branchLatitude == null ||
-        branchLongitude == null ||
-        branchRangeMeters == null ||
-        branchRangeMeters <= 0) {
-      return null;
-    }
-
-    final distance = Geolocator.distanceBetween(
-      position.latitude,
-      position.longitude,
-      branchLatitude,
-      branchLongitude,
-    );
-    return distance <= branchRangeMeters;
+    return profileBranch?.latitude ?? sessionBranch?.latitude;
   }
 
-  Future<Position?> _currentPosition(BuildContext context) async {
-    try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
+  double? get _branchLongitude {
+    final profileBranch =
+        widget.cubit.profileResponseModel?.customer.branchModel;
+    final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
+    return profileBranch?.longitude ?? sessionBranch?.longitude;
+  }
 
-      if (permission == LocationPermission.deniedForever) {
-        await Geolocator.openAppSettings();
-        if (context.mounted) {
-          AppConstant.toast(
-            context.tr('profile.locationPermissionRequired'),
-            false,
-            context,
-          );
-        }
-        return null;
-      }
+  double? get _branchRangeMeters {
+    final profileBranch =
+        widget.cubit.profileResponseModel?.customer.branchModel;
+    final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
+    return profileBranch?.attendanceRangeMeters ??
+        sessionBranch?.attendanceRangeMeters;
+  }
 
-      if (permission == LocationPermission.denied) {
-        if (context.mounted) {
-          AppConstant.toast(
-            context.tr('profile.locationPermissionRequired'),
-            false,
-            context,
-          );
-        }
-        return null;
-      }
-
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (context.mounted) {
-          AppConstant.toast(
-            context.tr('profile.locationServiceDisabled'),
-            false,
-            context,
-          );
-        }
-        return null;
-      }
-
-      return Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-    } catch (_) {
-      if (context.mounted) {
-        AppConstant.toast(
-          context.tr('profile.locationPermissionRequired'),
-          false,
-          context,
-        );
-      }
-      return null;
-    }
+  void _showLocationFailureMessage(
+    BuildContext context,
+    LocationFailure? failure,
+  ) {
+    final messageKey = failure == LocationFailure.serviceDisabled
+        ? 'profile.locationServiceDisabled'
+        : 'profile.locationPermissionRequired';
+    AppConstant.toast(context.tr(messageKey), false, context);
   }
 }
 

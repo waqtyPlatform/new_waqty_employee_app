@@ -24,4 +24,20 @@ class WorkingHoursRepo {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }
   }
+
+  Future<Either<Failure, WorkingHoursModel>> getShiftDetails({
+    required String shiftId,
+    required String languageCode,
+  }) async {
+    try {
+      return Right(
+        await _workingHoursService.getShiftDetails(
+          shiftId: shiftId,
+          languageCode: languageCode,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
 }

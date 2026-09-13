@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:new_waqty_employee_app/core/services/check_network.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/widgets/no_internet_screen.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/ui/biometric_lock_screen.dart';
@@ -37,6 +38,8 @@ import 'package:new_waqty_employee_app/features/account/profile_details/ui/profi
 import 'package:new_waqty_employee_app/features/account/report_bug/logic/report_bug_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/report_bug/ui/report_bug_screen.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/logic/shift_details_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/ui/shift_details_screen.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/ui/working_hours_screen.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/login/ui/login_screen.dart';
@@ -53,6 +56,10 @@ import 'package:new_waqty_employee_app/features/auth/verify_code/ui/verify_code_
 import 'package:new_waqty_employee_app/features/auth/reset_password/logic/reset_password_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/reset_password/ui/reset_password_screen.dart';
 import 'package:new_waqty_employee_app/features/main_navigation/ui/screens/main_navigation_screen.dart';
+import 'package:new_waqty_employee_app/features/notifications/ui/notifications_screen.dart';
+import 'package:new_waqty_employee_app/features/notifications/ui/notification_details_screen.dart';
+import 'package:new_waqty_employee_app/features/notifications/logic/notifications_cubit.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/models/notification_inbox_group_model.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/logic/booking_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/booking/booking_details/ui/booking_details_screen.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/data/repo/bonuses_repo.dart';
@@ -115,10 +122,14 @@ class RouteGenerator {
         final isPinVerified = args is Map && args['pinVerified'] == true;
         final isSecurityVerified =
             args is Map && args['securityVerified'] == true;
+        final initialIndex = args is Map
+            ? int.tryParse(args['initialIndex']?.toString() ?? '') ?? 0
+            : 0;
         return MaterialPageRoute(
           builder: (_) => _MainNavigationGate(
             isPinVerified: isPinVerified,
             isSecurityVerified: isSecurityVerified,
+            initialIndex: initialIndex,
           ),
         );
       case Routes.homeScreen:
@@ -142,6 +153,33 @@ class RouteGenerator {
               child: const EmployeeSearchScreen(),
             );
           },
+        );
+
+      case Routes.notificationsScreen:
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  NotificationsCubit(getIt())..init(languageCode: languageCode),
+              child: const NotificationsScreen(),
+            );
+          },
+        );
+
+      case Routes.notificationDetailsScreen:
+        final notification = args is Map
+            ? args['notification'] as NotificationInboxItemModel?
+            : null;
+        if (notification == null) {
+          return MaterialPageRoute(
+            builder: (_) => _NotificationFallbackGate(
+              messageKey: 'notificationInbox.resourceUnavailable',
+            ),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => NotificationDetailsScreen(notification: notification),
         );
 
       case Routes.loginScreen:
@@ -221,6 +259,20 @@ class RouteGenerator {
               create: (_) =>
                   WorkingHoursCubit(getIt())..init(languageCode: languageCode),
               child: const WorkingHoursScreen(),
+            );
+          },
+        );
+
+      case Routes.shiftDetailsScreen:
+        final shiftId = args is Map ? args['shiftId']?.toString() ?? '' : '';
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  ShiftDetailsCubit(getIt())
+                    ..init(shiftId: shiftId, languageCode: languageCode),
+              child: const ShiftDetailsScreen(),
             );
           },
         );
@@ -509,10 +561,12 @@ class RouteGenerator {
 class _MainNavigationGate extends StatefulWidget {
   final bool isPinVerified;
   final bool isSecurityVerified;
+  final int initialIndex;
 
   const _MainNavigationGate({
     required this.isPinVerified,
     required this.isSecurityVerified,
+    required this.initialIndex,
   });
 
   @override
@@ -565,7 +619,12 @@ class _MainNavigationGateState extends State<_MainNavigationGate> {
       );
     }
 
-    return const MainNavigationScreen();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (getIt.isRegistered<NotificationRouterService>()) {
+        getIt<NotificationRouterService>().flushPendingPayload();
+      }
+    });
+    return MainNavigationScreen(initialIndex: widget.initialIndex);
   }
 }
 
@@ -577,6 +636,23 @@ class _RouteLoadingScreen extends StatelessWidget {
     return const Scaffold(
       backgroundColor: Colors.white,
       body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _NotificationFallbackGate extends StatelessWidget {
+  final String messageKey;
+
+  const _NotificationFallbackGate({required this.messageKey});
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushReplacementNamed(context, Routes.notificationsScreen);
+    });
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(child: Text(context.tr(messageKey))),
     );
   }
 }

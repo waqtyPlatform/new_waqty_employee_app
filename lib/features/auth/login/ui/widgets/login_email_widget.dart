@@ -8,7 +8,6 @@ import 'package:new_waqty_employee_app/core/widgets/app_text_field.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_cubit.dart';
 import 'package:new_waqty_employee_app/features/auth/login/logic/login_state.dart';
 
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginEmailWidget extends StatelessWidget {

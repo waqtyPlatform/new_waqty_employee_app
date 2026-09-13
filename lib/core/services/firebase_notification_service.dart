@@ -8,6 +8,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
 import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_center_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/firebase_options.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -47,7 +50,7 @@ class FirebaseNotificationService {
     await _requestPermission();
 
     _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
-      showRemoteMessage,
+      _handleForegroundMessage,
     );
     _openedMessageSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
       _handleOpenedMessage,
@@ -55,10 +58,11 @@ class FirebaseNotificationService {
 
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
-      _handleOpenedMessage(initialMessage);
+      unawaited(_handleOpenedMessage(initialMessage));
     }
 
     unawaited(registerCurrentDevice());
+    unawaited(getIt<NotificationCenterService>().refreshUnreadCount());
     _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
         .listen((_) {
           unawaited(registerCurrentDevice());
@@ -106,10 +110,23 @@ class FirebaseNotificationService {
     );
     if (latestToken != token) return;
 
-    await _notificationApiService.registerDeviceToken(
+    var response = await _notificationApiService.registerDeviceToken(
       token: token,
       payload: payload,
     );
+    if (response?.statusCode == 401) {
+      final refreshedToken = await _notificationApiService.refreshToken(
+        token: token,
+        payload: payload,
+      );
+      if (refreshedToken != null && refreshedToken.isNotEmpty) {
+        response = await _notificationApiService.registerDeviceToken(
+          token: refreshedToken,
+          payload: payload,
+        );
+      }
+    }
+    await getIt<NotificationCenterService>().refreshUnreadCount();
   }
 
   Future<bool> detachCurrentDevice(String token) async {
@@ -143,6 +160,8 @@ class FirebaseNotificationService {
   void completeLocalLogout() {
     _registrationGeneration++;
     _isLoggingOut = false;
+    getIt<NotificationCenterService>().clearAccountState();
+    getIt<NotificationRouterService>().clearAccountState();
   }
 
   Future<String?> getCurrentFcmToken() async {
@@ -185,8 +204,14 @@ class FirebaseNotificationService {
     } catch (_) {}
   }
 
-  void _handleOpenedMessage(RemoteMessage message) {
-    // Navigation will be wired here when backend click-action payloads are final.
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    getIt<NotificationCenterService>().notifyInboxShouldRefresh();
+    unawaited(getIt<NotificationCenterService>().refreshUnreadCount());
+    await showRemoteMessage(message);
+  }
+
+  Future<void> _handleOpenedMessage(RemoteMessage message) async {
+    await getIt<NotificationRouterService>().handlePayload(message.data);
   }
 
   Future<Map<String, dynamic>> _logoutPayload() async {

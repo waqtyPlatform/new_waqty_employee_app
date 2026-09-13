@@ -21,18 +21,18 @@ class NotificationSettingsModel {
   final bool newBookingsAssigned;
   final bool bookingCancellations;
   final bool appointmentReminders;
+  final bool shiftChanges;
   final bool shiftStartReminders;
-  final bool newReviews;
-  final bool payslipAvailable;
+  final bool leaveAndRequestUpdates;
   final bool managerAnnouncements;
 
   const NotificationSettingsModel({
     required this.newBookingsAssigned,
     required this.bookingCancellations,
     required this.appointmentReminders,
+    required this.shiftChanges,
     required this.shiftStartReminders,
-    required this.newReviews,
-    required this.payslipAvailable,
+    required this.leaveAndRequestUpdates,
     required this.managerAnnouncements,
   });
 
@@ -41,9 +41,9 @@ class NotificationSettingsModel {
       newBookingsAssigned: json['new_bookings_assigned'] ?? false,
       bookingCancellations: json['booking_cancellations'] ?? false,
       appointmentReminders: json['appointment_reminders'] ?? false,
+      shiftChanges: json['shift_changes'] ?? false,
       shiftStartReminders: json['shift_start_reminders'] ?? false,
-      newReviews: json['new_reviews'] ?? false,
-      payslipAvailable: json['payslip_available'] ?? false,
+      leaveAndRequestUpdates: json['leave_and_request_updates'] ?? false,
       managerAnnouncements: json['manager_announcements'] ?? false,
     );
   }
@@ -53,9 +53,9 @@ class NotificationSettingsModel {
       NotificationSettingKey.newBookingsAssigned: newBookingsAssigned,
       NotificationSettingKey.bookingCancellations: bookingCancellations,
       NotificationSettingKey.appointmentReminders: appointmentReminders,
+      NotificationSettingKey.shiftChanges: shiftChanges,
       NotificationSettingKey.shiftStartReminders: shiftStartReminders,
-      NotificationSettingKey.newReviews: newReviews,
-      NotificationSettingKey.payslipAvailable: payslipAvailable,
+      NotificationSettingKey.leaveAndRequestUpdates: leaveAndRequestUpdates,
       NotificationSettingKey.managerAnnouncements: managerAnnouncements,
     };
   }
@@ -65,9 +65,9 @@ class NotificationSettingsModel {
       NotificationSettingKey.newBookingsAssigned => newBookingsAssigned,
       NotificationSettingKey.bookingCancellations => bookingCancellations,
       NotificationSettingKey.appointmentReminders => appointmentReminders,
+      NotificationSettingKey.shiftChanges => shiftChanges,
       NotificationSettingKey.shiftStartReminders => shiftStartReminders,
-      NotificationSettingKey.newReviews => newReviews,
-      NotificationSettingKey.payslipAvailable => payslipAvailable,
+      NotificationSettingKey.leaveAndRequestUpdates => leaveAndRequestUpdates,
       NotificationSettingKey.managerAnnouncements => managerAnnouncements,
       _ => false,
     };
@@ -84,8 +84,8 @@ class NotificationSettingKey {
   static const newBookingsAssigned = 'new_bookings_assigned';
   static const bookingCancellations = 'booking_cancellations';
   static const appointmentReminders = 'appointment_reminders';
+  static const shiftChanges = 'shift_changes';
   static const shiftStartReminders = 'shift_start_reminders';
-  static const newReviews = 'new_reviews';
-  static const payslipAvailable = 'payslip_available';
+  static const leaveAndRequestUpdates = 'leave_and_request_updates';
   static const managerAnnouncements = 'manager_announcements';
 }

@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/services/check_network.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_center_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/widgets/offline_alert_dialog.dart';
 
 import 'config/routes/app_routes.dart';
@@ -21,7 +23,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   StreamSubscription<Map<String, bool>>? _networkSubscription;
   bool _wasOnline = MyConnectivity.isOnline();
   bool _isOfflineSheetVisible = false;
@@ -29,7 +31,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _listenToNetwork();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        getIt.isRegistered<NotificationCenterService>()) {
+      getIt<NotificationCenterService>().refreshUnreadCount(
+        languageCode: context.locale.languageCode,
+      );
+    }
   }
 
   void _listenToNetwork() {
@@ -56,6 +69,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _networkSubscription?.cancel();
     super.dispose();
   }

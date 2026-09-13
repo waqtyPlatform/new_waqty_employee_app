@@ -33,6 +33,7 @@ class WorkingHoursModel {
   final String? breakEnd;
   final bool active;
   final bool isDayOff;
+  final String status;
   final int? apiShiftMinutes;
   final double? apiShiftHours;
   final int? apiBreakMinutes;
@@ -57,6 +58,7 @@ class WorkingHoursModel {
     this.breakEnd,
     required this.active,
     required this.isDayOff,
+    required this.status,
     this.apiShiftMinutes,
     this.apiShiftHours,
     this.apiBreakMinutes,
@@ -73,16 +75,29 @@ class WorkingHoursModel {
 
   factory WorkingHoursModel.fromJson(Map<String, dynamic> json) {
     return WorkingHoursModel(
-      uuid: json['uuid'] ?? '',
-      shiftDate: json['shift_date'] ?? '',
+      uuid: json['uuid']?.toString() ?? json['id']?.toString() ?? '',
+      shiftDate:
+          json['shift_date']?.toString() ??
+          json['date']?.toString() ??
+          _dateOnlyString(json['scheduled_start_at']) ??
+          '',
       dayOfWeek: _parseInt(json['day_of_week']),
       dayName: json['day_name']?.toString() ?? '',
-      startTime: json['start_time'] ?? '',
-      endTime: json['end_time'] ?? '',
+      startTime:
+          json['start_time']?.toString() ??
+          json['scheduled_start_at']?.toString() ??
+          json['scheduled_start']?.toString() ??
+          '',
+      endTime:
+          json['end_time']?.toString() ??
+          json['scheduled_end_at']?.toString() ??
+          json['scheduled_end']?.toString() ??
+          '',
       breakStart: json['break_start'],
       breakEnd: json['break_end'],
       active: json['active'] ?? false,
       isDayOff: json['is_day_off'] ?? false,
+      status: json['status']?.toString() ?? '',
       apiShiftMinutes: _parseInt(json['shift_minutes']),
       apiShiftHours: _parseDouble(json['shift_hours']),
       apiBreakMinutes: _parseInt(json['break_minutes']),
@@ -214,11 +229,17 @@ class Shift {
 
   factory Shift.fromJson(Map<String, dynamic> json) {
     return Shift(
-      uuid: json['uuid'] ?? '',
-      title: json['title'] ?? '',
-      notes: json['notes'],
+      uuid: json['uuid']?.toString() ?? json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? json['name']?.toString() ?? '',
+      notes: json['notes']?.toString(),
     );
   }
+}
+
+String? _dateOnlyString(dynamic value) {
+  final parsed = DateTime.tryParse(value?.toString() ?? '');
+  if (parsed == null) return null;
+  return parsed.toIso8601String().split('T').first;
 }
 
 class Branch {
@@ -228,7 +249,10 @@ class Branch {
   Branch({required this.uuid, required this.name});
 
   factory Branch.fromJson(Map<String, dynamic> json) {
-    return Branch(uuid: json['uuid'] ?? '', name: json['name'] ?? '');
+    return Branch(
+      uuid: json['uuid']?.toString() ?? json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? json['location']?.toString() ?? '',
+    );
   }
 }
 

@@ -7,6 +7,8 @@ import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
 import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
 import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_center_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_constant.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
@@ -34,6 +36,8 @@ import '../api/http_consumer.dart';
 
 import 'package:new_waqty_employee_app/features/auth/login/data/repo/login_repo.dart';
 import 'package:new_waqty_employee_app/features/auth/login/data/services/login_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/repo/notifications_repo.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notifications_service.dart';
 
 import 'package:new_waqty_employee_app/features/home/data/repo/home_repo.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_service.dart';
@@ -105,6 +109,18 @@ class ServicesLocator {
     );
     getIt.registerLazySingleton<EmployeeNotificationApiService>(
       () => EmployeeNotificationApiService(getIt()),
+    );
+    getIt.registerLazySingleton<NotificationsService>(
+      () => NotificationsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<NotificationsRepo>(
+      () => NotificationsRepo(getIt()),
+    );
+    getIt.registerLazySingleton<NotificationCenterService>(
+      () => NotificationCenterService(getIt()),
+    );
+    getIt.registerLazySingleton<NotificationRouterService>(
+      () => NotificationRouterService(getIt(), getIt()),
     );
     getIt.registerLazySingleton<FirebaseNotificationService>(
       () => FirebaseNotificationService(getIt(), getIt()),

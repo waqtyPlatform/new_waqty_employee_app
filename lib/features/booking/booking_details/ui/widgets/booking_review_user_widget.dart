@@ -97,9 +97,13 @@ class _BookingReviewUserWidgetState extends State<BookingReviewUserWidget> {
                 color: AppColors.warningColor30033,
               ),
               horizontalSpace(8),
-              Text(
-                '${context.tr('bookingDetails.review')} ${widget.userName}',
-                style: TextStyles.font18greyColor900Weight600,
+              Expanded(
+                child: Text(
+                  '${context.tr('bookingDetails.review')} ${widget.userName}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyles.font18greyColor900Weight600,
+                ),
               ),
             ],
           ),

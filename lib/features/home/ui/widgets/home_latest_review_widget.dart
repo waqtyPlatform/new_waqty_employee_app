@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -9,8 +10,7 @@ import 'review_card_widget.dart';
 class HomeLatestReviewWidget extends StatelessWidget {
   final HomeReviewModel? review;
 
-  const HomeLatestReviewWidget({Key? key, required this.review})
-    : super(key: key);
+  const HomeLatestReviewWidget({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class HomeLatestReviewWidget extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => Navigator.pushNamed(context, Routes.myReviewsScreen),
               child: Text(
                 context.tr('home.seeAll'),
                 style: TextStyles.font14greenColor500Weight600,

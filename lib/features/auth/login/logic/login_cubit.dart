@@ -1,5 +1,6 @@
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/auth/login/data/models/login_request_model.dart';
@@ -55,6 +56,7 @@ class LoginCubit extends Cubit<LoginState> {
         (result) async {
           await cashUserData(result);
           await getIt<FirebaseNotificationService>().registerCurrentDevice();
+          await getIt<NotificationRouterService>().flushPendingPayload();
           emit(OnLoginSuccessState(message: result.message));
         },
       );

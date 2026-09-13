@@ -2,9 +2,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'main_navigation_state.dart';
 
 class MainNavigationCubit extends Cubit<MainNavigationState> {
-  MainNavigationCubit() : super(MainNavigationInitial());
+  MainNavigationCubit({int initialIndex = 0})
+    : currentIndex = initialIndex,
+      super(MainNavigationInitial());
 
-  int currentIndex = 0;
+  int currentIndex;
 
   void changeTab(int index) {
     currentIndex = index;

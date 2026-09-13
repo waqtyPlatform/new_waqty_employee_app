@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
@@ -145,6 +146,8 @@ class _HomeTopSection extends StatelessWidget {
             employeeAvatarUrl: summary.employeeAvatarUrl,
             branchName: summary.branchName,
             onAvatarTap: () => MainNavigationCubit.get(context).changeTab(4),
+            onNotificationTap: () =>
+                Navigator.pushNamed(context, Routes.notificationsScreen),
           ),
           const HomeSearchWidget(),
           verticalSpace(18),

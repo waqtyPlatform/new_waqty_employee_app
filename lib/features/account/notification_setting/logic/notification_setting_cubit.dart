@@ -14,6 +14,7 @@ class NotificationSettingCubit extends Cubit<NotificationSettingState> {
   NotificationSettingsModel? notificationSettings;
   String? updatingKey;
   String languageCode = AppLanguage.currentCode;
+  int _updateVersion = 0;
 
   void getNotificationSettings(String languageCode) {
     this.languageCode = languageCode;
@@ -38,17 +39,20 @@ class NotificationSettingCubit extends Cubit<NotificationSettingState> {
     if (oldSettings == null) {
       return;
     }
+    if (key == NotificationSettingKey.shiftStartReminders) return;
 
+    final requestVersion = ++_updateVersion;
     updatingKey = key;
     notificationSettings = oldSettings.copyWithKey(key, value);
     emit(UpdateNotificationSettingLoadingState(key));
 
     _notificationSettingRepo
         .updateNotificationSettings(
-          body: notificationSettings!.toJson(),
+          body: {key: value},
           languageCode: languageCode,
         )
         .then((response) {
+          if (requestVersion != _updateVersion) return;
           response.fold(
             (failure) {
               notificationSettings = oldSettings;
@@ -63,6 +67,7 @@ class NotificationSettingCubit extends Cubit<NotificationSettingState> {
           );
         })
         .catchError((error) {
+          if (requestVersion != _updateVersion) return;
           notificationSettings = oldSettings;
           updatingKey = null;
           emit(UpdateNotificationSettingCatchErrorState());

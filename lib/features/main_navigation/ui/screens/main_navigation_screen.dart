@@ -19,12 +19,15 @@ import 'package:new_waqty_employee_app/features/performance/my_stats/ui/my_stats
 import '../../../../core/utils/app_colors_white_theme.dart';
 
 class MainNavigationScreen extends StatelessWidget {
-  const MainNavigationScreen({Key? key}) : super(key: key);
+  final int initialIndex;
+
+  const MainNavigationScreen({Key? key, this.initialIndex = 0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MainNavigationCubit(),
+      create: (context) => MainNavigationCubit(initialIndex: initialIndex),
       child: const MainNavigationScreenView(),
     );
   }

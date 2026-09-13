@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/features/account/biometric/data/services/biometric_auth_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_service.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/logic/app_pin_state.dart';
@@ -69,6 +71,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     if (isValid) {
       await _appPinService.resetFailedAttempts();
       await _appPinService.registerPushDevice();
+      await getIt<NotificationRouterService>().flushPendingPayload();
       remainingLockSeconds = 0;
       emit(AppPinVerifiedState());
       return;
@@ -265,6 +268,7 @@ class AppPinCubit extends Cubit<AppPinState> {
     if (authenticated) {
       await _appPinService.saveBiometricLastUsedNow();
       await _appPinService.registerPushDevice();
+      await getIt<NotificationRouterService>().flushPendingPayload();
       await _loadBiometricDetails();
       emit(BiometricAuthSuccessState());
       return;

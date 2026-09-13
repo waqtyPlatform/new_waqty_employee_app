@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -98,9 +100,8 @@ class LocalNotificationService {
   static void onNotificationResponse(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
-    try {
-      jsonDecode(payload);
-    } catch (_) {}
+    if (!getIt.isRegistered<NotificationRouterService>()) return;
+    getIt<NotificationRouterService>().handleLocalPayload(payload);
   }
 }
 

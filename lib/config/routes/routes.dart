@@ -5,6 +5,8 @@ class Routes {
   static const loginScreen = "/LoginScreen";
   static const homeScreen = "/HomeScreen";
   static const employeeSearchScreen = "/EmployeeSearchScreen";
+  static const notificationsScreen = "/NotificationsScreen";
+  static const notificationDetailsScreen = "/NotificationDetailsScreen";
   static const profileScreen = "/ProfileScreen";
   static const forgetPasswordScreen = "/ForgetPasswordScreen";
   static const verifyCodeScreen = "/VerifyCodeScreen";
@@ -13,6 +15,7 @@ class Routes {
   static const myServicesScreen = "/MyServicesScreen";
   static const profileDetailsScreen = "/ProfileDetailsScreen";
   static const workingHoursScreen = "/WorkingHoursScreen";
+  static const shiftDetailsScreen = "/ShiftDetailsScreen";
   static const attendanceScreen = "/AttendanceScreen";
   static const branchContactScreen = "/BranchContactScreen";
   static const helpQuestionsScreen = "/HelpQuestionsScreen";

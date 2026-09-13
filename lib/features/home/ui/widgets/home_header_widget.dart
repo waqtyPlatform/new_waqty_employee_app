@@ -7,12 +7,15 @@ import 'package:new_waqty_employee_app/core/utils/assets_manager.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
+import 'package:new_waqty_employee_app/features/notifications/data/services/notification_center_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
   final String employeeName;
   final String employeeAvatarUrl;
   final String branchName;
   final VoidCallback? onAvatarTap;
+  final VoidCallback? onNotificationTap;
 
   const HomeHeaderWidget({
     super.key,
@@ -20,6 +23,7 @@ class HomeHeaderWidget extends StatelessWidget {
     required this.employeeAvatarUrl,
     required this.branchName,
     this.onAvatarTap,
+    this.onNotificationTap,
   });
 
   String get _initial {
@@ -66,14 +70,52 @@ class HomeHeaderWidget extends StatelessWidget {
             ),
           ),
           horizontalSpace(8),
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.greyColor800,
-              border: Border.all(color: AppColors.greyColor700, width: 1.w),
+          InkWell(
+            onTap: onNotificationTap,
+            borderRadius: BorderRadius.circular(48.r),
+            child: ValueListenableBuilder<int>(
+              valueListenable: getIt<NotificationCenterService>().unreadCount,
+              builder: (context, unreadCount, child) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(12.r),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.greyColor800,
+                        border: Border.all(
+                          color: AppColors.greyColor700,
+                          width: 1.w,
+                        ),
+                      ),
+                      child: SvgPicture.asset(ImageAsset.notificationIcon),
+                    ),
+                    if (unreadCount > 0)
+                      PositionedDirectional(
+                        top: -2.h,
+                        end: -2.w,
+                        child: Container(
+                          constraints: BoxConstraints(minWidth: 16.r),
+                          height: 16.r,
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: AppColors.errorColor2002,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            unreadCount > 9 ? '9+' : '$unreadCount',
+                            style: TextStyles.font10greyColor3003Weight500
+                                .copyWith(color: AppColors.whiteColor),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              child: SvgPicture.asset(ImageAsset.notificationIcon),
             ),
-            child: SvgPicture.asset(ImageAsset.notificationIcon),
           ),
         ],
       ),

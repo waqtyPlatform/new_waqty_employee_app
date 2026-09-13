@@ -157,11 +157,6 @@ class ProfileScreen extends StatelessWidget {
   List<ProfileMenuItemData> _supportItems(BuildContext context) {
     return [
       ProfileMenuItemData(
-        title: context.tr('profile.helpFaq'),
-        iconPath: ImageAsset.helpIcon,
-        onTap: () => context.pushNamed(Routes.helpQuestionsScreen),
-      ),
-      ProfileMenuItemData(
         title: context.tr('profile.contactManager'),
         iconPath: ImageAsset.contactManagerIcon,
         onTap: () => context.pushNamed(Routes.contactManagerScreen),

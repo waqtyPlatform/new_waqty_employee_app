@@ -41,4 +41,30 @@ class ContactManagerService {
       );
     }
   }
+
+  Future<ContactManagerMessagesResponseModel> getMessages({
+    required String languageCode,
+    required int page,
+    int perPage = 15,
+  }) async {
+    final response = await apiConsumer.get(
+      ContactManagerApiEndPoints.messages(page: page, perPage: perPage),
+      await _headers(languageCode),
+    );
+    final body = jsonDecode(response.body);
+    if (response.statusCode == StatusCode.ok) {
+      return ContactManagerMessagesResponseModel.fromJson(body);
+    }
+    throw ServerException(serverFailure: ServerFailure.fromJson(body));
+  }
+
+  Future<Map<String, String>> _headers(String languageCode) async {
+    return {
+      ConstantKeys.appAuthorization:
+          '${ConstantKeys.appBearer} ${await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared)}',
+      ConstantKeys.acceptLanguage: languageCode,
+      ConstantKeys.contentType: ConstantKeys.applicationJson,
+      ConstantKeys.acceptText: ConstantKeys.applicationJson,
+    };
+  }
 }

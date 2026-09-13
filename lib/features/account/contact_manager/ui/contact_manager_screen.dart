@@ -35,11 +35,14 @@ class ContactManagerScreen extends StatelessWidget {
                 AppConstant.toast(context.tr(messageKey), isSuccess, context);
               },
               buildWhen: (previous, current) =>
+                  current is ContactManagerViewChangedState ||
                   current is SendContactManagerMessageLoadingState ||
                   current is SendContactManagerMessageSuccessState ||
                   current is SendContactManagerMessageErrorState ||
                   current is SendContactManagerMessageCatchErrorState,
               builder: (context, state) {
+                final cubit = ContactManagerCubit.get(context);
+                if (cubit.showRequests) return const SizedBox.shrink();
                 return AccountSupportPrimaryButtonWidget(
                   textKey: 'common.sendMessage',
                   icon: Icons.send_outlined,

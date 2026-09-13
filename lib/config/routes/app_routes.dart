@@ -27,8 +27,6 @@ import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_pin
 import 'package:new_waqty_employee_app/features/account/change_pin/ui/widgets/change_pin_step_data.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/ui/contact_manager_screen.dart';
-import 'package:new_waqty_employee_app/features/account/help_questions/logic/help_questions_cubit.dart';
-import 'package:new_waqty_employee_app/features/account/help_questions/ui/help_questions_screen.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_cubit.dart';
@@ -301,32 +299,29 @@ class RouteGenerator {
           },
         );
 
-      case Routes.helpQuestionsScreen:
+      case Routes.contactManagerScreen:
         return MaterialPageRoute(
           builder: (context) {
             final languageCode = context.locale.languageCode;
             return BlocProvider(
               create: (_) =>
-                  HelpQuestionsCubit(getIt())..init(languageCode: languageCode),
-              child: const HelpQuestionsScreen(),
+                  ContactManagerCubit(getIt())
+                    ..init(languageCode: languageCode),
+              child: const ContactManagerScreen(),
             );
           },
         );
 
-      case Routes.contactManagerScreen:
-        return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => ContactManagerCubit(getIt()),
-            child: const ContactManagerScreen(),
-          ),
-        );
-
       case Routes.reportBugScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => ReportBugCubit(getIt()),
-            child: const ReportBugScreen(),
-          ),
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  ReportBugCubit(getIt())..init(languageCode: languageCode),
+              child: const ReportBugScreen(),
+            );
+          },
         );
 
       case Routes.notificationSettingScreen:

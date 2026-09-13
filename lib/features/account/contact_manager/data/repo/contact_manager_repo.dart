@@ -28,4 +28,22 @@ class ContactManagerRepo {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }
   }
+
+  Future<Either<Failure, ContactManagerMessagesResponseModel>> getMessages({
+    required String languageCode,
+    required int page,
+    int perPage = 15,
+  }) async {
+    try {
+      return Right(
+        await _contactManagerService.getMessages(
+          languageCode: languageCode,
+          page: page,
+          perPage: perPage,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
 }

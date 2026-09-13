@@ -19,8 +19,6 @@ import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/services/contact_manager_service.dart';
-import 'package:new_waqty_employee_app/features/account/help_questions/data/repo/help_questions_repo.dart';
-import 'package:new_waqty_employee_app/features/account/help_questions/data/services/help_questions_service.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/data/repo/notification_setting_repo.dart';
@@ -226,14 +224,6 @@ class ServicesLocator {
     );
     getIt.registerLazySingleton<BranchContactRepo>(
       () => BranchContactRepo(getIt()),
-    );
-
-    /// Help Questions
-    getIt.registerLazySingleton<HelpQuestionsService>(
-      () => HelpQuestionsService(apiConsumer: getIt()),
-    );
-    getIt.registerLazySingleton<HelpQuestionsRepo>(
-      () => HelpQuestionsRepo(getIt()),
     );
 
     /// Contact Manager

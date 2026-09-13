@@ -28,4 +28,22 @@ class ReportBugRepo {
       return Left(ServerFailure(message: failure.serverFailure.message));
     }
   }
+
+  Future<Either<Failure, ReportBugListResponseModel>> getReports({
+    required String languageCode,
+    required int page,
+    int perPage = 15,
+  }) async {
+    try {
+      return Right(
+        await _reportBugService.getReports(
+          languageCode: languageCode,
+          page: page,
+          perPage: perPage,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    }
+  }
 }

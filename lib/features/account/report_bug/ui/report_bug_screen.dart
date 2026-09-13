@@ -34,11 +34,14 @@ class ReportBugScreen extends StatelessWidget {
                 AppConstant.toast(context.tr(messageKey), isSuccess, context);
               },
               buildWhen: (previous, current) =>
+                  current is ReportBugViewChangedState ||
                   current is SendReportBugLoadingState ||
                   current is SendReportBugSuccessState ||
                   current is SendReportBugErrorState ||
                   current is SendReportBugCatchErrorState,
               builder: (context, state) {
+                final cubit = ReportBugCubit.get(context);
+                if (cubit.showReports) return const SizedBox.shrink();
                 return AccountSupportPrimaryButtonWidget(
                   textKey: 'common.sendMessage',
                   icon: Icons.send_outlined,

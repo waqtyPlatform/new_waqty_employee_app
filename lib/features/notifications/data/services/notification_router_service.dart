@@ -22,7 +22,7 @@ class NotificationRouterService {
 
   NotificationRouterService(this._repo, this._bookingDetailsRepo);
 
-  final Set<String> _handledNotificationIds = <String>{};
+  final Map<String, DateTime> _handledNotificationIds = <String, DateTime>{};
   Map<String, dynamic>? _pendingPayload;
 
   Future<void> handleApiNotification(NotificationInboxItemModel item) async {
@@ -49,11 +49,15 @@ class NotificationRouterService {
     NotificationInboxItemModel? apiNotification,
   }) async {
     final notificationId = _notificationId(payload);
-    if (notificationId.isNotEmpty &&
-        _handledNotificationIds.contains(notificationId)) {
-      return;
+    if (notificationId.isNotEmpty) {
+      final handledAt = _handledNotificationIds[notificationId];
+      if (handledAt != null &&
+          DateTime.now().difference(handledAt) <
+              const Duration(milliseconds: 1200)) {
+        return;
+      }
+      _handledNotificationIds[notificationId] = DateTime.now();
     }
-    if (notificationId.isNotEmpty) _handledNotificationIds.add(notificationId);
 
     if (!await _hasAuthenticatedSession()) {
       _pendingPayload = payload;
@@ -125,7 +129,7 @@ class NotificationRouterService {
     Map<String, dynamic> payload, {
     NotificationInboxItemModel? notification,
   }) async {
-    switch (screen) {
+    switch (_normalizeScreen(screen)) {
       case 'booking_details':
         final bookingId = _firstString(payload, const [
           'booking_id',
@@ -158,6 +162,18 @@ class NotificationRouterService {
         return true;
       case 'contact_messages':
         navigator.pushNamed(Routes.contactManagerScreen);
+        return true;
+      case 'reviews':
+        navigator.pushNamed(Routes.myReviewsScreen);
+        return true;
+      case 'payslips':
+        navigator.pushNamed(Routes.payslipsScreen);
+        return true;
+      case 'bonuses':
+        navigator.pushNamed(Routes.bonusesScreen);
+        return true;
+      case 'deductions':
+        navigator.pushNamed(Routes.deductionsScreen);
         return true;
       case 'shift_details':
         final shiftId = _firstString(payload, const [
@@ -197,8 +213,13 @@ class NotificationRouterService {
 
   String _screenForEvent(String eventType, {String entityType = ''}) {
     if (eventType.startsWith('attendance_')) return 'attendance';
+    if (eventType.contains('review')) return 'reviews';
+    if (eventType.contains('payslip')) return 'payslips';
+    if (eventType.contains('bonus')) return 'bonuses';
+    if (eventType.contains('deduction')) return 'deductions';
 
     switch (eventType) {
+      case 'new_booking':
       case 'booking_assigned':
       case 'booking_updated':
       case 'booking_rescheduled':
@@ -224,6 +245,40 @@ class NotificationRouterService {
         return 'notifications';
       default:
         return 'notifications';
+    }
+  }
+
+  String _normalizeScreen(String screen) {
+    switch (screen.trim()) {
+      case 'booking':
+      case 'booking_detail':
+      case 'booking_details':
+        return 'booking_details';
+      case 'schedule':
+      case 'employee_schedule':
+      case 'my_bookings':
+        return 'employee_schedule';
+      case 'shift':
+      case 'shift_detail':
+      case 'shift_details':
+        return 'shift_details';
+      case 'review':
+      case 'reviews':
+      case 'my_reviews':
+      case 'employee_reviews':
+        return 'reviews';
+      case 'payslip':
+      case 'payslips':
+      case 'payslip_details':
+        return 'payslips';
+      case 'bonus':
+      case 'bonuses':
+        return 'bonuses';
+      case 'deduction':
+      case 'deductions':
+        return 'deductions';
+      default:
+        return screen.trim();
     }
   }
 

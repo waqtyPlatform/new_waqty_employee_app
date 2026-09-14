@@ -15,6 +15,9 @@ class ProfileCustomer {
   final String name;
   final String phone;
   final String email;
+  final String jobTitle;
+  final String employeeCode;
+  final String avatarUrl;
   final bool active;
   final bool blocked;
   final BranchModel branchModel;
@@ -24,6 +27,9 @@ class ProfileCustomer {
     required this.name,
     required this.phone,
     required this.email,
+    required this.jobTitle,
+    required this.employeeCode,
+    required this.avatarUrl,
     required this.active,
     required this.blocked,
     required this.branchModel,
@@ -35,6 +41,23 @@ class ProfileCustomer {
       name: json['name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
+      jobTitle: _asString(json['job_title']) ?? '',
+      employeeCode:
+          _asString(json['employee_code']) ??
+          _asString(json['code']) ??
+          _asString(json['employee_number']) ??
+          _asString(json['employee_id']) ??
+          '',
+      avatarUrl:
+          _asString(json['avatar_url']) ??
+          _asString(json['profile_photo_url']) ??
+          _asString(json['logo_url']) ??
+          _asString(json['photo_url']) ??
+          _asString(json['image_url']) ??
+          _asString(json['avatar']) ??
+          _asString(json['photo']) ??
+          _asString(json['image']) ??
+          '',
       active: json['active'] ?? true,
       blocked: json['blocked'] ?? false,
       branchModel: BranchModel.fromJson(_asMap(json['branch'])),
@@ -78,6 +101,13 @@ double? _asDouble(dynamic value) {
   if (value == null) return null;
   if (value is num) return value.toDouble();
   return double.tryParse(value.toString());
+}
+
+String? _asString(dynamic value) {
+  if (value == null) return null;
+  final text = value.toString().trim();
+  if (text.isEmpty || text.toLowerCase() == 'null') return null;
+  return text;
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

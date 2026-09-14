@@ -3,33 +3,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 
 class ProfileUserDataWidget extends StatelessWidget {
   final String userName;
   final String jobTitle;
   final String userCode;
   final String branchName;
+  final String profileImageUrl;
   const ProfileUserDataWidget({
     super.key,
     required this.userName,
     required this.jobTitle,
     required this.userCode,
     required this.branchName,
+    this.profileImageUrl = '',
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 40.r,
-          backgroundColor: AppColors.greenColor500,
-          child: Text(
-            (userName.length >= 2 ? userName.substring(0, 2) : userName)
-                .toUpperCase(),
-            style: TextStyles.font26whiteColorWeight600,
-          ),
-        ),
+        _ProfileAvatar(userName: userName, imageUrl: profileImageUrl),
         horizontalSpace(12),
         Expanded(
           child: Column(
@@ -78,6 +73,35 @@ class ProfileUserDataWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  final String userName;
+  final String imageUrl;
+
+  const _ProfileAvatar({required this.userName, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final initials =
+        (userName.length >= 2 ? userName.substring(0, 2) : userName)
+            .toUpperCase();
+
+    return CircleAvatar(
+      radius: 40.r,
+      backgroundColor: AppColors.greenColor500,
+      child: imageUrl.trim().isEmpty
+          ? Text(initials, style: TextStyles.font26whiteColorWeight600)
+          : SizedBox(
+              width: 80.r,
+              height: 80.r,
+              child: CachedNetworkImageWidget(
+                imgUrl: imageUrl.trim(),
+                radius: BorderRadius.circular(100.r),
+              ),
+            ),
     );
   }
 }

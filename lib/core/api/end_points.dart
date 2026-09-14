@@ -1,5 +1,5 @@
 class EndPoints {
-   static const String baseUrl = "http://waqty.rawaealqiyada.com/api/public";
+     static const String baseUrl = "https://waqty.rawaealqiyada.com/public/api";
 
   static const String employeeAuthRefresh =
       "$baseUrl/employee/auth/refresh";

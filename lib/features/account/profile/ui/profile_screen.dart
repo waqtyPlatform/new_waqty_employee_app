@@ -205,9 +205,10 @@ class _ProfileHeaderSectionWidget extends StatelessWidget {
         }
         return ProfileUserDataWidget(
           userName: profile.customer.name,
-          jobTitle: context.tr('profile.jobTitle'),
-          userCode: context.tr('profile.employeeCode'),
+          jobTitle: profile.customer.jobTitle,
+          userCode: profile.customer.employeeCode,
           branchName: profile.customer.branchModel.name,
+          profileImageUrl: profile.customer.avatarUrl,
         );
       },
     );

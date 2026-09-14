@@ -2,9 +2,9 @@ import 'package:new_waqty_employee_app/core/api/end_points.dart';
 
 class NotificationApiEndPoints {
   static const String unreadCount =
-      '${EndPoints.baseUrl}/api/employee/notifications/unread-count';
+      '${EndPoints.baseUrl}/employee/notifications/unread-count';
   static const String readAll =
-      '${EndPoints.baseUrl}/api/employee/notifications/read-all';
+      '${EndPoints.baseUrl}/employee/notifications/read-all';
 
   static String notifications({
     required String status,
@@ -21,11 +21,11 @@ class NotificationApiEndPoints {
       if (category != null && category.isNotEmpty) 'category': category,
     };
     return Uri.parse(
-      '${EndPoints.baseUrl}/api/employee/notifications',
+      '${EndPoints.baseUrl}/employee/notifications',
     ).replace(queryParameters: params).toString();
   }
 
   static String markRead(String uuid) {
-    return '${EndPoints.baseUrl}/api/employee/notifications/$uuid/read';
+    return '${EndPoints.baseUrl}/employee/notifications/$uuid/read';
   }
 }

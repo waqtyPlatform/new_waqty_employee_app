@@ -6,7 +6,7 @@ class EmployeeSearchApiEndPoints {
     required String type,
     int limit = 10,
   }) {
-    return Uri.parse('${EndPoints.baseUrl}/api/employee/search')
+    return Uri.parse('${EndPoints.baseUrl}/employee/search')
         .replace(
           queryParameters: {
             'q': query,

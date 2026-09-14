@@ -1,10 +1,10 @@
 class EndPoints {
-   static const String baseUrl = "http://waqty.rawaealqiyada.com/public";
+   static const String baseUrl = "http://waqty.rawaealqiyada.com/api/public";
 
   static const String employeeAuthRefresh =
-      "$baseUrl/api/employee/auth/refresh";
-  static const String employeeAuthLogout = "$baseUrl/api/employee/auth/logout";
+      "$baseUrl/employee/auth/refresh";
+  static const String employeeAuthLogout = "$baseUrl/employee/auth/logout";
   static const String employeeDeviceToken =
-      "$baseUrl/api/employee/device-token";
+      "$baseUrl/employee/device-token";
 
 }

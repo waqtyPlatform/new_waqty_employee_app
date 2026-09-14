@@ -1,5 +1,5 @@
 import 'package:new_waqty_employee_app/core/api/end_points.dart';
 
 class VerifyCodeApiEndPoints {
-  static final verifyCode = '${EndPoints.baseUrl}/api/employee/auth/verify-otp';
+  static final verifyCode = '${EndPoints.baseUrl}/employee/auth/verify-otp';
 }

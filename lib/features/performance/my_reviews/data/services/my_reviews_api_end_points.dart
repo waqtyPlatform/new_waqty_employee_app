@@ -17,6 +17,6 @@ class MyReviewsApiEndPoints {
       if (toDate?.isNotEmpty == true) 'to_date': toDate!,
       if (active != null) 'active': active ? '1' : '0',
     };
-    return '/api/employee/ratings?${Uri(queryParameters: params).query}';
+    return '/employee/ratings?${Uri(queryParameters: params).query}';
   }
 }

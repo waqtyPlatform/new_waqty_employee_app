@@ -7,10 +7,10 @@ class MyBookingApiEndPoints {
     required int page,
     int perPage = 30,
   }) {
-    return '${EndPoints.baseUrl}/api/employee/booking-visits?tab=$tab&booking_date=$bookingDate&per_page=$perPage&page=$page';
+    return '${EndPoints.baseUrl}/employee/booking-visits?tab=$tab&booking_date=$bookingDate&per_page=$perPage&page=$page';
   }
 
   static String cancelVisit(String visitUuid) {
-    return '${EndPoints.baseUrl}/api/employee/booking-visits/$visitUuid/cancel';
+    return '${EndPoints.baseUrl}/employee/booking-visits/$visitUuid/cancel';
   }
 }

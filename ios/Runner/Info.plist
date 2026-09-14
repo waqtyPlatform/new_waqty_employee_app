@@ -24,10 +24,19 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>We use Face ID to secure access to your account.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>sms</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>يستخدم تطبيق وقتي للموظفين بصمة الوجه للتحقق من هويتك وتأمين تسجيل الدخول إلى حسابك.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يستخدم تطبيق وقتي للموظفين موقعك أثناء عمليات الحضور المرتبطة بالدوام، بما في ذلك عند انتقال التطبيق مؤقتًا إلى الخلفية، لضمان صحة التحقق من نطاق فرع العمل.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يستخدم تطبيق وقتي للموظفين موقعك أثناء استخدام التطبيق للتحقق من وجودك داخل نطاق فرع العمل عند تسجيل الحضور أو الانصراف.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -51,6 +60,11 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -68,11 +82,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
-	<key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>tel</string>
-        <string>sms</string>
-    </array>
 </dict>
 </plist>

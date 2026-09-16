@@ -16,7 +16,9 @@ class ProfileCubit extends Cubit<ProfileState> {
   bool isOnBreak = false;
   bool isCurrentAttendanceLoading = false;
   bool isAttendanceActionLoading = false;
+  bool isPresenceConfirmationLoading = false;
   String attendanceActionErrorMessage = '';
+  String presenceConfirmationErrorMessage = '';
 
   Future<void> init() async {
     await Future.wait([getProfile(), checkCurrentAttendance()]);
@@ -107,6 +109,69 @@ class ProfileCubit extends Cubit<ProfileState> {
     isAttendanceActionLoading = false;
     await checkCurrentAttendance();
     return succeeded;
+  }
+
+  Future<bool> respondPresenceConfirmation({
+    required PresenceConfirmationResponse responseValue,
+    required double latitude,
+    required double longitude,
+    required double accuracyMeters,
+    required String locationCapturedAt,
+    String? expectedEndAt,
+  }) async {
+    if (isPresenceConfirmationLoading) return false;
+
+    final session = currentAttendanceSession;
+    final confirmation = session?.presenceConfirmation;
+    if (session == null ||
+        confirmation == null ||
+        confirmation.cycleId.isEmpty) {
+      return false;
+    }
+
+    isPresenceConfirmationLoading = true;
+    presenceConfirmationErrorMessage = '';
+    emit(PresenceConfirmationLoadingState());
+
+    try {
+      final value = await _profileRepo.respondPresenceConfirmation(
+        attendanceSessionUuid: session.uuid,
+        cycleId: confirmation.cycleId,
+        responseValue: responseValue,
+        latitude: latitude,
+        longitude: longitude,
+        accuracyMeters: accuracyMeters,
+        locationCapturedAt: locationCapturedAt,
+        expectedEndAt: expectedEndAt,
+      );
+
+      var succeeded = false;
+      value.fold(
+        (failure) {
+          presenceConfirmationErrorMessage = failure.message;
+          emit(PresenceConfirmationErrorState());
+        },
+        (updatedSession) {
+          currentAttendanceSession = updatedSession.clockOutAt == null
+              ? updatedSession
+              : null;
+          isClockedIn = currentAttendanceSession != null;
+          isOnBreak = currentAttendanceSession?.isOnBreak == true;
+          succeeded = true;
+          emit(PresenceConfirmationSuccessState());
+        },
+      );
+
+      isPresenceConfirmationLoading = false;
+      await checkCurrentAttendance();
+      return succeeded;
+    } catch (_) {
+      presenceConfirmationErrorMessage = 'Presence response failed';
+      isPresenceConfirmationLoading = false;
+      emit(PresenceConfirmationCatchErrorState());
+      await checkCurrentAttendance();
+      return false;
+    }
   }
 
   String _idempotencyKey(ProfileAttendanceAction action) {

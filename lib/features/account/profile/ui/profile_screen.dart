@@ -16,9 +16,35 @@ import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profi
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_user_my_account_widget.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_user_setting_widget.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_user_work_time_widget.dart';
+import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/presence_confirmation_card_widget.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      ProfileCubit.get(context).checkCurrentAttendance();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +87,7 @@ class ProfileScreen extends StatelessWidget {
 
                     verticalSpace(12),
                     const _ProfileClockSectionWidget(),
+                    const _ProfilePresenceSectionWidget(),
                     verticalSpace(20),
                     const _ProfileSectionTitleWidget(
                       titleKey: 'profile.sections.myAccount',
@@ -167,6 +194,33 @@ class ProfileScreen extends StatelessWidget {
         onTap: () => context.pushNamed(Routes.reportBugScreen),
       ),
     ];
+  }
+}
+
+class _ProfilePresenceSectionWidget extends StatelessWidget {
+  const _ProfilePresenceSectionWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      buildWhen: (previous, current) =>
+          current is CheckCurrentAttendanceSuccessState ||
+          current is PresenceConfirmationLoadingState ||
+          current is PresenceConfirmationSuccessState ||
+          current is PresenceConfirmationErrorState ||
+          current is PresenceConfirmationCatchErrorState,
+      builder: (context, state) {
+        final showCard =
+            ProfileCubit.get(
+              context,
+            ).currentAttendanceSession?.hasWaitingPresenceConfirmation ==
+            true;
+        if (!showCard) return const SizedBox.shrink();
+        return Column(
+          children: [verticalSpace(12), const PresenceConfirmationCardWidget()],
+        );
+      },
+    );
   }
 }
 

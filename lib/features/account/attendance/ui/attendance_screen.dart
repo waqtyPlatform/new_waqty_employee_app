@@ -9,9 +9,36 @@ import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/data/models/attendance_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/attendance/logic/attendance_state.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/presence_confirmation_card_widget.dart';
 
-class AttendanceScreen extends StatelessWidget {
+class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
+
+  @override
+  State<AttendanceScreen> createState() => _AttendanceScreenState();
+}
+
+class _AttendanceScreenState extends State<AttendanceScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      ProfileCubit.get(context).checkCurrentAttendance();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +50,8 @@ class AttendanceScreen extends StatelessWidget {
           child: Column(
             children: [
               const _AttendanceHeaderWidget(),
+              verticalSpace(16),
+              const PresenceConfirmationCardWidget(),
               verticalSpace(16),
               Expanded(
                 child: BlocBuilder<AttendanceCubit, AttendanceState>(
@@ -46,9 +75,14 @@ class AttendanceScreen extends StatelessWidget {
                     }
 
                     return RefreshIndicator(
-                      onRefresh: () => cubit.loadAttendanceHistory(
-                        languageCode: context.locale.languageCode,
-                      ),
+                      onRefresh: () async {
+                        await Future.wait([
+                          cubit.loadAttendanceHistory(
+                            languageCode: context.locale.languageCode,
+                          ),
+                          ProfileCubit.get(context).checkCurrentAttendance(),
+                        ]);
+                      },
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(

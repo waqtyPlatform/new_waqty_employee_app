@@ -27,6 +27,14 @@ class AttendanceActionErrorState extends ProfileState {}
 
 class AttendanceActionCatchErrorState extends ProfileState {}
 
+class PresenceConfirmationLoadingState extends ProfileState {}
+
+class PresenceConfirmationSuccessState extends ProfileState {}
+
+class PresenceConfirmationErrorState extends ProfileState {}
+
+class PresenceConfirmationCatchErrorState extends ProfileState {}
+
 // Update Profile States
 class UpdateProfileLoadingState extends ProfileState {}
 

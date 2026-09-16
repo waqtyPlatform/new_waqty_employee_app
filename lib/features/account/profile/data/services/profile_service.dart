@@ -77,6 +77,53 @@ class ProfileService {
     );
   }
 
+  Future<AttendanceSessionModel> respondPresenceConfirmation({
+    required String attendanceSessionUuid,
+    required String cycleId,
+    required PresenceConfirmationResponse responseValue,
+    required double latitude,
+    required double longitude,
+    required double accuracyMeters,
+    required String locationCapturedAt,
+    String? expectedEndAt,
+  }) async {
+    final body = <String, dynamic>{
+      'attendance_session_uuid': attendanceSessionUuid,
+      'cycle_id': cycleId,
+      'response': responseValue.name,
+      'latitude': latitude,
+      'longitude': longitude,
+      'accuracy_meters': accuracyMeters,
+      'location_captured_at': locationCapturedAt,
+    };
+
+    if (responseValue == PresenceConfirmationResponse.yes &&
+        expectedEndAt != null) {
+      body['expected_end_at'] = expectedEndAt;
+    }
+
+    final response = await apiConsumer.post(
+      ProfileApiEndPoints.presenceRespond,
+      body,
+      await _headers(),
+    );
+
+    if (response.statusCode == StatusCode.ok ||
+        response.statusCode == StatusCode.created) {
+      final data = _decodeMap(response.body)['data'];
+      if (data is Map<String, dynamic>) {
+        return AttendanceSessionModel.fromJson(data);
+      }
+      if (data is Map) {
+        return AttendanceSessionModel.fromJson(Map<String, dynamic>.from(data));
+      }
+    }
+
+    throw ServerException(
+      serverFailure: ServerFailure.fromJson(_decodeMap(response.body)),
+    );
+  }
+
   Future<Map<String, String>> _headers() async {
     return {
       ConstantKeys.appAuthorization:
@@ -108,3 +155,5 @@ class ProfileService {
 }
 
 enum ProfileAttendanceAction { clockIn, clockOut, startBreak, endBreak }
+
+enum PresenceConfirmationResponse { yes, no }

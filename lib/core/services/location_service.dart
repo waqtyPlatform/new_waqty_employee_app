@@ -1,6 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 
-export 'package:geolocator/geolocator.dart' show Position;
+export 'package:geolocator/geolocator.dart' show LocationAccuracy, Position;
 
 enum LocationFailure {
   serviceDisabled,

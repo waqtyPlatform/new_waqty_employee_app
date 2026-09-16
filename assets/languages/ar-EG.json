@@ -257,6 +257,19 @@
     "locationPermissionRequired": "لازم تسمح للتطبيق يوصل لموقعك",
     "locationServiceDisabled": "خدمة الموقع مقفولة على الجهاز"
   },
+  "presenceConfirmation": {
+    "title": "هل ما زلت داخل الفرع؟",
+    "deadline": "يرجى الرد قبل {time}",
+    "expectedEnd": "وقت الانتهاء المتوقع: {time}",
+    "yes": "نعم",
+    "no": "لا",
+    "responseSaved": "تم حفظ الرد بنجاح",
+    "responseFailed": "تعذر إرسال الرد، حاول مرة أخرى",
+    "futureTimeRequired": "اختار وقت انتهاء لاحق للوقت الحالي",
+    "invalidLocation": "الموقع غير صالح، حاول مرة أخرى",
+    "lowAccuracy": "دقة الموقع ضعيفة، حاول من مكان أوضح",
+    "staleLocation": "الموقع قديم، حاول التقاط الموقع مرة أخرى"
+  },
   "appPin": {
     "enableAppPin": "تفعيل رمز التطبيق",
     "pinSection": "رمز التطبيق",

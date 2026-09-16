@@ -279,9 +279,18 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) {
             final languageCode = context.locale.languageCode;
-            return BlocProvider(
-              create: (_) =>
-                  AttendanceCubit(getIt())..init(languageCode: languageCode),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                      AttendanceCubit(getIt())
+                        ..init(languageCode: languageCode),
+                ),
+                BlocProvider(
+                  create: (_) =>
+                      ProfileCubit(getIt())..checkCurrentAttendance(),
+                ),
+              ],
               child: const AttendanceScreen(),
             );
           },

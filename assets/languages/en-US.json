@@ -257,6 +257,19 @@
     "locationPermissionRequired": "Location permission is required",
     "locationServiceDisabled": "Location service is disabled"
   },
+  "presenceConfirmation": {
+    "title": "Are you still at the branch?",
+    "deadline": "Please respond before {time}",
+    "expectedEnd": "Expected finish: {time}",
+    "yes": "Yes",
+    "no": "No",
+    "responseSaved": "Response saved successfully",
+    "responseFailed": "Could not send your response. Please try again",
+    "futureTimeRequired": "Choose a finish time later than now",
+    "invalidLocation": "Invalid location. Please try again",
+    "lowAccuracy": "Location accuracy is too low. Please try again",
+    "staleLocation": "Location is too old. Please capture it again"
+  },
   "appPin": {
     "enableAppPin": "Enable App PIN",
     "pinSection": "PIN",

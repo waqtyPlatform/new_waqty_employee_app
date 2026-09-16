@@ -50,4 +50,34 @@ class ProfileRepo {
       return const Left(ServerFailure(message: 'Attendance action failed'));
     }
   }
+
+  Future<Either<Failure, AttendanceSessionModel>> respondPresenceConfirmation({
+    required String attendanceSessionUuid,
+    required String cycleId,
+    required PresenceConfirmationResponse responseValue,
+    required double latitude,
+    required double longitude,
+    required double accuracyMeters,
+    required String locationCapturedAt,
+    String? expectedEndAt,
+  }) async {
+    try {
+      return Right(
+        await _profileService.respondPresenceConfirmation(
+          attendanceSessionUuid: attendanceSessionUuid,
+          cycleId: cycleId,
+          responseValue: responseValue,
+          latitude: latitude,
+          longitude: longitude,
+          accuracyMeters: accuracyMeters,
+          locationCapturedAt: locationCapturedAt,
+          expectedEndAt: expectedEndAt,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(ServerFailure(message: failure.serverFailure.message));
+    } catch (_) {
+      return const Left(ServerFailure(message: 'Presence response failed'));
+    }
+  }
 }

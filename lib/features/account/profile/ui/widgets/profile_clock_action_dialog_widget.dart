@@ -295,22 +295,30 @@ class _ProfileClockActionDialogWidgetState
     final profileBranch =
         widget.cubit.profileResponseModel?.customer.branchModel;
     final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
-    return profileBranch?.latitude ?? sessionBranch?.latitude;
+    final contextBranch = widget.cubit.attendanceContext?.branch;
+    return contextBranch?.latitude ??
+        sessionBranch?.latitude ??
+        profileBranch?.latitude;
   }
 
   double? get _branchLongitude {
     final profileBranch =
         widget.cubit.profileResponseModel?.customer.branchModel;
     final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
-    return profileBranch?.longitude ?? sessionBranch?.longitude;
+    final contextBranch = widget.cubit.attendanceContext?.branch;
+    return contextBranch?.longitude ??
+        sessionBranch?.longitude ??
+        profileBranch?.longitude;
   }
 
   double? get _branchRangeMeters {
     final profileBranch =
         widget.cubit.profileResponseModel?.customer.branchModel;
     final sessionBranch = widget.cubit.currentAttendanceSession?.branch;
-    return profileBranch?.attendanceRangeMeters ??
-        sessionBranch?.attendanceRangeMeters;
+    final contextBranch = widget.cubit.attendanceContext?.branch;
+    return contextBranch?.attendanceRangeMeters ??
+        sessionBranch?.attendanceRangeMeters ??
+        profileBranch?.attendanceRangeMeters;
   }
 
   void _showLocationFailureMessage(
@@ -356,11 +364,18 @@ class _ClockBranchInfoWidget extends StatelessWidget {
     final profileBranchName =
         cubit.profileResponseModel?.customer.branchModel.name;
     final sessionBranchName = cubit.currentAttendanceSession?.branch?.name;
-    final branchName = profileBranchName?.trim().isNotEmpty == true
-        ? profileBranchName!
+    final contextBranchName = cubit.attendanceContext?.branch?.name;
+    final branchName = contextBranchName?.trim().isNotEmpty == true
+        ? contextBranchName!
         : sessionBranchName?.trim().isNotEmpty == true
         ? sessionBranchName!
+        : profileBranchName?.trim().isNotEmpty == true
+        ? profileBranchName!
         : context.tr('branchContact.branchName');
+    final address =
+        _branchAddress ?? context.tr('profile.branchAddressUnavailable');
+    final shiftTime =
+        _shiftTime(context) ?? context.tr('profile.shiftTimeUnavailable');
 
     return Container(
       width: double.infinity,
@@ -394,10 +409,7 @@ class _ClockBranchInfoWidget extends StatelessWidget {
           verticalSpace(8),
           Padding(
             padding: EdgeInsetsDirectional.only(start: 24.w),
-            child: Text(
-              context.tr('profile.branchAddress'),
-              style: TextStyles.font12greyColorA3W400,
-            ),
+            child: Text(address, style: TextStyles.font12greyColorA3W400),
           ),
           verticalSpace(8),
           Padding(
@@ -410,9 +422,13 @@ class _ClockBranchInfoWidget extends StatelessWidget {
                   color: AppColors.greyColorA3,
                 ),
                 horizontalSpace(8),
-                Text(
-                  context.tr('profile.branchWorkingHours'),
-                  style: TextStyles.font12greyColorA3W400,
+                Expanded(
+                  child: Text(
+                    shiftTime,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
                 ),
               ],
             ),
@@ -420,6 +436,75 @@ class _ClockBranchInfoWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String? get _branchAddress {
+    final profileBranch = cubit.profileResponseModel?.customer.branchModel;
+    final sessionBranch = cubit.currentAttendanceSession?.branch;
+    final contextBranch = cubit.attendanceContext?.branch;
+    return _firstNonEmpty([
+      contextBranch?.address,
+      sessionBranch?.address,
+      profileBranch?.address,
+    ]);
+  }
+
+  String? _shiftTime(BuildContext context) {
+    final session = cubit.currentAttendanceSession;
+    final contextShiftTimes = cubit.attendanceContext?.shifts
+        .where((shift) => !shift.isLeave)
+        .map((shift) => _timeRange(context, shift.startAt, shift.endAt))
+        .whereType<String>()
+        .toList();
+    if (contextShiftTimes != null && contextShiftTimes.isNotEmpty) {
+      return contextShiftTimes.join(' • ');
+    }
+
+    final sessionStart = _formatTime(context, session?.startTime);
+    final sessionEnd = _formatTime(context, session?.endTime);
+    if (sessionStart != null && sessionEnd != null) {
+      return _translatedTimeRange(context, sessionStart, sessionEnd);
+    }
+
+    return null;
+  }
+
+  String? _timeRange(BuildContext context, String? start, String? end) {
+    final startText = _formatAbsoluteTime(context, start);
+    final endText = _formatAbsoluteTime(context, end);
+    if (startText == null || endText == null) return null;
+    return _translatedTimeRange(context, startText, endText);
+  }
+
+  String _translatedTimeRange(BuildContext context, String start, String end) {
+    return context.tr(
+      'date.patterns.timeRange',
+      namedArgs: {'start': start, 'end': end},
+    );
+  }
+
+  String? _formatAbsoluteTime(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    final parsedDateTime = DateTime.tryParse(value.trim());
+    if (parsedDateTime == null) return AppDateFormat.timeOfDay(context, value);
+    return AppDateFormat.time(context, parsedDateTime.toLocal());
+  }
+
+  String? _formatTime(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    final parsedDateTime = AppDateFormat.parseBackendDateTime(value);
+    if (parsedDateTime != null) {
+      return AppDateFormat.time(context, parsedDateTime);
+    }
+    return AppDateFormat.timeOfDay(context, value);
+  }
+
+  String? _firstNonEmpty(List<String?> values) {
+    for (final value in values) {
+      final trimmed = value?.trim();
+      if (trimmed != null && trimmed.isNotEmpty) return trimmed;
+    }
+    return null;
   }
 }
 

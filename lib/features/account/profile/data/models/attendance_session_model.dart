@@ -4,6 +4,8 @@ class AttendanceSessionModel {
   final String? clockInAt;
   final String? clockOutAt;
   final String? breakStartedAt;
+  final String? startTime;
+  final String? endTime;
   final AttendanceBranchModel? branch;
   final PresenceConfirmationModel? presenceConfirmation;
 
@@ -13,6 +15,8 @@ class AttendanceSessionModel {
     this.clockInAt,
     this.clockOutAt,
     this.breakStartedAt,
+    this.startTime,
+    this.endTime,
     this.branch,
     this.presenceConfirmation,
   });
@@ -31,6 +35,18 @@ class AttendanceSessionModel {
           json['current_break_started_at']?.toString() ??
           json['break_start']?.toString() ??
           latestBreakStartAt,
+      startTime:
+          _asString(json['start_time']) ??
+          _asString(json['shift_start_time']) ??
+          _asString(json['scheduled_start_at']) ??
+          _asString(json['shift_start_at']) ??
+          _asString(_asMap(json['shift'])['start_time']),
+      endTime:
+          _asString(json['end_time']) ??
+          _asString(json['shift_end_time']) ??
+          _asString(json['scheduled_end_at']) ??
+          _asString(json['shift_end_at']) ??
+          _asString(_asMap(json['shift'])['end_time']),
       branch: _asMap(json['branch']).isEmpty
           ? null
           : AttendanceBranchModel.fromJson(_asMap(json['branch'])),
@@ -68,6 +84,101 @@ class AttendanceSessionModel {
     }
 
     return latestEventAt;
+  }
+}
+
+class AttendanceCurrentModel {
+  final AttendanceSessionModel? session;
+  final AttendanceContextModel? context;
+
+  const AttendanceCurrentModel({this.session, this.context});
+
+  factory AttendanceCurrentModel.fromJson(Map<String, dynamic> json) {
+    final data = _asMap(json['data']);
+    final meta = _asMap(json['meta']);
+    final attendanceContext = _asMap(meta['attendance_context']);
+
+    return AttendanceCurrentModel(
+      session: data.isEmpty ? null : AttendanceSessionModel.fromJson(data),
+      context: attendanceContext.isEmpty
+          ? null
+          : AttendanceContextModel.fromJson(attendanceContext),
+    );
+  }
+}
+
+class AttendanceContextModel {
+  final String? serverTime;
+  final String? workDate;
+  final String? timezone;
+  final AttendanceBranchModel? branch;
+  final List<AttendanceContextShiftModel> shifts;
+
+  const AttendanceContextModel({
+    this.serverTime,
+    this.workDate,
+    this.timezone,
+    this.branch,
+    this.shifts = const [],
+  });
+
+  factory AttendanceContextModel.fromJson(Map<String, dynamic> json) {
+    return AttendanceContextModel(
+      serverTime: _asString(json['server_time']),
+      workDate: _asString(json['work_date']),
+      timezone: _asString(json['timezone']),
+      branch: _asMap(json['branch']).isEmpty
+          ? null
+          : AttendanceBranchModel.fromJson(_asMap(json['branch'])),
+      shifts: (json['shifts'] as List? ?? const [])
+          .whereType<Map>()
+          .map(
+            (item) => AttendanceContextShiftModel.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class AttendanceContextShiftModel {
+  final String? sourceType;
+  final String? workDate;
+  final String? startAt;
+  final String? endAt;
+  final int? allowedBreakMinutes;
+  final int? requiredMinutes;
+  final bool isLeave;
+  final String? leaveType;
+  final AttendanceBranchModel? branch;
+
+  const AttendanceContextShiftModel({
+    this.sourceType,
+    this.workDate,
+    this.startAt,
+    this.endAt,
+    this.allowedBreakMinutes,
+    this.requiredMinutes,
+    this.isLeave = false,
+    this.leaveType,
+    this.branch,
+  });
+
+  factory AttendanceContextShiftModel.fromJson(Map<String, dynamic> json) {
+    return AttendanceContextShiftModel(
+      sourceType: _asString(json['source_type']),
+      workDate: _asString(json['work_date']),
+      startAt: _asString(json['start_at']),
+      endAt: _asString(json['end_at']),
+      allowedBreakMinutes: _asInt(json['allowed_break_minutes']),
+      requiredMinutes: _asInt(json['required_minutes']),
+      isLeave: _asBool(json['is_leave']) ?? false,
+      leaveType: _asString(json['leave_type']),
+      branch: _asMap(json['branch']).isEmpty
+          ? null
+          : AttendanceBranchModel.fromJson(_asMap(json['branch'])),
+    );
   }
 }
 
@@ -131,6 +242,10 @@ class AttendanceBranchModel {
   final double? latitude;
   final double? longitude;
   final double? attendanceRangeMeters;
+  final String? address;
+  final String? openTime;
+  final String? closeTime;
+  final String? workingHours;
 
   const AttendanceBranchModel({
     required this.uuid,
@@ -138,6 +253,10 @@ class AttendanceBranchModel {
     this.latitude,
     this.longitude,
     this.attendanceRangeMeters,
+    this.address,
+    this.openTime,
+    this.closeTime,
+    this.workingHours,
   });
 
   factory AttendanceBranchModel.fromJson(Map<String, dynamic> json) {
@@ -153,6 +272,22 @@ class AttendanceBranchModel {
           _asDouble(json['allowed_branch_range_meters']) ??
           _asDouble(json['branch_range_meters']) ??
           _asDouble(json['geofence_radius_meters']),
+      address:
+          _asString(json['address']) ??
+          _asString(json['full_address']) ??
+          _asString(json['location_address']),
+      openTime:
+          _asString(json['open_time']) ??
+          _asString(json['opening_time']) ??
+          _asString(json['starts_at']),
+      closeTime:
+          _asString(json['close_time']) ??
+          _asString(json['closing_time']) ??
+          _asString(json['ends_at']),
+      workingHours:
+          _asString(json['working_hours']) ??
+          _asString(json['working_hours_text']) ??
+          _asString(json['hours']),
     );
   }
 }
@@ -167,6 +302,20 @@ double? _asDouble(dynamic value) {
   if (value == null) return null;
   if (value is num) return value.toDouble();
   return double.tryParse(value.toString());
+}
+
+int? _asInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
+}
+
+String? _asString(dynamic value) {
+  if (value == null) return null;
+  final text = value.toString().trim();
+  if (text.isEmpty || text.toLowerCase() == 'null') return null;
+  return text;
 }
 
 bool? _asBool(dynamic value) {

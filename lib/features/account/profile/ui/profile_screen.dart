@@ -287,6 +287,7 @@ class _ProfileClockSectionWidget extends StatelessWidget {
           isClockedIn: cubit.isClockedIn,
           isOnBreak: cubit.isOnBreak,
           isLoading: cubit.isCurrentAttendanceLoading,
+          session: cubit.currentAttendanceSession,
         );
       },
     );

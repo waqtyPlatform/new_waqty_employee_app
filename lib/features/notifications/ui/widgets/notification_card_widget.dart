@@ -81,6 +81,9 @@ class NotificationCardWidget extends StatelessWidget {
 
 String? _actionLabel(BuildContext context, NotificationInboxItemModel item) {
   final screen = item.action.screen;
+  if (item.type == 'schedule_updated' || item.eventType == 'schedule_updated') {
+    return context.tr('notificationInbox.viewWorkingHours');
+  }
   if (screen == 'booking_details' || item.category == 'booking') {
     return context.tr('notificationInbox.viewSchedule');
   }

@@ -12,6 +12,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   ProfileResponseModel? profileResponseModel;
   AttendanceSessionModel? currentAttendanceSession;
+  AttendanceContextModel? attendanceContext;
   bool isClockedIn = false;
   bool isOnBreak = false;
   bool isCurrentAttendanceLoading = false;
@@ -53,12 +54,14 @@ class ProfileCubit extends Cubit<ProfileState> {
           isClockedIn = false;
           isOnBreak = false;
           currentAttendanceSession = null;
+          attendanceContext = null;
           emit(CheckCurrentAttendanceErrorState());
         },
         (r) {
-          currentAttendanceSession = r;
-          isClockedIn = r != null;
-          isOnBreak = r?.isOnBreak == true;
+          currentAttendanceSession = r.session;
+          attendanceContext = r.context;
+          isClockedIn = currentAttendanceSession != null;
+          isOnBreak = currentAttendanceSession?.isOnBreak == true;
           emit(CheckCurrentAttendanceSuccessState());
         },
       );
@@ -67,6 +70,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       isClockedIn = false;
       isOnBreak = false;
       currentAttendanceSession = null;
+      attendanceContext = null;
       emit(CheckCurrentAttendanceCatchErrorState());
     }
   }

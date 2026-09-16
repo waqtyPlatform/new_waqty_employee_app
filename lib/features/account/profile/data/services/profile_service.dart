@@ -30,23 +30,18 @@ class ProfileService {
     }
   }
 
-  Future<AttendanceSessionModel?> checkCurrentAttendance() async {
+  Future<AttendanceCurrentModel> checkCurrentAttendance() async {
     final response = await apiConsumer.get(
       ProfileApiEndPoints.currentAttendance,
       await _headers(),
     );
 
-    if (response.statusCode != StatusCode.ok) return null;
+    if (response.statusCode != StatusCode.ok) {
+      return const AttendanceCurrentModel();
+    }
 
     final responseBody = _decodeMap(response.body);
-    final data = responseBody['data'];
-    if (data is Map<String, dynamic>) {
-      return AttendanceSessionModel.fromJson(data);
-    }
-    if (data is Map) {
-      return AttendanceSessionModel.fromJson(Map<String, dynamic>.from(data));
-    }
-    return null;
+    return AttendanceCurrentModel.fromJson(responseBody);
   }
 
   Future<AttendanceSessionModel> runAttendanceAction({
@@ -120,7 +115,7 @@ class ProfileService {
     }
 
     throw ServerException(
-      serverFailure: ServerFailure.fromJson(_decodeMap(response.body)),
+      serverFailure: ServerFailure(message: _errorMessage(response.body)),
     );
   }
 
@@ -138,6 +133,23 @@ class ProfileService {
     if (decodedBody is Map<String, dynamic>) return decodedBody;
     if (decodedBody is Map) return Map<String, dynamic>.from(decodedBody);
     return <String, dynamic>{};
+  }
+
+  String _errorMessage(String body) {
+    final response = _decodeMap(body);
+    final errors = response['errors'];
+    if (errors is Map) {
+      final messages = <String>[];
+      for (final value in errors.values) {
+        if (value is List) {
+          messages.addAll(value.map((e) => e.toString()));
+        } else if (value != null) {
+          messages.add(value.toString());
+        }
+      }
+      if (messages.isNotEmpty) return messages.join('\n');
+    }
+    return response['message']?.toString() ?? 'Presence response failed';
   }
 
   String _attendanceActionEndpoint(ProfileAttendanceAction action) {

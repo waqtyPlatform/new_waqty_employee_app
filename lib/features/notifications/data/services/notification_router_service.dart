@@ -83,10 +83,13 @@ class NotificationRouterService {
     }
 
     final action = NotificationActionModel.fromFlatData(payload);
-    final screen = action.screen.isNotEmpty
+    final eventType = _asString(payload['event_type'] ?? payload['type']);
+    final screen = eventType == 'schedule_updated'
+        ? 'employee_schedule'
+        : action.screen.isNotEmpty
         ? action.screen
         : _screenForEvent(
-            _asString(payload['event_type'] ?? payload['type']),
+            eventType,
             entityType: _asString(payload['entity_type']),
           );
     final didNavigate = await _navigate(
@@ -144,15 +147,7 @@ class NotificationRouterService {
         );
         return true;
       case 'employee_schedule':
-        navigator.pushNamedAndRemoveUntil(
-          Routes.mainNavigationScreen,
-          (route) => false,
-          arguments: {
-            'securityVerified': true,
-            'pinVerified': true,
-            'initialIndex': 1,
-          },
-        );
+        navigator.pushNamed(Routes.workingHoursScreen);
         return true;
       case 'attendance':
         navigator.pushNamed(Routes.attendanceScreen);

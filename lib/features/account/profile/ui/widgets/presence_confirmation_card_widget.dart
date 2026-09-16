@@ -161,16 +161,13 @@ class PresenceConfirmationCardWidget extends StatelessWidget {
     }
     if (position == null || !context.mounted) return;
 
-    final capturedAt = position.timestamp.toLocal();
     final succeeded = await cubit.respondPresenceConfirmation(
       responseValue: responseValue,
       latitude: position.latitude,
       longitude: position.longitude,
       accuracyMeters: position.accuracy,
-      locationCapturedAt: _isoWithOffset(capturedAt),
-      expectedEndAt: expectedEndAt == null
-          ? null
-          : _isoWithOffset(expectedEndAt.toLocal()),
+      locationCapturedAt: position.timestamp.toUtc().toIso8601String(),
+      expectedEndAt: expectedEndAt?.toUtc().toIso8601String(),
     );
 
     if (!context.mounted) return;
@@ -207,12 +204,14 @@ class PresenceConfirmationCardWidget extends StatelessWidget {
       initialDate: initial.isBefore(now) ? now : initial,
       firstDate: DateTime(now.year, now.month, now.day),
       lastDate: now.add(const Duration(days: 2)),
+      builder: _pickerThemeBuilder,
     );
     if (date == null || !context.mounted) return null;
 
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initial),
+      builder: _pickerThemeBuilder,
     );
     if (time == null) return null;
 
@@ -236,6 +235,29 @@ class PresenceConfirmationCardWidget extends StatelessWidget {
     }
 
     return selected;
+  }
+
+  Widget _pickerThemeBuilder(BuildContext context, Widget? child) {
+    final baseTheme = Theme.of(context);
+    return Theme(
+      data: baseTheme.copyWith(
+        colorScheme: baseTheme.colorScheme.copyWith(
+          primary: AppColors.greenColor500,
+          onPrimary: AppColors.whiteColor,
+          secondary: AppColors.greenColor500,
+          surface: AppColors.whiteColor,
+          onSurface: AppColors.greyColor900,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.greenColor500,
+            textStyle: TextStyles.font14greenColor500W500,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: AppColors.greyColor600),
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
   }
 
   Future<_FreshLocationResult> _freshPosition() async {
@@ -273,20 +295,6 @@ class PresenceConfirmationCardWidget extends StatelessWidget {
 
     return _FreshLocationResult.success(position);
   }
-
-  String _isoWithOffset(DateTime value) {
-    final offset = value.timeZoneOffset;
-    final sign = offset.isNegative ? '-' : '+';
-    final absoluteOffset = offset.abs();
-    return '${_four(value.year)}-${_two(value.month)}-${_two(value.day)}'
-        'T${_two(value.hour)}:${_two(value.minute)}:${_two(value.second)}'
-        '$sign${_two(absoluteOffset.inHours)}:'
-        '${_two(absoluteOffset.inMinutes.remainder(60))}';
-  }
-
-  String _two(int value) => value.toString().padLeft(2, '0');
-
-  String _four(int value) => value.toString().padLeft(4, '0');
 }
 
 class _FreshLocationResult {

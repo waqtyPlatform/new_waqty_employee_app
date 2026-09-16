@@ -71,6 +71,10 @@ class BranchModel {
   final double? latitude;
   final double? longitude;
   final double? attendanceRangeMeters;
+  final String? address;
+  final String? openTime;
+  final String? closeTime;
+  final String? workingHours;
 
   BranchModel({
     required this.uuid,
@@ -78,6 +82,10 @@ class BranchModel {
     this.latitude,
     this.longitude,
     this.attendanceRangeMeters,
+    this.address,
+    this.openTime,
+    this.closeTime,
+    this.workingHours,
   });
 
   factory BranchModel.fromJson(Map<String, dynamic> json) {
@@ -93,6 +101,22 @@ class BranchModel {
           _asDouble(json['allowed_branch_range_meters']) ??
           _asDouble(json['branch_range_meters']) ??
           _asDouble(json['geofence_radius_meters']),
+      address:
+          _asString(json['address']) ??
+          _asString(json['full_address']) ??
+          _asString(json['location_address']),
+      openTime:
+          _asString(json['open_time']) ??
+          _asString(json['opening_time']) ??
+          _asString(json['starts_at']),
+      closeTime:
+          _asString(json['close_time']) ??
+          _asString(json['closing_time']) ??
+          _asString(json['ends_at']),
+      workingHours:
+          _asString(json['working_hours']) ??
+          _asString(json['working_hours_text']) ??
+          _asString(json['hours']),
     );
   }
 }

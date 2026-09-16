@@ -18,7 +18,7 @@ class ProfileRepo {
     }
   }
 
-  Future<Either<Failure, AttendanceSessionModel?>>
+  Future<Either<Failure, AttendanceCurrentModel>>
   checkCurrentAttendance() async {
     try {
       return Right(await _profileService.checkCurrentAttendance());

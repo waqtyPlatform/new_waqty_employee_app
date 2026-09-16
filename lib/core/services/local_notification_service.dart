@@ -85,6 +85,7 @@ class LocalNotificationService {
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
+        sound: 'default',
       ),
     );
 

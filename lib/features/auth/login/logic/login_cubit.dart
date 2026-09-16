@@ -55,7 +55,9 @@ class LoginCubit extends Cubit<LoginState> {
         },
         (result) async {
           await cashUserData(result);
-          await getIt<FirebaseNotificationService>().registerCurrentDevice();
+          final notificationService = getIt<FirebaseNotificationService>();
+          await notificationService.syncNotificationLanguage();
+          await notificationService.registerCurrentDevice();
           await getIt<NotificationRouterService>().flushPendingPayload();
           emit(OnLoginSuccessState(message: result.message));
         },

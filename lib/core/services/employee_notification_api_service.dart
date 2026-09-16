@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_waqty_employee_app/core/api/end_points.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
@@ -32,6 +33,31 @@ class EmployeeNotificationApiService {
       token: token,
       payload: payload,
     );
+  }
+
+  Future<http.Response?> updateNotificationLanguage({
+    required String token,
+    required String language,
+  }) async {
+    try {
+      debugPrint(
+        'PUT ${EndPoints.employeeNotificationLanguage} language=$language',
+      );
+      final response = await _client
+          .put(
+            Uri.parse(EndPoints.employeeNotificationLanguage),
+            headers: _authenticatedHeaders(token),
+            body: jsonEncode({'language': language}),
+          )
+          .timeout(const Duration(seconds: 10));
+      debugPrint(
+        'PUT ${EndPoints.employeeNotificationLanguage} status=${response.statusCode}',
+      );
+      return response;
+    } catch (_) {
+      debugPrint('PUT ${EndPoints.employeeNotificationLanguage} failed');
+      return null;
+    }
   }
 
   Future<String?> refreshToken({
@@ -84,18 +110,22 @@ class EmployeeNotificationApiService {
       return await _client
           .post(
             Uri.parse(endpoint),
-            headers: {
-              ConstantKeys.contentType: ConstantKeys.applicationJson,
-              ConstantKeys.acceptText: ConstantKeys.applicationJson,
-              ConstantKeys.acceptLanguage: _languageCode(),
-              ConstantKeys.appAuthorization: '${ConstantKeys.appBearer} $token',
-            },
+            headers: _authenticatedHeaders(token),
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 10));
     } catch (_) {
       return null;
     }
+  }
+
+  Map<String, String> _authenticatedHeaders(String token) {
+    return {
+      ConstantKeys.contentType: ConstantKeys.applicationJson,
+      ConstantKeys.acceptText: ConstantKeys.applicationJson,
+      ConstantKeys.acceptLanguage: _languageCode(),
+      ConstantKeys.appAuthorization: '${ConstantKeys.appBearer} $token',
+    };
   }
 
   String _languageCode() {

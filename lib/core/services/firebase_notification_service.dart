@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
@@ -13,6 +15,7 @@ import 'package:new_waqty_employee_app/features/notifications/data/services/noti
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/firebase_options.dart';
+import 'package:new_waqty_employee_app/my_app.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 @pragma('vm:entry-point')
@@ -23,7 +26,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await FirebaseNotificationService.showRemoteMessage(message);
 }
 
-class FirebaseNotificationService {
+class FirebaseNotificationService with WidgetsBindingObserver {
   final FlutterSecureStorage _secureStorage;
   final EmployeeNotificationApiService _notificationApiService;
 
@@ -35,6 +38,9 @@ class FirebaseNotificationService {
   bool _initialized = false;
   bool _isLoggingOut = false;
   int _registrationGeneration = 0;
+  Future<void> _languageSyncFuture = Future.value();
+  String? _lastSyncedNotificationLanguage;
+  String? _lastSyncedNotificationLanguageToken;
 
   FirebaseNotificationService(
     this._secureStorage,
@@ -46,8 +52,10 @@ class FirebaseNotificationService {
     _initialized = true;
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    WidgetsBinding.instance.addObserver(this);
     await LocalNotificationService.initializedNotification();
     await _requestPermission();
+    await _setForegroundPresentationOptions();
 
     _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
       _handleForegroundMessage,
@@ -62,11 +70,19 @@ class FirebaseNotificationService {
     }
 
     unawaited(registerCurrentDevice());
+    unawaited(syncNotificationLanguage());
     unawaited(getIt<NotificationCenterService>().refreshUnreadCount());
     _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
         .listen((_) {
           unawaited(registerCurrentDevice());
         });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(syncNotificationLanguage());
+    }
   }
 
   Future<Map<String, dynamic>> buildDevicePayload({
@@ -104,6 +120,7 @@ class FirebaseNotificationService {
     final payload = await buildDevicePayload();
     if (payload['fcm_token'] == null) return;
     if (_isLoggingOut || generation != _registrationGeneration) return;
+    await syncNotificationLanguage();
 
     final latestToken = await CacheHelper.getSecuredString(
       ConstantKeys.saveTokenToShared,
@@ -127,6 +144,61 @@ class FirebaseNotificationService {
       }
     }
     await getIt<NotificationCenterService>().refreshUnreadCount();
+  }
+
+  Future<void> syncNotificationLanguage({
+    String? languageCode,
+    bool force = false,
+  }) async {
+    if (!_isSupportedNotificationPlatform || _isLoggingOut) return;
+
+    final token = await CacheHelper.getSecuredString(
+      ConstantKeys.saveTokenToShared,
+    );
+    if (token.isEmpty) return;
+
+    final language = _normalizeNotificationLanguage(
+      languageCode ?? _notificationLanguageCode(),
+    );
+    if (!force &&
+        _lastSyncedNotificationLanguage == language &&
+        _lastSyncedNotificationLanguageToken == token) {
+      return;
+    }
+
+    final generation = _registrationGeneration;
+    _languageSyncFuture = _languageSyncFuture.then((_) async {
+      if (_isLoggingOut || generation != _registrationGeneration) return;
+
+      final latestToken = await CacheHelper.getSecuredString(
+        ConstantKeys.saveTokenToShared,
+      );
+      if (latestToken.isEmpty || latestToken != token) return;
+
+      var response = await _notificationApiService.updateNotificationLanguage(
+        token: token,
+        language: language,
+      );
+      if (response?.statusCode == 401) {
+        final refreshedToken = await _notificationApiService.refreshToken(
+          token: token,
+          payload: await buildDevicePayload(),
+        );
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          response = await _notificationApiService.updateNotificationLanguage(
+            token: refreshedToken,
+            language: language,
+          );
+        }
+      }
+      if (response?.statusCode == 200) {
+        _lastSyncedNotificationLanguage = language;
+        _lastSyncedNotificationLanguageToken =
+            await CacheHelper.getSecuredString(ConstantKeys.saveTokenToShared);
+      }
+    });
+
+    return _languageSyncFuture;
   }
 
   Future<bool> detachCurrentDevice(String token) async {
@@ -160,6 +232,8 @@ class FirebaseNotificationService {
   void completeLocalLogout() {
     _registrationGeneration++;
     _isLoggingOut = false;
+    _lastSyncedNotificationLanguage = null;
+    _lastSyncedNotificationLanguageToken = null;
     getIt<NotificationCenterService>().clearAccountState();
     getIt<NotificationRouterService>().clearAccountState();
   }
@@ -201,6 +275,18 @@ class FirebaseNotificationService {
       await FirebaseMessaging.instance
           .requestPermission(alert: true, badge: true, sound: true)
           .timeout(const Duration(seconds: 5));
+    } catch (_) {}
+  }
+
+  Future<void> _setForegroundPresentationOptions() async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    try {
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: false,
+            badge: false,
+            sound: false,
+          );
     } catch (_) {}
   }
 
@@ -256,11 +342,21 @@ class FirebaseNotificationService {
     }
   }
 
+  String _notificationLanguageCode() {
+    final context = navigatorKey.currentContext;
+    return context?.locale.languageCode == 'en' ? 'en' : 'ar';
+  }
+
+  String _normalizeNotificationLanguage(String languageCode) {
+    return languageCode == 'en' ? 'en' : 'ar';
+  }
+
   String get _platform {
     return defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
   }
 
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tokenRefreshSubscription?.cancel();
     _foregroundMessageSubscription?.cancel();
     _openedMessageSubscription?.cancel();
@@ -275,5 +371,6 @@ bool get _isSupportedNotificationPlatform {
 
 bool get _shouldShowLocalRemoteMessage {
   if (kIsWeb) return false;
-  return defaultTargetPlatform == TargetPlatform.android;
+  return defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 }

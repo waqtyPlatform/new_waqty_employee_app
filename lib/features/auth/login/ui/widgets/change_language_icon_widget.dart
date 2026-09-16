@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 
@@ -11,11 +13,14 @@ class ChangeLanguageIconWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        if (context.locale == const Locale('en', 'US')) {
-          await context.setLocale(const Locale('ar', 'EG'));
-        } else {
-          await context.setLocale(const Locale('en', 'US'));
-        }
+        final targetLocale = context.locale == const Locale('en', 'US')
+            ? const Locale('ar', 'EG')
+            : const Locale('en', 'US');
+        await context.setLocale(targetLocale);
+        await getIt<FirebaseNotificationService>().syncNotificationLanguage(
+          languageCode: targetLocale.languageCode,
+          force: true,
+        );
       },
       child: Container(
         width: 58.w,

@@ -248,7 +248,9 @@ class HttpConsumer implements ApiConsumer {
     if (expiresIn != null && expiresIn > 0) {
       await _storeTokenExpiresAt(expiresIn);
     }
-    await getIt<FirebaseNotificationService>().registerCurrentDevice();
+    final notificationService = getIt<FirebaseNotificationService>();
+    await notificationService.syncNotificationLanguage(force: true);
+    await notificationService.registerCurrentDevice();
     return _RefreshTokenResult.success;
   }
 

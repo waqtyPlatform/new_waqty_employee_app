@@ -67,6 +67,8 @@ class _ProfileClockActionDialogWidgetState
   bool _isCheckingBranchRange = true;
   bool? _isWithinBranchRange;
   bool _isRequestingEarlyDeparture = false;
+  bool _forceEarlyDeparturePanel = false;
+  String? _earlyDepartureReasonError;
 
   @override
   void dispose() {
@@ -148,6 +150,7 @@ class _ProfileClockActionDialogWidgetState
                 earlyDeparture:
                     widget.cubit.currentAttendanceSession?.earlyDeparture,
                 reasonController: _earlyDepartureReasonController,
+                reasonErrorText: _earlyDepartureReasonError,
                 isLoading:
                     _isRequestingEarlyDeparture ||
                     widget.cubit.isEarlyDepartureRequestLoading,
@@ -210,11 +213,13 @@ class _ProfileClockActionDialogWidgetState
       return false;
     }
     return session.earlyDepartureApprovalRequired ||
-        session.earlyDeparture != null;
+        session.earlyDeparture != null ||
+        _forceEarlyDeparturePanel;
   }
 
   bool get _isClockOutBlockedByEarlyDeparture {
     final session = widget.cubit.currentAttendanceSession;
+    if (_forceEarlyDeparturePanel) return true;
     if (session?.earlyDepartureApprovalRequired != true) return false;
     return session?.earlyDeparture?.isApproved != true;
   }
@@ -257,6 +262,9 @@ class _ProfileClockActionDialogWidgetState
 
       if (!context.mounted) return;
       if (!succeeded) {
+        if (widget.cubit.shouldOpenEarlyDepartureRequest && mounted) {
+          setState(() => _forceEarlyDeparturePanel = true);
+        }
         final message = widget.cubit.attendanceActionErrorMessage.isNotEmpty
             ? widget.cubit.attendanceActionErrorMessage
             : context.tr('profile.attendanceActionFailed');
@@ -302,7 +310,10 @@ class _ProfileClockActionDialogWidgetState
       return;
     }
 
-    setState(() => _isRequestingEarlyDeparture = true);
+    setState(() {
+      _isRequestingEarlyDeparture = true;
+      _earlyDepartureReasonError = null;
+    });
     try {
       final succeeded = await widget.cubit.requestEarlyDeparture(
         reason: reason,
@@ -321,6 +332,9 @@ class _ProfileClockActionDialogWidgetState
       final message = widget.cubit.earlyDepartureRequestErrorMessage.isNotEmpty
           ? widget.cubit.earlyDepartureRequestErrorMessage
           : context.tr('profile.earlyDepartureRequestFailed');
+      if (mounted) {
+        setState(() => _earlyDepartureReasonError = message);
+      }
       AppConstant.toast(message, false, context);
     } finally {
       if (mounted) {
@@ -644,6 +658,7 @@ class _BranchRangeWidget extends StatelessWidget {
 class _EarlyDeparturePanelWidget extends StatelessWidget {
   final EarlyDepartureModel? earlyDeparture;
   final TextEditingController reasonController;
+  final String? reasonErrorText;
   final bool isLoading;
   final bool isDisabled;
   final VoidCallback onSubmit;
@@ -651,6 +666,7 @@ class _EarlyDeparturePanelWidget extends StatelessWidget {
   const _EarlyDeparturePanelWidget({
     required this.earlyDeparture,
     required this.reasonController,
+    this.reasonErrorText,
     required this.isLoading,
     required this.isDisabled,
     required this.onSubmit,
@@ -714,6 +730,8 @@ class _EarlyDeparturePanelWidget extends StatelessWidget {
               decoration: InputDecoration(
                 counterText: '',
                 hintText: context.tr('profile.earlyDepartureReasonHint'),
+                errorText: reasonErrorText,
+                errorMaxLines: 3,
                 hintStyle: TextStyles.font12greyColorA3W400,
                 filled: true,
                 fillColor: AppColors.whiteColor,

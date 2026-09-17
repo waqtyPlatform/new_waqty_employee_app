@@ -98,8 +98,8 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
               ),
             ),
             horizontalSpace(8),
-            if (isClockedIn && !isOnBreak) ...[
-              const _ActiveStatusPill(),
+            if (isClockedIn) ...[
+              _ActiveStatusPill(isOnBreak: isOnBreak),
               horizontalSpace(8),
             ],
             Icon(Icons.arrow_forward_ios, color: accentColor, size: 16.r),
@@ -154,7 +154,7 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
         ? session?.breakStartedAt ?? session?.clockInAt
         : session?.clockInAt;
     if (value == null || value.trim().isEmpty) return null;
-    return AppDateFormat.parseBackendDateTime(value);
+    return DateTime.tryParse(value.trim())?.toLocal();
   }
 
   String _formatDuration(Duration duration) {
@@ -165,18 +165,23 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
 }
 
 class _ActiveStatusPill extends StatelessWidget {
-  const _ActiveStatusPill();
+  final bool isOnBreak;
+
+  const _ActiveStatusPill({required this.isOnBreak});
 
   @override
   Widget build(BuildContext context) {
+    final color = isOnBreak
+        ? AppColors.warningColor1001
+        : AppColors.greenColor500;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: AppColors.greenColor500,
+        color: color,
         borderRadius: BorderRadius.circular(100.r),
       ),
       child: Text(
-        context.tr('home.active'),
+        context.tr(isOnBreak ? 'profile.takeBreak' : 'home.active'),
         style: TextStyles.font12whiteColorWeight600,
       ),
     );

@@ -15,6 +15,7 @@ class Routes {
   static const myServicesScreen = "/MyServicesScreen";
   static const profileDetailsScreen = "/ProfileDetailsScreen";
   static const workingHoursScreen = "/WorkingHoursScreen";
+  static const myRequestsScreen = "/MyRequestsScreen";
   static const shiftDetailsScreen = "/ShiftDetailsScreen";
   static const attendanceScreen = "/AttendanceScreen";
   static const branchContactScreen = "/BranchContactScreen";

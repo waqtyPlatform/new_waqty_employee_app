@@ -19,6 +19,8 @@ import 'package:new_waqty_employee_app/features/account/branch_contact/data/repo
 import 'package:new_waqty_employee_app/features/account/branch_contact/data/services/branch_contact_service.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/repo/contact_manager_repo.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/data/services/contact_manager_service.dart';
+import 'package:new_waqty_employee_app/features/account/my_requests/data/repo/my_requests_repo.dart';
+import 'package:new_waqty_employee_app/features/account/my_requests/data/services/my_requests_service.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/repo/my_services_repo.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/data/services/my_services_service.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/data/repo/notification_setting_repo.dart';
@@ -203,6 +205,12 @@ class ServicesLocator {
       () => MyServicesService(apiConsumer: getIt()),
     );
     getIt.registerLazySingleton<MyServicesRepo>(() => MyServicesRepo(getIt()));
+
+    /// My Requests
+    getIt.registerLazySingleton<MyRequestsService>(
+      () => MyRequestsService(apiConsumer: getIt()),
+    );
+    getIt.registerLazySingleton<MyRequestsRepo>(() => MyRequestsRepo(getIt()));
 
     /// Working Hours
     getIt.registerLazySingleton<WorkingHoursService>(

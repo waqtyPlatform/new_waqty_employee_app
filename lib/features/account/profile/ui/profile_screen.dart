@@ -189,6 +189,11 @@ class _ProfileScreenState extends State<ProfileScreen>
         onTap: () => context.pushNamed(Routes.contactManagerScreen),
       ),
       ProfileMenuItemData(
+        title: context.tr('profile.myRequests'),
+        iconPath: ImageAsset.profileAttendanceHistoryIcon,
+        onTap: () => context.pushNamed(Routes.myRequestsScreen),
+      ),
+      ProfileMenuItemData(
         title: context.tr('profile.reportBug'),
         iconPath: ImageAsset.reportBugIcon,
         onTap: () => context.pushNamed(Routes.reportBugScreen),
@@ -279,7 +284,8 @@ class _ProfileClockSectionWidget extends StatelessWidget {
         return current is CheckCurrentAttendanceLoadingState ||
             current is CheckCurrentAttendanceSuccessState ||
             current is CheckCurrentAttendanceErrorState ||
-            current is CheckCurrentAttendanceCatchErrorState;
+            current is CheckCurrentAttendanceCatchErrorState ||
+            current is GetProfileSuccessState;
       },
       builder: (context, state) {
         final cubit = ProfileCubit.get(context);

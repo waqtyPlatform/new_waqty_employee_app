@@ -133,10 +133,19 @@ class ProfileService {
         response.statusCode == StatusCode.created) {
       final data = _decodeMap(response.body)['data'];
       if (data is Map<String, dynamic>) {
+        final sessionData = _asMap(data['attendance_session']);
+        if (sessionData.isNotEmpty) {
+          return AttendanceSessionModel.fromJson(sessionData);
+        }
         return AttendanceSessionModel.fromJson(data);
       }
       if (data is Map) {
-        return AttendanceSessionModel.fromJson(Map<String, dynamic>.from(data));
+        final map = Map<String, dynamic>.from(data);
+        final sessionData = _asMap(map['attendance_session']);
+        if (sessionData.isNotEmpty) {
+          return AttendanceSessionModel.fromJson(sessionData);
+        }
+        return AttendanceSessionModel.fromJson(map);
       }
     }
 
@@ -158,6 +167,12 @@ class ProfileService {
     final decodedBody = jsonDecode(body);
     if (decodedBody is Map<String, dynamic>) return decodedBody;
     if (decodedBody is Map) return Map<String, dynamic>.from(decodedBody);
+    return <String, dynamic>{};
+  }
+
+  Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
     return <String, dynamic>{};
   }
 

@@ -119,7 +119,8 @@ class EarlyDepartureModel {
 
   factory EarlyDepartureModel.fromJson(Map<String, dynamic> json) {
     return EarlyDepartureModel(
-      requestId: json['request_id']?.toString() ?? '',
+      requestId:
+          json['request_id']?.toString() ?? json['uuid']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       reason: _asString(json['reason']),
       requestedAt: _asString(json['requested_at']),

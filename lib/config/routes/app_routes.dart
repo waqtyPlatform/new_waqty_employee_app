@@ -27,6 +27,8 @@ import 'package:new_waqty_employee_app/features/account/change_pin/ui/change_pin
 import 'package:new_waqty_employee_app/features/account/change_pin/ui/widgets/change_pin_step_data.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/logic/contact_manager_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/contact_manager/ui/contact_manager_screen.dart';
+import 'package:new_waqty_employee_app/features/account/my_requests/logic/my_requests_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/my_requests/ui/my_requests_screen.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_cubit.dart';
@@ -239,6 +241,18 @@ class RouteGenerator {
             create: (context) => MyServicesCubit(getIt())..init(),
             child: const MyServicesScreen(),
           ),
+        );
+
+      case Routes.myRequestsScreen:
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  MyRequestsCubit(getIt())..init(languageCode: languageCode),
+              child: const MyRequestsScreen(),
+            );
+          },
         );
 
       case Routes.profileDetailsScreen:

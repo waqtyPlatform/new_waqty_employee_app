@@ -210,11 +210,13 @@ class ProfileCubit extends Cubit<ProfileState> {
           emit(EarlyDepartureRequestErrorState());
         },
         (updatedSession) {
-          currentAttendanceSession = updatedSession.clockOutAt == null
-              ? updatedSession
-              : null;
-          isClockedIn = currentAttendanceSession != null;
-          isOnBreak = currentAttendanceSession?.isOnBreak == true;
+          if (updatedSession.uuid.isNotEmpty) {
+            currentAttendanceSession = updatedSession.clockOutAt == null
+                ? updatedSession
+                : null;
+            isClockedIn = currentAttendanceSession != null;
+            isOnBreak = currentAttendanceSession?.isOnBreak == true;
+          }
           succeeded = true;
           emit(EarlyDepartureRequestSuccessState());
         },

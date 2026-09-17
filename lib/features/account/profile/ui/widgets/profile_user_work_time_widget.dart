@@ -25,23 +25,19 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleKey = isOnBreak
-        ? 'profile.endBreak'
-        : isClockedIn
-        ? 'profile.clockOut'
-        : 'profile.clockIn';
+    final title = _title(context);
     final subtitle = _subtitle(context);
-    final accentColor = isClockedIn
-        ? AppColors.errorColor2002
+    final accentColor = isOnBreak
+        ? AppColors.warningColor1001
         : AppColors.greenColor500;
-    final backgroundColor = isClockedIn
-        ? AppColors.errorColor2003
+    final backgroundColor = isOnBreak
+        ? AppColors.warningColor1002
         : AppColors.greenColor5005;
-    final borderColor = isClockedIn
-        ? AppColors.errorColor20033
+    final borderColor = isOnBreak
+        ? AppColors.warningColor1001
         : AppColors.successColor50;
-    final iconBackgroundColor = isClockedIn
-        ? AppColors.errorColor20033
+    final iconBackgroundColor = isOnBreak
+        ? AppColors.warningColor1002
         : AppColors.greenColor50055;
 
     return GestureDetector(
@@ -90,10 +86,7 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.tr(titleKey),
-                    style: TextStyles.font14greyColor900Weight600,
-                  ),
+                  Text(title, style: TextStyles.font14greyColor900Weight600),
                   verticalSpace(2),
                   Text(
                     subtitle,
@@ -105,6 +98,10 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
               ),
             ),
             horizontalSpace(8),
+            if (isClockedIn && !isOnBreak) ...[
+              const _ActiveStatusPill(),
+              horizontalSpace(8),
+            ],
             Icon(Icons.arrow_forward_ios, color: accentColor, size: 16.r),
           ],
         ),
@@ -112,14 +109,32 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
     );
   }
 
-  String _subtitle(BuildContext context) {
-    if (!isClockedIn) return context.tr('profile.tapStartShift');
+  String _title(BuildContext context) {
+    if (!isClockedIn) return context.tr('profile.clockIn');
 
     final startedAt = _currentStartedAt;
     if (startedAt == null) {
       return context.tr(
-        isOnBreak ? 'profile.breakActiveFallback' : 'profile.clockedInFallback',
+        isOnBreak ? 'profile.breakActiveFallback' : 'home.clockedIn',
       );
+    }
+
+    final timeText = AppDateFormat.time(context, startedAt.toLocal());
+    if (isOnBreak) {
+      return context.tr('profile.breakActiveFallback');
+    }
+
+    return context.tr('home.clockedInSince', namedArgs: {'time': timeText});
+  }
+
+  String _subtitle(BuildContext context) {
+    if (!isClockedIn) return context.tr('profile.tapStartShift');
+
+    if (!isOnBreak) return context.tr('home.active');
+
+    final startedAt = _currentStartedAt;
+    if (startedAt == null) {
+      return context.tr('profile.breakActiveFallback');
     }
 
     final duration = DateTime.now().difference(startedAt.toLocal());
@@ -128,15 +143,8 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
     );
     final timeText = AppDateFormat.time(context, startedAt.toLocal());
 
-    if (isOnBreak) {
-      return context.tr(
-        'profile.breakActiveInfo',
-        namedArgs: {'time': timeText, 'duration': durationText},
-      );
-    }
-
     return context.tr(
-      'profile.clockedInInfo',
+      'profile.breakActiveInfo',
       namedArgs: {'time': timeText, 'duration': durationText},
     );
   }
@@ -153,5 +161,24 @@ class ProfileUserWorkTimeWidget extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     return '$hours${'profile.durationHour'.tr()} $minutes${'profile.durationMinute'.tr()}';
+  }
+}
+
+class _ActiveStatusPill extends StatelessWidget {
+  const _ActiveStatusPill();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: AppColors.greenColor500,
+        borderRadius: BorderRadius.circular(100.r),
+      ),
+      child: Text(
+        context.tr('home.active'),
+        style: TextStyles.font12whiteColorWeight600,
+      ),
+    );
   }
 }

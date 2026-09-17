@@ -35,6 +35,14 @@ class PresenceConfirmationErrorState extends ProfileState {}
 
 class PresenceConfirmationCatchErrorState extends ProfileState {}
 
+class EarlyDepartureRequestLoadingState extends ProfileState {}
+
+class EarlyDepartureRequestSuccessState extends ProfileState {}
+
+class EarlyDepartureRequestErrorState extends ProfileState {}
+
+class EarlyDepartureRequestCatchErrorState extends ProfileState {}
+
 // Update Profile States
 class UpdateProfileLoadingState extends ProfileState {}
 

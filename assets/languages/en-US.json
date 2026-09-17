@@ -262,7 +262,19 @@
     "employeeCode": "EMP-0042",
     "attendanceActionFailed": "Attendance action failed, please try again",
     "locationPermissionRequired": "Location permission is required",
-    "locationServiceDisabled": "Location service is disabled"
+    "locationServiceDisabled": "Location service is disabled",
+    "earlyDepartureTitle": "Early departure request",
+    "earlyDepartureRequired": "Leaving before the scheduled shift end requires manager approval.",
+    "earlyDeparturePending": "Your request is waiting for manager review. Your attendance remains open.",
+    "earlyDepartureApproved": "Approved. You can clock out now from within the branch range.",
+    "earlyDepartureRejected": "Your early departure request was rejected.",
+    "earlyDepartureExpired": "This early departure request expired. Refresh the session or send a new request.",
+    "earlyDepartureReasonHint": "Write the reason for leaving early",
+    "earlyDepartureRequestButton": "Send departure request",
+    "earlyDepartureRequestSent": "Early departure request sent",
+    "earlyDepartureRequestFailed": "Could not send early departure request",
+    "earlyDepartureReasonRequired": "Write the early departure reason",
+    "earlyDepartureReasonTooLong": "Departure reason must be 1000 characters or fewer"
   },
   "presenceConfirmation": {
     "title": "Are you still at the branch?",

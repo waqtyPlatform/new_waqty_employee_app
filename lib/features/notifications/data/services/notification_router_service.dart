@@ -83,9 +83,13 @@ class NotificationRouterService {
     }
 
     final action = NotificationActionModel.fromFlatData(payload);
-    final eventType = _asString(payload['event_type'] ?? payload['type']);
-    final screen = eventType == 'schedule_updated'
-        ? 'employee_schedule'
+    final attendanceAction = _asString(payload['attendance_action']);
+    final eventType = attendanceAction.isNotEmpty
+        ? attendanceAction
+        : _firstString(payload, const ['event_type', 'type']);
+    final screenOverride = _screenOverrideForEvent(eventType);
+    final screen = screenOverride.isNotEmpty
+        ? screenOverride
         : action.screen.isNotEmpty
         ? action.screen
         : _screenForEvent(
@@ -208,12 +212,15 @@ class NotificationRouterService {
 
   String _screenForEvent(String eventType, {String entityType = ''}) {
     if (eventType.startsWith('attendance_')) return 'attendance';
+    if (eventType.startsWith('early_departure_')) return 'attendance';
     if (eventType.contains('review')) return 'reviews';
     if (eventType.contains('payslip')) return 'payslips';
     if (eventType.contains('bonus')) return 'bonuses';
     if (eventType.contains('deduction')) return 'deductions';
 
     switch (eventType) {
+      case 'missing_clock_in':
+        return 'attendance';
       case 'new_booking':
       case 'booking_assigned':
       case 'booking_updated':
@@ -241,6 +248,14 @@ class NotificationRouterService {
       default:
         return 'notifications';
     }
+  }
+
+  String _screenOverrideForEvent(String eventType) {
+    if (eventType == 'schedule_updated') return 'employee_schedule';
+    if (eventType == 'missing_clock_in') return 'attendance';
+    if (eventType.startsWith('attendance_')) return 'attendance';
+    if (eventType.startsWith('early_departure_')) return 'attendance';
+    return '';
   }
 
   String _normalizeScreen(String screen) {

@@ -262,7 +262,19 @@
     "employeeCode": "EMP-0042",
     "attendanceActionFailed": "ماقدرناش نسجّل الحضور، حاول تاني",
     "locationPermissionRequired": "لازم تسمح للتطبيق يوصل لموقعك",
-    "locationServiceDisabled": "خدمة الموقع مقفولة على الجهاز"
+    "locationServiceDisabled": "خدمة الموقع مقفولة على الجهاز",
+    "earlyDepartureTitle": "طلب انصراف مبكر",
+    "earlyDepartureRequired": "الانصراف قبل نهاية الوردية يحتاج موافقة المسؤول.",
+    "earlyDeparturePending": "طلبك قيد مراجعة المسؤول. لا تغيّر حالة الحضور محليًا.",
+    "earlyDepartureApproved": "تمت الموافقة. يمكنك تسجيل الانصراف الآن من داخل نطاق الفرع.",
+    "earlyDepartureRejected": "تم رفض طلب الانصراف المبكر.",
+    "earlyDepartureExpired": "انتهت صلاحية طلب الانصراف المبكر. حدّث الجلسة أو أرسل طلبًا جديدًا.",
+    "earlyDepartureReasonHint": "اكتب سبب طلب الانصراف المبكر",
+    "earlyDepartureRequestButton": "إرسال طلب الانصراف",
+    "earlyDepartureRequestSent": "تم إرسال طلب الانصراف المبكر",
+    "earlyDepartureRequestFailed": "تعذر إرسال طلب الانصراف المبكر",
+    "earlyDepartureReasonRequired": "اكتب سبب الانصراف المبكر",
+    "earlyDepartureReasonTooLong": "سبب الانصراف يجب ألا يتجاوز 1000 حرف"
   },
   "presenceConfirmation": {
     "title": "هل ما زلت داخل الفرع؟",

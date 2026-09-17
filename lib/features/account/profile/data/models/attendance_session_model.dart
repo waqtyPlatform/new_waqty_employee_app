@@ -8,6 +8,8 @@ class AttendanceSessionModel {
   final String? endTime;
   final AttendanceBranchModel? branch;
   final PresenceConfirmationModel? presenceConfirmation;
+  final bool earlyDepartureApprovalRequired;
+  final EarlyDepartureModel? earlyDeparture;
 
   const AttendanceSessionModel({
     required this.uuid,
@@ -19,6 +21,8 @@ class AttendanceSessionModel {
     this.endTime,
     this.branch,
     this.presenceConfirmation,
+    this.earlyDepartureApprovalRequired = false,
+    this.earlyDeparture,
   });
 
   factory AttendanceSessionModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +59,11 @@ class AttendanceSessionModel {
           : PresenceConfirmationModel.fromJson(
               _asMap(json['presence_confirmation']),
             ),
+      earlyDepartureApprovalRequired:
+          _asBool(json['early_departure_approval_required']) ?? false,
+      earlyDeparture: _asMap(json['early_departure']).isEmpty
+          ? null
+          : EarlyDepartureModel.fromJson(_asMap(json['early_departure'])),
     );
   }
 
@@ -85,6 +94,49 @@ class AttendanceSessionModel {
 
     return latestEventAt;
   }
+}
+
+class EarlyDepartureModel {
+  final String requestId;
+  final String status;
+  final String? reason;
+  final String? requestedAt;
+  final String? scheduledEndAt;
+  final String? reviewReason;
+  final String? reviewedAt;
+  final String? reviewedByName;
+
+  const EarlyDepartureModel({
+    required this.requestId,
+    required this.status,
+    this.reason,
+    this.requestedAt,
+    this.scheduledEndAt,
+    this.reviewReason,
+    this.reviewedAt,
+    this.reviewedByName,
+  });
+
+  factory EarlyDepartureModel.fromJson(Map<String, dynamic> json) {
+    return EarlyDepartureModel(
+      requestId: json['request_id']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      reason: _asString(json['reason']),
+      requestedAt: _asString(json['requested_at']),
+      scheduledEndAt: _asString(json['scheduled_end_at']),
+      reviewReason: _asString(json['review_reason']),
+      reviewedAt: _asString(json['reviewed_at']),
+      reviewedByName: _asString(json['reviewed_by_name']),
+    );
+  }
+
+  bool get isPending => status == 'pending';
+
+  bool get isApproved => status == 'approved';
+
+  bool get isRejected => status == 'rejected';
+
+  bool get isExpired => status == 'expired';
 }
 
 class AttendanceCurrentModel {

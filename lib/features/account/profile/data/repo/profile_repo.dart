@@ -14,7 +14,7 @@ class ProfileRepo {
     try {
       return Right(await _profileService.getProfile());
     } on ServerException catch (failure) {
-      return Left(ServerFailure(message: failure.serverFailure.message));
+      return Left(failure.serverFailure);
     }
   }
 
@@ -23,7 +23,7 @@ class ProfileRepo {
     try {
       return Right(await _profileService.checkCurrentAttendance());
     } on ServerException catch (failure) {
-      return Left(ServerFailure(message: failure.serverFailure.message));
+      return Left(failure.serverFailure);
     } catch (_) {
       return const Left(ServerFailure(message: 'Invalid server response'));
     }
@@ -45,7 +45,7 @@ class ProfileRepo {
         ),
       );
     } on ServerException catch (failure) {
-      return Left(ServerFailure(message: failure.serverFailure.message));
+      return Left(failure.serverFailure);
     } catch (_) {
       return const Left(ServerFailure(message: 'Attendance action failed'));
     }
@@ -75,9 +75,29 @@ class ProfileRepo {
         ),
       );
     } on ServerException catch (failure) {
-      return Left(ServerFailure(message: failure.serverFailure.message));
+      return Left(failure.serverFailure);
     } catch (_) {
       return const Left(ServerFailure(message: 'Presence response failed'));
+    }
+  }
+
+  Future<Either<Failure, AttendanceSessionModel>> requestEarlyDeparture({
+    required String attendanceSessionUuid,
+    required String reason,
+  }) async {
+    try {
+      return Right(
+        await _profileService.requestEarlyDeparture(
+          attendanceSessionUuid: attendanceSessionUuid,
+          reason: reason,
+        ),
+      );
+    } on ServerException catch (failure) {
+      return Left(failure.serverFailure);
+    } catch (_) {
+      return const Left(
+        ServerFailure(message: 'Early departure request failed'),
+      );
     }
   }
 }

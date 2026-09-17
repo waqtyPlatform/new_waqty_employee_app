@@ -61,9 +61,18 @@ class ProfileClockActionDialogWidget extends StatefulWidget {
 class _ProfileClockActionDialogWidgetState
     extends State<ProfileClockActionDialogWidget> {
   ProfileAttendanceAction? _loadingAction;
+  final TextEditingController _earlyDepartureReasonController =
+      TextEditingController();
   Position? _currentPositionValue;
   bool _isCheckingBranchRange = true;
   bool? _isWithinBranchRange;
+  bool _isRequestingEarlyDeparture = false;
+
+  @override
+  void dispose() {
+    _earlyDepartureReasonController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -133,7 +142,20 @@ class _ProfileClockActionDialogWidgetState
                 session: widget.cubit.currentAttendanceSession,
               ),
             ],
-            if (!widget.isOnBreak) ...[
+            if (_shouldShowEarlyDeparturePanel) ...[
+              verticalSpace(12),
+              _EarlyDeparturePanelWidget(
+                earlyDeparture:
+                    widget.cubit.currentAttendanceSession?.earlyDeparture,
+                reasonController: _earlyDepartureReasonController,
+                isLoading:
+                    _isRequestingEarlyDeparture ||
+                    widget.cubit.isEarlyDepartureRequestLoading,
+                isDisabled: _loadingAction != null,
+                onSubmit: () => _requestEarlyDeparture(context),
+              ),
+            ],
+            if (!widget.isOnBreak && !_isClockOutBlockedByEarlyDeparture) ...[
               verticalSpace(12),
               _ClockActionButtonWidget(
                 title: context.tr(actionKey),
@@ -180,6 +202,21 @@ class _ProfileClockActionDialogWidgetState
         ),
       ),
     );
+  }
+
+  bool get _shouldShowEarlyDeparturePanel {
+    final session = widget.cubit.currentAttendanceSession;
+    if (!widget.isClockedIn || widget.isOnBreak || session == null) {
+      return false;
+    }
+    return session.earlyDepartureApprovalRequired ||
+        session.earlyDeparture != null;
+  }
+
+  bool get _isClockOutBlockedByEarlyDeparture {
+    final session = widget.cubit.currentAttendanceSession;
+    if (session?.earlyDepartureApprovalRequired != true) return false;
+    return session?.earlyDeparture?.isApproved != true;
   }
 
   Future<void> _runAction(
@@ -238,6 +275,58 @@ class _ProfileClockActionDialogWidgetState
 
   bool _isActionLoading(ProfileAttendanceAction action) {
     return _loadingAction == action;
+  }
+
+  Future<void> _requestEarlyDeparture(BuildContext context) async {
+    if (_isRequestingEarlyDeparture ||
+        widget.cubit.isEarlyDepartureRequestLoading) {
+      return;
+    }
+
+    final reason = _earlyDepartureReasonController.text.trim();
+    if (reason.isEmpty) {
+      AppConstant.toast(
+        context.tr('profile.earlyDepartureReasonRequired'),
+        false,
+        context,
+      );
+      return;
+    }
+
+    if (reason.length > 1000) {
+      AppConstant.toast(
+        context.tr('profile.earlyDepartureReasonTooLong'),
+        false,
+        context,
+      );
+      return;
+    }
+
+    setState(() => _isRequestingEarlyDeparture = true);
+    try {
+      final succeeded = await widget.cubit.requestEarlyDeparture(
+        reason: reason,
+      );
+      if (!context.mounted) return;
+      if (succeeded) {
+        _earlyDepartureReasonController.clear();
+        AppConstant.toast(
+          context.tr('profile.earlyDepartureRequestSent'),
+          true,
+          context,
+        );
+        return;
+      }
+
+      final message = widget.cubit.earlyDepartureRequestErrorMessage.isNotEmpty
+          ? widget.cubit.earlyDepartureRequestErrorMessage
+          : context.tr('profile.earlyDepartureRequestFailed');
+      AppConstant.toast(message, false, context);
+    } finally {
+      if (mounted) {
+        setState(() => _isRequestingEarlyDeparture = false);
+      }
+    }
   }
 
   Future<void> _loadBranchRangeStatus() async {
@@ -548,6 +637,185 @@ class _BranchRangeWidget extends StatelessWidget {
           style: TextStyles.font14greenColor500W500.copyWith(color: color),
         ),
       ],
+    );
+  }
+}
+
+class _EarlyDeparturePanelWidget extends StatelessWidget {
+  final EarlyDepartureModel? earlyDeparture;
+  final TextEditingController reasonController;
+  final bool isLoading;
+  final bool isDisabled;
+  final VoidCallback onSubmit;
+
+  const _EarlyDeparturePanelWidget({
+    required this.earlyDeparture,
+    required this.reasonController,
+    required this.isLoading,
+    required this.isDisabled,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final status = earlyDeparture?.status ?? '';
+    final statusColor = _statusColor(status);
+    final canRequest =
+        earlyDeparture == null ||
+        earlyDeparture?.isRejected == true ||
+        earlyDeparture?.isExpired == true;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: AppColors.greyColorFA,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: statusColor.withValues(alpha: .35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.assignment_outlined, size: 16.r, color: statusColor),
+              horizontalSpace(8),
+              Expanded(
+                child: Text(
+                  context.tr('profile.earlyDepartureTitle'),
+                  style: TextStyles.font14greyColor900Weight500,
+                ),
+              ),
+            ],
+          ),
+          verticalSpace(8),
+          Text(
+            _statusText(context),
+            style: TextStyles.font12greyColor500W400.copyWith(
+              color: statusColor,
+              height: 1.4,
+            ),
+          ),
+          if ((earlyDeparture?.reviewReason ?? '').trim().isNotEmpty) ...[
+            verticalSpace(6),
+            Text(
+              earlyDeparture!.reviewReason!,
+              style: TextStyles.font12greyColorA3W400.copyWith(height: 1.4),
+            ),
+          ],
+          if (canRequest) ...[
+            verticalSpace(10),
+            TextField(
+              controller: reasonController,
+              minLines: 2,
+              maxLines: 4,
+              maxLength: 1000,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(
+                counterText: '',
+                hintText: context.tr('profile.earlyDepartureReasonHint'),
+                hintStyle: TextStyles.font12greyColorA3W400,
+                filled: true,
+                fillColor: AppColors.whiteColor,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 10.h,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.greyColorE5),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.greyColorE5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.greenColor500),
+                ),
+              ),
+            ),
+            verticalSpace(10),
+            _EarlyDepartureButtonWidget(
+              isLoading: isLoading,
+              isDisabled: isDisabled,
+              onTap: onSubmit,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _statusText(BuildContext context) {
+    if (earlyDeparture?.isPending == true) {
+      return context.tr('profile.earlyDeparturePending');
+    }
+    if (earlyDeparture?.isApproved == true) {
+      return context.tr('profile.earlyDepartureApproved');
+    }
+    if (earlyDeparture?.isRejected == true) {
+      return context.tr('profile.earlyDepartureRejected');
+    }
+    if (earlyDeparture?.isExpired == true) {
+      return context.tr('profile.earlyDepartureExpired');
+    }
+    return context.tr('profile.earlyDepartureRequired');
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return AppColors.warningColor1001;
+      case 'approved':
+        return AppColors.greenColor500;
+      case 'rejected':
+        return AppColors.errorColor100;
+      case 'expired':
+        return AppColors.greyColor500;
+      default:
+        return AppColors.warningColor1001;
+    }
+  }
+}
+
+class _EarlyDepartureButtonWidget extends StatelessWidget {
+  final bool isLoading;
+  final bool isDisabled;
+  final VoidCallback onTap;
+
+  const _EarlyDepartureButtonWidget({
+    required this.isLoading,
+    required this.isDisabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isDisabled || isLoading ? null : onTap,
+      child: Container(
+        width: double.infinity,
+        height: 42.h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.greenColor500,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: isLoading
+            ? SizedBox(
+                width: 18.r,
+                height: 18.r,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.w,
+                  color: AppColors.whiteColor,
+                ),
+              )
+            : Text(
+                context.tr('profile.earlyDepartureRequestButton'),
+                style: TextStyles.font16whiteColorWeight600,
+              ),
+      ),
     );
   }
 }

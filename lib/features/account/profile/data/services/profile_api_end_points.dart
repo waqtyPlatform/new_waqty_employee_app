@@ -14,4 +14,6 @@ class ProfileApiEndPoints {
       "${EndPoints.baseUrl}/employee/attendance/break/end";
   static const String presenceRespond =
       "${EndPoints.baseUrl}/employee/attendance/presence/respond";
+  static const String earlyDepartureRequest =
+      "${EndPoints.baseUrl}/employee/attendance/early-departure/request";
 }

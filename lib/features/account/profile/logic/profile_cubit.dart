@@ -18,8 +18,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   bool isCurrentAttendanceLoading = false;
   bool isAttendanceActionLoading = false;
   bool isPresenceConfirmationLoading = false;
+  bool isEarlyDepartureRequestLoading = false;
+  bool shouldOpenEarlyDepartureRequest = false;
   String attendanceActionErrorMessage = '';
   String presenceConfirmationErrorMessage = '';
+  String earlyDepartureRequestErrorMessage = '';
 
   Future<void> init() async {
     await Future.wait([getProfile(), checkCurrentAttendance()]);
@@ -84,6 +87,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     isAttendanceActionLoading = true;
     attendanceActionErrorMessage = '';
+    shouldOpenEarlyDepartureRequest = false;
     emit(AttendanceActionLoadingState());
 
     final value = await _profileRepo.runAttendanceAction(
@@ -97,6 +101,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     value.fold(
       (failure) {
         attendanceActionErrorMessage = failure.message;
+        shouldOpenEarlyDepartureRequest =
+            action == ProfileAttendanceAction.clockOut &&
+            (failure.code == 'EARLY_DEPARTURE_APPROVAL_REQUIRED' ||
+                failure.meta['next_action']?.toString() ==
+                    'request_early_departure');
         emit(AttendanceActionErrorState());
       },
       (session) {
@@ -173,6 +182,51 @@ class ProfileCubit extends Cubit<ProfileState> {
       presenceConfirmationErrorMessage = 'Presence response failed';
       isPresenceConfirmationLoading = false;
       emit(PresenceConfirmationCatchErrorState());
+      await checkCurrentAttendance();
+      return false;
+    }
+  }
+
+  Future<bool> requestEarlyDeparture({required String reason}) async {
+    if (isEarlyDepartureRequestLoading) return false;
+
+    final session = currentAttendanceSession;
+    if (session == null || session.uuid.isEmpty) return false;
+
+    isEarlyDepartureRequestLoading = true;
+    earlyDepartureRequestErrorMessage = '';
+    emit(EarlyDepartureRequestLoadingState());
+
+    try {
+      final value = await _profileRepo.requestEarlyDeparture(
+        attendanceSessionUuid: session.uuid,
+        reason: reason,
+      );
+
+      var succeeded = false;
+      value.fold(
+        (failure) {
+          earlyDepartureRequestErrorMessage = failure.message;
+          emit(EarlyDepartureRequestErrorState());
+        },
+        (updatedSession) {
+          currentAttendanceSession = updatedSession.clockOutAt == null
+              ? updatedSession
+              : null;
+          isClockedIn = currentAttendanceSession != null;
+          isOnBreak = currentAttendanceSession?.isOnBreak == true;
+          succeeded = true;
+          emit(EarlyDepartureRequestSuccessState());
+        },
+      );
+
+      isEarlyDepartureRequestLoading = false;
+      await checkCurrentAttendance();
+      return succeeded;
+    } catch (_) {
+      earlyDepartureRequestErrorMessage = 'Early departure request failed';
+      isEarlyDepartureRequestLoading = false;
+      emit(EarlyDepartureRequestCatchErrorState());
       await checkCurrentAttendance();
       return false;
     }

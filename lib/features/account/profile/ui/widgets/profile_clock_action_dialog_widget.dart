@@ -68,7 +68,10 @@ class _ProfileClockActionDialogWidgetState
   bool? _isWithinBranchRange;
   bool _isRequestingEarlyDeparture = false;
   bool _forceEarlyDeparturePanel = false;
+  bool _forceExpectedEndAtField = false;
   String? _earlyDepartureReasonError;
+  DateTime? _expectedEndAt;
+  String? _expectedEndAtError;
 
   @override
   void dispose() {
@@ -144,6 +147,14 @@ class _ProfileClockActionDialogWidgetState
                 session: widget.cubit.currentAttendanceSession,
               ),
             ],
+            if (_requiresExpectedEndAt) ...[
+              verticalSpace(12),
+              _ExpectedEndAtFieldWidget(
+                value: _expectedEndAt,
+                errorText: _expectedEndAtError,
+                onTap: () => _pickExpectedEndAt(context),
+              ),
+            ],
             if (_shouldShowEarlyDeparturePanel) ...[
               verticalSpace(12),
               _EarlyDeparturePanelWidget(
@@ -217,6 +228,14 @@ class _ProfileClockActionDialogWidgetState
         _forceEarlyDeparturePanel;
   }
 
+  bool get _requiresExpectedEndAt {
+    if (_forceExpectedEndAtField) return true;
+    if (widget.isClockedIn) return false;
+    final shifts = widget.cubit.attendanceContext?.shifts;
+    if (shifts == null) return false;
+    return shifts.where((shift) => !shift.isLeave).isEmpty;
+  }
+
   bool get _isClockOutBlockedByEarlyDeparture {
     final session = widget.cubit.currentAttendanceSession;
     if (_forceEarlyDeparturePanel) return true;
@@ -254,14 +273,29 @@ class _ProfileClockActionDialogWidgetState
         return;
       }
 
+      final expectedEndAt = _expectedEndAtIsoForAction(action);
+      if (_requiresExpectedEndAt && expectedEndAt == null) {
+        return;
+      }
+
       final succeeded = await widget.cubit.runAttendanceAction(
         action: action,
         latitude: position.latitude,
         longitude: position.longitude,
+        expectedEndAt: expectedEndAt,
       );
 
       if (!context.mounted) return;
       if (!succeeded) {
+        if (action == ProfileAttendanceAction.clockIn &&
+            widget.cubit.attendanceExpectedEndAtErrorMessage.isNotEmpty &&
+            mounted) {
+          setState(() {
+            _forceExpectedEndAtField = true;
+            _expectedEndAtError =
+                widget.cubit.attendanceExpectedEndAtErrorMessage;
+          });
+        }
         if (widget.cubit.shouldOpenEarlyDepartureRequest && mounted) {
           setState(() => _forceEarlyDeparturePanel = true);
         }
@@ -283,6 +317,184 @@ class _ProfileClockActionDialogWidgetState
 
   bool _isActionLoading(ProfileAttendanceAction action) {
     return _loadingAction == action;
+  }
+
+  Future<void> _pickExpectedEndAt(BuildContext context) async {
+    final serverNow = _serverNowWallClock;
+    final initial = _expectedEndAt ?? serverNow.add(const Duration(hours: 8));
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(serverNow.year, serverNow.month, serverNow.day),
+      lastDate: serverNow.add(const Duration(days: 1)),
+      builder: _pickerThemeBuilder,
+    );
+    if (pickedDate == null || !context.mounted) return;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+      builder: (context, child) => _pickerThemeBuilder(
+        context,
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
+    );
+    if (pickedTime == null) return;
+
+    final selected = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+    setState(() {
+      _expectedEndAt = selected;
+      _expectedEndAtError = _validateExpectedEndAt(selected);
+    });
+  }
+
+  String? _expectedEndAtIsoForAction(ProfileAttendanceAction action) {
+    if (action != ProfileAttendanceAction.clockIn || !_requiresExpectedEndAt) {
+      return null;
+    }
+
+    final selected = _expectedEndAt;
+    if (selected == null) {
+      setState(() {
+        _expectedEndAtError = context.tr('profile.expectedEndAtRequired');
+      });
+      return null;
+    }
+
+    final validationError = _validateExpectedEndAt(selected);
+    if (validationError != null) {
+      setState(() => _expectedEndAtError = validationError);
+      return null;
+    }
+
+    setState(() => _expectedEndAtError = null);
+    return _toAttendanceContextUtcIso(selected);
+  }
+
+  String? _validateExpectedEndAt(DateTime selected) {
+    final serverNow = _serverNowWallClock;
+    if (!selected.isAfter(serverNow)) {
+      return context.tr('profile.expectedEndAtFuture');
+    }
+    if (selected.difference(serverNow) > const Duration(hours: 24)) {
+      return context.tr('profile.expectedEndAtMax24');
+    }
+    return null;
+  }
+
+  DateTime get _serverNowWallClock {
+    final serverTime = widget.cubit.attendanceContext?.serverTime;
+    if (serverTime == null || serverTime.trim().isEmpty) return DateTime.now();
+    return AppDateFormat.parseBackendDateTime(serverTime) ?? DateTime.now();
+  }
+
+  String _toAttendanceContextUtcIso(DateTime selected) {
+    final offset = _serverOffset;
+    if (offset == null) return selected.toUtc().toIso8601String();
+    return DateTime.utc(
+      selected.year,
+      selected.month,
+      selected.day,
+      selected.hour,
+      selected.minute,
+    ).subtract(offset).toIso8601String();
+  }
+
+  Duration? get _serverOffset {
+    final serverTime = widget.cubit.attendanceContext?.serverTime ?? '';
+    final match = RegExp(r'([+-])(\d{2}):?(\d{2})$').firstMatch(serverTime);
+    if (match == null) return null;
+    final sign = match.group(1) == '-' ? -1 : 1;
+    final hours = int.tryParse(match.group(2) ?? '');
+    final minutes = int.tryParse(match.group(3) ?? '');
+    if (hours == null || minutes == null) return null;
+    return Duration(minutes: sign * ((hours * 60) + minutes));
+  }
+
+  Widget _pickerThemeBuilder(BuildContext context, Widget? child) {
+    final baseTheme = Theme.of(context);
+    final colorScheme = baseTheme.colorScheme.copyWith(
+      primary: AppColors.greenColor500,
+      onPrimary: AppColors.whiteColor,
+      secondary: AppColors.greenColor500,
+      surface: AppColors.whiteColor,
+      onSurface: AppColors.greyColor900,
+    );
+    return Theme(
+      data: baseTheme.copyWith(
+        colorScheme: colorScheme,
+        dialogTheme: baseTheme.dialogTheme.copyWith(
+          backgroundColor: AppColors.whiteColor,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.greenColor500,
+            textStyle: TextStyles.font14greenColor500W500,
+          ),
+        ),
+        datePickerTheme: DatePickerThemeData(
+          backgroundColor: AppColors.whiteColor,
+          headerBackgroundColor: AppColors.whiteColor,
+          headerForegroundColor: AppColors.greyColor900,
+          surfaceTintColor: AppColors.whiteColor,
+          todayForegroundColor: WidgetStateProperty.all(
+            AppColors.greenColor500,
+          ),
+          todayBorder: const BorderSide(color: AppColors.greenColor500),
+          dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.whiteColor;
+            }
+            return AppColors.greyColor900;
+          }),
+          dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.greenColor500;
+            }
+            return null;
+          }),
+        ),
+        timePickerTheme: TimePickerThemeData(
+          backgroundColor: AppColors.whiteColor,
+          dialHandColor: AppColors.greenColor500,
+          dialBackgroundColor: AppColors.greenColor5005,
+          hourMinuteColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.greenColor500;
+            }
+            return AppColors.greyColorFA;
+          }),
+          hourMinuteTextColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.whiteColor;
+            }
+            return AppColors.greyColor900;
+          }),
+          dayPeriodColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.greenColor500;
+            }
+            return AppColors.greyColorFA;
+          }),
+          dayPeriodTextColor: WidgetStateColor.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.whiteColor;
+            }
+            return AppColors.greyColor900;
+          }),
+        ),
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
   }
 
   Future<void> _requestEarlyDeparture(BuildContext context) async {
@@ -650,6 +862,98 @@ class _BranchRangeWidget extends StatelessWidget {
           context.tr(titleKey),
           style: TextStyles.font14greenColor500W500.copyWith(color: color),
         ),
+      ],
+    );
+  }
+}
+
+class _ExpectedEndAtFieldWidget extends StatelessWidget {
+  final DateTime? value;
+  final String? errorText;
+  final VoidCallback onTap;
+
+  const _ExpectedEndAtFieldWidget({
+    required this.value,
+    required this.errorText,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedValue = value;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(12.r),
+            decoration: BoxDecoration(
+              color: AppColors.whiteColor,
+              borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(
+                color: errorText == null
+                    ? AppColors.greyColor1001
+                    : AppColors.errorColor100,
+                width: .8.w,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.event_available_outlined,
+                  size: 18.r,
+                  color: AppColors.greenColor500,
+                ),
+                horizontalSpace(10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('profile.expectedEndAtLabel'),
+                        style: TextStyles.font12greyColorA3W400,
+                      ),
+                      verticalSpace(4),
+                      Text(
+                        selectedValue == null
+                            ? context.tr('profile.expectedEndAtHint')
+                            : AppDateFormat.dayMonthTime(
+                                context,
+                                selectedValue,
+                              ),
+                        style: TextStyles.font14greyColor900Weight500.copyWith(
+                          color: selectedValue == null
+                              ? AppColors.greyColorA3
+                              : AppColors.greyColor900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20.r,
+                  color: AppColors.greyColorA3,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (errorText != null && errorText!.trim().isNotEmpty) ...[
+          verticalSpace(6),
+          Padding(
+            padding: EdgeInsetsDirectional.only(start: 4.w),
+            child: Text(
+              errorText!,
+              style: TextStyles.font12greyColorA3W400.copyWith(
+                color: AppColors.errorColor100,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

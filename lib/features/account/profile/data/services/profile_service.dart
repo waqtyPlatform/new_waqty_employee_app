@@ -49,12 +49,22 @@ class ProfileService {
     required double latitude,
     required double longitude,
     required String idempotencyKey,
+    String? expectedEndAt,
   }) async {
-    final response = await apiConsumer.post(_attendanceActionEndpoint(action), {
+    final body = <String, dynamic>{
       'latitude': latitude,
       'longitude': longitude,
       'idempotency_key': idempotencyKey,
-    }, await _headers());
+    };
+    if (action == ProfileAttendanceAction.clockIn && expectedEndAt != null) {
+      body['expected_end_at'] = expectedEndAt;
+    }
+
+    final response = await apiConsumer.post(
+      _attendanceActionEndpoint(action),
+      body,
+      await _headers(),
+    );
 
     if (response.statusCode == StatusCode.ok ||
         response.statusCode == StatusCode.created) {

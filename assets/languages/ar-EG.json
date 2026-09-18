@@ -275,7 +275,12 @@
     "earlyDepartureRequestSent": "تم إرسال طلب الانصراف المبكر",
     "earlyDepartureRequestFailed": "تعذر إرسال طلب الانصراف المبكر",
     "earlyDepartureReasonRequired": "اكتب سبب الانصراف المبكر",
-    "earlyDepartureReasonTooLong": "سبب الانصراف يجب ألا يتجاوز 1000 حرف"
+    "earlyDepartureReasonTooLong": "سبب الانصراف يجب ألا يتجاوز 1000 حرف",
+    "expectedEndAtLabel": "وقت انتهاء العمل المتوقع",
+    "expectedEndAtHint": "حدد تاريخ ووقت انتهاء العمل",
+    "expectedEndAtRequired": "حدد وقت انتهاء العمل المتوقع لتسجيل الحضور",
+    "expectedEndAtFuture": "وقت الانتهاء يجب أن يكون في المستقبل",
+    "expectedEndAtMax24": "وقت الانتهاء يجب ألا يتجاوز 24 ساعة من تسجيل الحضور"
   },
   "presenceConfirmation": {
     "title": "هل ما زلت داخل الفرع؟",
@@ -462,6 +467,7 @@
     "yesterday": "أمس",
     "earlier": "الأقدم",
     "viewSchedule": "عرض الجدول",
+    "viewRequests": "عرض الطلبات",
     "viewWorkingHours": "عرض ساعات عملي",
     "seeReview": "عرض التقييم",
     "viewEarnings": "عرض الأرباح",

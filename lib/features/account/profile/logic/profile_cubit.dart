@@ -21,6 +21,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   bool isEarlyDepartureRequestLoading = false;
   bool shouldOpenEarlyDepartureRequest = false;
   String attendanceActionErrorMessage = '';
+  String attendanceExpectedEndAtErrorMessage = '';
   String presenceConfirmationErrorMessage = '';
   String earlyDepartureRequestErrorMessage = '';
 
@@ -82,11 +83,13 @@ class ProfileCubit extends Cubit<ProfileState> {
     required ProfileAttendanceAction action,
     required double latitude,
     required double longitude,
+    String? expectedEndAt,
   }) async {
     if (isAttendanceActionLoading) return false;
 
     isAttendanceActionLoading = true;
     attendanceActionErrorMessage = '';
+    attendanceExpectedEndAtErrorMessage = '';
     shouldOpenEarlyDepartureRequest = false;
     emit(AttendanceActionLoadingState());
 
@@ -95,12 +98,22 @@ class ProfileCubit extends Cubit<ProfileState> {
       latitude: latitude,
       longitude: longitude,
       idempotencyKey: _idempotencyKey(action),
+      expectedEndAt: expectedEndAt,
     );
 
     var succeeded = false;
     value.fold(
       (failure) {
         attendanceActionErrorMessage = failure.message;
+        if (action == ProfileAttendanceAction.clockIn) {
+          final expectedEndAtError = failure.errors['expected_end_at'];
+          if (expectedEndAtError is List && expectedEndAtError.isNotEmpty) {
+            attendanceExpectedEndAtErrorMessage = expectedEndAtError.first
+                .toString();
+          } else if (expectedEndAtError != null) {
+            attendanceExpectedEndAtErrorMessage = expectedEndAtError.toString();
+          }
+        }
         shouldOpenEarlyDepartureRequest =
             action == ProfileAttendanceAction.clockOut &&
             (failure.code == 'EARLY_DEPARTURE_APPROVAL_REQUIRED' ||

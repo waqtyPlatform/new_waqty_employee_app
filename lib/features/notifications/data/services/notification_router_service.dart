@@ -153,6 +153,9 @@ class NotificationRouterService {
       case 'employee_schedule':
         navigator.pushNamed(Routes.workingHoursScreen);
         return true;
+      case 'employee_requests':
+        navigator.pushNamed(Routes.myRequestsScreen);
+        return true;
       case 'attendance':
         navigator.pushNamed(Routes.attendanceScreen);
         return true;
@@ -232,10 +235,11 @@ class NotificationRouterService {
       case 'booking_unassigned':
       case 'shift_cancelled':
       case 'schedule_updated':
-      case 'leave_approved':
       case 'leave_rejected':
       case 'leave_updated':
         return 'employee_schedule';
+      case 'leave_approved':
+        return 'employee_requests';
       case 'shift_assigned':
       case 'shift_updated':
         return 'shift_details';
@@ -252,6 +256,7 @@ class NotificationRouterService {
 
   String _screenOverrideForEvent(String eventType) {
     if (eventType == 'schedule_updated') return 'employee_schedule';
+    if (eventType == 'leave_approved') return 'employee_requests';
     if (eventType == 'missing_clock_in') return 'attendance';
     if (eventType.startsWith('attendance_')) return 'attendance';
     if (eventType.startsWith('early_departure_')) return 'attendance';
@@ -268,6 +273,10 @@ class NotificationRouterService {
       case 'employee_schedule':
       case 'my_bookings':
         return 'employee_schedule';
+      case 'employee_requests':
+      case 'requests':
+      case 'my_requests':
+        return 'employee_requests';
       case 'shift':
       case 'shift_detail':
       case 'shift_details':

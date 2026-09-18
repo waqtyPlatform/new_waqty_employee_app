@@ -34,6 +34,7 @@ class ProfileRepo {
     required double latitude,
     required double longitude,
     required String idempotencyKey,
+    String? expectedEndAt,
   }) async {
     try {
       return Right(
@@ -42,6 +43,7 @@ class ProfileRepo {
           latitude: latitude,
           longitude: longitude,
           idempotencyKey: idempotencyKey,
+          expectedEndAt: expectedEndAt,
         ),
       );
     } on ServerException catch (failure) {

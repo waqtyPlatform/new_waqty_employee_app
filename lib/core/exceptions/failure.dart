@@ -4,11 +4,17 @@ abstract class Failure extends Equatable {
   final String message;
   final String code;
   final Map<String, dynamic> meta;
+  final Map<String, dynamic> errors;
 
-  const Failure({required this.message, this.code = '', this.meta = const {}});
+  const Failure({
+    required this.message,
+    this.code = '',
+    this.meta = const {},
+    this.errors = const {},
+  });
 
   @override
-  List<Object> get props => [message, code, meta];
+  List<Object> get props => [message, code, meta, errors];
 }
 
 class ServerFailure extends Failure {
@@ -16,6 +22,7 @@ class ServerFailure extends Failure {
     required super.message,
     super.code = '',
     super.meta = const {},
+    super.errors = const {},
   });
 
   factory ServerFailure.fromJson(Map<String, dynamic> json) {
@@ -23,6 +30,7 @@ class ServerFailure extends Failure {
       message: _message(json),
       code: json['code']?.toString() ?? '',
       meta: _asMap(json['meta']),
+      errors: _asMap(json['errors']),
     );
   }
 }

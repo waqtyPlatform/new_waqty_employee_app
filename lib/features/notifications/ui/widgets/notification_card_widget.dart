@@ -15,7 +15,10 @@ class NotificationCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actionLabel = item.actionLabel ?? _actionLabel(context, item);
+    final actionLabel =
+        _forcedActionLabel(context, item) ??
+        item.actionLabel ??
+        _actionLabel(context, item);
 
     return InkWell(
       onTap: onTap,
@@ -79,8 +82,23 @@ class NotificationCardWidget extends StatelessWidget {
   }
 }
 
+String? _forcedActionLabel(
+  BuildContext context,
+  NotificationInboxItemModel item,
+) {
+  if (item.action.screen == 'employee_requests' ||
+      item.type == 'leave_approved' ||
+      item.eventType == 'leave_approved') {
+    return context.tr('notificationInbox.viewRequests');
+  }
+  return null;
+}
+
 String? _actionLabel(BuildContext context, NotificationInboxItemModel item) {
   final screen = item.action.screen;
+  if (screen == 'employee_requests') {
+    return context.tr('notificationInbox.viewRequests');
+  }
   if (item.type == 'schedule_updated' || item.eventType == 'schedule_updated') {
     return context.tr('notificationInbox.viewWorkingHours');
   }

@@ -275,7 +275,12 @@
     "earlyDepartureRequestSent": "Early departure request sent",
     "earlyDepartureRequestFailed": "Could not send early departure request",
     "earlyDepartureReasonRequired": "Write the early departure reason",
-    "earlyDepartureReasonTooLong": "Departure reason must be 1000 characters or fewer"
+    "earlyDepartureReasonTooLong": "Departure reason must be 1000 characters or fewer",
+    "expectedEndAtLabel": "Expected work end time",
+    "expectedEndAtHint": "Select the expected end date and time",
+    "expectedEndAtRequired": "Select the expected work end time to clock in",
+    "expectedEndAtFuture": "End time must be in the future",
+    "expectedEndAtMax24": "End time must be within 24 hours of clock-in"
   },
   "presenceConfirmation": {
     "title": "Are you still at the branch?",
@@ -462,6 +467,7 @@
     "yesterday": "Yesterday",
     "earlier": "Earlier",
     "viewSchedule": "View Schedule",
+    "viewRequests": "View requests",
     "viewWorkingHours": "View working hours",
     "seeReview": "See Review",
     "viewEarnings": "View Earnings",

@@ -283,9 +283,9 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     try {
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
-            alert: false,
-            badge: false,
-            sound: false,
+            alert: true,
+            badge: true,
+            sound: true,
           );
     } catch (_) {}
   }
@@ -293,6 +293,15 @@ class FirebaseNotificationService with WidgetsBindingObserver {
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     getIt<NotificationCenterService>().notifyInboxShouldRefresh();
     unawaited(getIt<NotificationCenterService>().refreshUnreadCount());
+
+    // On iOS, notification payloads are presented by Firebase using the
+    // foreground presentation options above. Showing a local notification as
+    // well would display the same notification twice. Data-only messages still
+    // need a local notification because iOS has no alert to present for them.
+    if (defaultTargetPlatform == TargetPlatform.iOS &&
+        message.notification != null) {
+      return;
+    }
     await showRemoteMessage(message);
   }
 

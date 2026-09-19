@@ -41,7 +41,7 @@ class ProfileClockActionDialogWidget extends StatefulWidget {
       pageBuilder: (_, _, _) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-          child: Center(
+          child: _ClockActionDialogViewport(
             child: ProfileClockActionDialogWidget(
               isClockedIn: isClockedIn,
               cubit: cubit,
@@ -56,6 +56,37 @@ class ProfileClockActionDialogWidget extends StatefulWidget {
   @override
   State<ProfileClockActionDialogWidget> createState() =>
       _ProfileClockActionDialogWidgetState();
+}
+
+class _ClockActionDialogViewport extends StatelessWidget {
+  final Widget child;
+
+  const _ClockActionDialogViewport({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    return SafeArea(
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          left: 16.w,
+          right: 16.w,
+          top: 16.h,
+          bottom: keyboardInset + 16.h,
+        ),
+        child: Align(
+          alignment: keyboardInset > 0 ? Alignment.topCenter : Alignment.center,
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: const ClampingScrollPhysics(),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ProfileClockActionDialogWidgetState
@@ -446,9 +477,12 @@ class _ProfileClockActionDialogWidgetState
           headerBackgroundColor: AppColors.whiteColor,
           headerForegroundColor: AppColors.greyColor900,
           surfaceTintColor: AppColors.whiteColor,
-          todayForegroundColor: WidgetStateProperty.all(
-            AppColors.greenColor500,
-          ),
+          todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.whiteColor;
+            }
+            return AppColors.greenColor500;
+          }),
           todayBorder: const BorderSide(color: AppColors.greenColor500),
           dayForegroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {

@@ -150,7 +150,7 @@ class _PackageDetailsContent extends StatelessWidget {
             _OfferCard(package: package),
           ],
           verticalSpace(10),
-          _ServicesCard(items: package.items, currency: package.currency),
+          _ServicesCard(package: package),
         ],
       ),
     );
@@ -235,7 +235,7 @@ class _InfoCard extends StatelessWidget {
               label: context.tr('employeePackages.sessions'),
               value: context.tr(
                 'employeePackages.sessionsCount',
-                namedArgs: {'count': '${package.sessionsIncluded}'},
+                namedArgs: {'count': '${package.displaySessionsCount}'},
               ),
             ),
           if (package.validityDays != null)
@@ -300,10 +300,9 @@ class _OfferCard extends StatelessWidget {
 }
 
 class _ServicesCard extends StatelessWidget {
-  final List<EmployeePackageItemModel> items;
-  final String currency;
+  final EmployeePackageModel package;
 
-  const _ServicesCard({required this.items, required this.currency});
+  const _ServicesCard({required this.package});
 
   @override
   Widget build(BuildContext context) {
@@ -316,16 +315,21 @@ class _ServicesCard extends StatelessWidget {
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(10),
-          if (items.isEmpty)
+          if (package.items.isEmpty)
             Text(
               context.tr('employeePackages.noServices'),
               style: TextStyles.font12greyColor500W400,
             )
           else
-            ...items.map(
+            ...package.items.map(
               (item) => Padding(
                 padding: EdgeInsets.only(bottom: 10.h),
-                child: _ServiceItem(item: item, currency: currency),
+                child: _ServiceItem(
+                  item: item,
+                  currency: package.currency,
+                  showSessions: package.packageType == 'multi_session',
+                  fallbackSessionsCount: package.sessionsIncluded,
+                ),
               ),
             ),
         ],
@@ -337,8 +341,15 @@ class _ServicesCard extends StatelessWidget {
 class _ServiceItem extends StatelessWidget {
   final EmployeePackageItemModel item;
   final String currency;
+  final bool showSessions;
+  final int fallbackSessionsCount;
 
-  const _ServiceItem({required this.item, required this.currency});
+  const _ServiceItem({
+    required this.item,
+    required this.currency,
+    required this.showSessions,
+    required this.fallbackSessionsCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -369,6 +380,16 @@ class _ServiceItem extends StatelessWidget {
                     '${context.tr('employeePackages.price')}: ${item.packageItemPrice} $currency',
                 color: AppColors.greenColor500,
               ),
+              if (showSessions)
+                _Chip(
+                  label: context.tr(
+                    'employeePackages.serviceSessionsCount',
+                    namedArgs: {
+                      'count': '${item.sessionsCount ?? fallbackSessionsCount}',
+                    },
+                  ),
+                  color: AppColors.blueColor506,
+                ),
               if (item.discountAmount != '0.00')
                 _Chip(
                   label:

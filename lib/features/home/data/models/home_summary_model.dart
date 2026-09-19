@@ -78,6 +78,38 @@ class HomeSummaryModel {
   String get earningsLabel => earnings.displayAmount;
 }
 
+class HomeSnapshotModel {
+  final int booked;
+  final int done;
+  final int left;
+  final double rating;
+  final int ratingsCount;
+
+  const HomeSnapshotModel({
+    required this.booked,
+    required this.done,
+    required this.left,
+    required this.rating,
+    required this.ratingsCount,
+  });
+
+  factory HomeSnapshotModel.fromJson(Map<String, dynamic> json) {
+    return HomeSnapshotModel(
+      booked: _asInt(json['booked']),
+      done: _asInt(json['done']),
+      left: _asInt(json['left']),
+      rating: _asDouble(json['rating_average']),
+      ratingsCount: _asInt(json['ratings_count']),
+    );
+  }
+
+  String get ratingLabel {
+    if (ratingsCount == 0) return '--';
+    if (rating == rating.roundToDouble()) return rating.toStringAsFixed(0);
+    return rating.toStringAsFixed(1);
+  }
+}
+
 class HomeEarningsModel {
   final String calculationStatus;
   final bool payrollProcessed;

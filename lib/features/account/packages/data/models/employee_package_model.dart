@@ -153,6 +153,18 @@ class EmployeePackageModel {
 
   bool get hasSessionMode =>
       packageType == 'multi_session' && sessionModeLabel?.isNotEmpty == true;
+
+  int get displaySessionsCount {
+    if (packageType == 'multi_session' &&
+        sessionMode == 'per_service' &&
+        items.any((item) => item.sessionsCount != null)) {
+      return items.fold<int>(
+        0,
+        (total, item) => total + (item.sessionsCount ?? 0),
+      );
+    }
+    return sessionsIncluded;
+  }
 }
 
 class EmployeePackageBranchModel {
@@ -176,6 +188,7 @@ class EmployeePackageItemModel {
   final String discountAmount;
   final String packageItemPrice;
   final int durationMinutes;
+  final int? sessionsCount;
   final int position;
 
   EmployeePackageItemModel({
@@ -185,6 +198,7 @@ class EmployeePackageItemModel {
     required this.discountAmount,
     required this.packageItemPrice,
     required this.durationMinutes,
+    required this.sessionsCount,
     required this.position,
   });
 
@@ -196,6 +210,7 @@ class EmployeePackageItemModel {
       discountAmount: _asMoney(json['discount_amount']),
       packageItemPrice: _asMoney(json['package_item_price']),
       durationMinutes: _asInt(json['duration_minutes']),
+      sessionsCount: _asNullableInt(json['sessions_count']),
       position: _asInt(json['position']),
     );
   }

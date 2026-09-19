@@ -98,7 +98,7 @@ class EmployeePackageCardWidget extends StatelessWidget {
                   _MetaChip(
                     label: context.tr(
                       'employeePackages.sessionsCount',
-                      namedArgs: {'count': '${package.sessionsIncluded}'},
+                      namedArgs: {'count': '${package.displaySessionsCount}'},
                     ),
                   ),
                 if (package.hasOffer)

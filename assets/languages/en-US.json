@@ -897,6 +897,7 @@
     "minutes": "{count} min",
     "sessions": "Sessions",
     "sessionsCount": "{count} sessions",
+    "serviceSessionsCount": "{count} service sessions",
     "units": "Units",
     "unitsCount": "{count} {unit}",
     "validity": "Validity",

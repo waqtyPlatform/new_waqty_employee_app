@@ -25,6 +25,56 @@ class HomeService {
     return HomeSummaryModel.fromJson(_okOrThrow(response));
   }
 
+  Future<HomeSnapshotModel> getTodaySnapshot({
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.get(
+      HomeApiEndPoints.todaySnapshot,
+      await _headers(languageCode),
+    );
+    final data = _okOrThrow(response)['data'];
+    final snapshot = data is Map ? data['snapshot'] : null;
+    return HomeSnapshotModel.fromJson(_asMap(snapshot));
+  }
+
+  Future<HomeEarningsModel> getTodayEarnings({
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.get(
+      HomeApiEndPoints.todayEarnings,
+      await _headers(languageCode),
+    );
+    final data = _okOrThrow(response)['data'];
+    final earnings = data is Map ? data['earnings'] : null;
+    return HomeEarningsModel.fromJson(_asMap(earnings));
+  }
+
+  Future<List<HomeAppointmentModel>> getUpcomingAppointments({
+    required String languageCode,
+    int limit = 5,
+  }) async {
+    final response = await apiConsumer.get(
+      HomeApiEndPoints.upcomingAppointments(limit: limit),
+      await _headers(languageCode),
+    );
+    final data = _okOrThrow(response)['data'];
+    final appointments = data is Map ? data['upcoming_appointments'] : null;
+    return _asList(appointments).map(HomeAppointmentModel.fromJson).toList();
+  }
+
+  Future<HomeReviewModel?> getLatestReview({
+    required String languageCode,
+  }) async {
+    final response = await apiConsumer.get(
+      HomeApiEndPoints.latestReview,
+      await _headers(languageCode),
+    );
+    final data = _okOrThrow(response)['data'];
+    final review = data is Map ? data['latest_review'] : null;
+    final reviewMap = _asMap(review);
+    return reviewMap.isEmpty ? null : HomeReviewModel.fromJson(reviewMap);
+  }
+
   Map<String, dynamic> _okOrThrow(dynamic response) {
     final body = _decodeMap(response.body);
     if (response.statusCode == StatusCode.ok) return body;
@@ -46,5 +96,18 @@ class HomeService {
     if (decodedBody is Map<String, dynamic>) return decodedBody;
     if (decodedBody is Map) return Map<String, dynamic>.from(decodedBody);
     return <String, dynamic>{};
+  }
+
+  Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return <String, dynamic>{};
+  }
+
+  List<Map<String, dynamic>> _asList(dynamic value) {
+    return (value is List ? value : const [])
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
   }
 }

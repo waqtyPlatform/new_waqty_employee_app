@@ -897,6 +897,7 @@
     "minutes": "{count} دقيقة",
     "sessions": "الجلسات",
     "sessionsCount": "{count} جلسة",
+    "serviceSessionsCount": "{count} جلسة للخدمة",
     "units": "الوحدات",
     "unitsCount": "{count} {unit}",
     "validity": "الصلاحية",

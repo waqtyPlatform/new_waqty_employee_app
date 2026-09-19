@@ -14,6 +14,7 @@ import 'package:new_waqty_employee_app/features/home/data/models/home_summary_mo
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_state.dart';
 import 'package:new_waqty_employee_app/features/main_navigation/cubit/main_navigation_cubit.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'widgets/home_header_widget.dart';
 import 'widgets/home_search_widget.dart';
@@ -34,8 +35,14 @@ class HomeScreen extends StatelessWidget {
         final cubit = HomeCubit.get(context);
         final summary = cubit.summary;
         final isInitialLoading =
-            state is OnHomeLoadingState ||
-            (summary == null && state is InitialState);
+            summary == null &&
+            (state is InitialState ||
+                state is OnHomeLoadingState ||
+                cubit.isHomeLoading ||
+                cubit.isSnapshotLoading ||
+                cubit.isEarningsLoading ||
+                cubit.isAppointmentsLoading ||
+                cubit.isLatestReviewLoading);
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: isInitialLoading
@@ -55,7 +62,12 @@ class HomeScreen extends StatelessWidget {
                 : AppColors.greyColor900,
             body: SafeArea(
               bottom: false,
-              child: _buildContent(context, state, summary),
+              child: _buildContent(
+                context,
+                state,
+                summary,
+                isInitialLoading: isInitialLoading,
+              ),
             ),
           ),
         );
@@ -67,9 +79,10 @@ class HomeScreen extends StatelessWidget {
     BuildContext context,
     HomeState state,
     HomeSummaryModel? summary,
-  ) {
-    if (state is OnHomeLoadingState ||
-        (summary == null && state is InitialState)) {
+    {
+    required bool isInitialLoading,
+  }) {
+    if (isInitialLoading) {
       return const HomeShimmerLoadingWidget();
     }
 
@@ -78,7 +91,11 @@ class HomeScreen extends StatelessWidget {
         message: state is OnHomeErrorState
             ? state.message
             : context.tr('common.errorMessage'),
-        onRetry: () => HomeCubit.get(context).getHomeSummary(),
+        onRetry: () {
+          final cubit = HomeCubit.get(context);
+          cubit.getHomeSummary();
+          cubit.getHomeSections();
+        },
       );
     }
 
@@ -86,7 +103,10 @@ class HomeScreen extends StatelessWidget {
       color: AppColors.whiteColor,
       child: RefreshIndicator(
         color: AppColors.greenColor500,
-        onRefresh: () async => HomeCubit.get(context).getHomeSummary(),
+        onRefresh: () async {
+          final cubit = HomeCubit.get(context);
+          await Future.wait([cubit.getHomeSummary(), cubit.getHomeSections()]);
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -98,23 +118,13 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    HomeSnapshotWidget(
-                      booked: summary.booked.toString(),
-                      done: summary.done.toString(),
-                      left: summary.left.toString(),
-                      rating: summary.ratingLabel,
-                    ),
+                    const _HomeSnapshotSection(),
                     verticalSpace(16),
-                    HomeEarningsWidget(
-                      amount: summary.earningsLabel,
-                      isPayrollProcessed: summary.earnings.payrollProcessed,
-                    ),
+                    const _HomeEarningsSection(),
                     verticalSpace(16),
-                    HomeUpcomingAppointmentsWidget(
-                      appointments: summary.appointments,
-                    ),
+                    const _HomeAppointmentsSection(),
                     verticalSpace(16),
-                    HomeLatestReviewWidget(review: summary.latestReview),
+                    const _HomeLatestReviewSection(),
                     verticalSpace(24),
                   ],
                 ),
@@ -295,10 +305,192 @@ class _ClockStatePill extends StatelessWidget {
       );
       if (context.mounted) {
         homeCubit.getHomeSummary();
+        homeCubit.getHomeSections();
       }
     } finally {
       await profileCubit.close();
     }
+  }
+}
+
+class _HomeSnapshotSection extends StatelessWidget {
+  const _HomeSnapshotSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          current is HomeSnapshotLoadingState ||
+          current is HomeSnapshotSuccessState ||
+          current is HomeSnapshotErrorState,
+      builder: (context, state) {
+        final cubit = HomeCubit.get(context);
+        if (cubit.isSnapshotLoading && cubit.snapshot == null) {
+          return const _SectionLoadingCard();
+        }
+        if (cubit.snapshot == null) {
+          return _SectionErrorCard(
+            message: cubit.snapshotError,
+            onRetry: cubit.getTodaySnapshot,
+          );
+        }
+        final snapshot = cubit.snapshot!;
+        return HomeSnapshotWidget(
+          booked: snapshot.booked.toString(),
+          done: snapshot.done.toString(),
+          left: snapshot.left.toString(),
+          rating: snapshot.ratingLabel,
+        );
+      },
+    );
+  }
+}
+
+class _HomeEarningsSection extends StatelessWidget {
+  const _HomeEarningsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          current is HomeEarningsLoadingState ||
+          current is HomeEarningsSuccessState ||
+          current is HomeEarningsErrorState,
+      builder: (context, state) {
+        final cubit = HomeCubit.get(context);
+        if (cubit.isEarningsLoading && cubit.earnings == null) {
+          return const _SectionLoadingCard();
+        }
+        if (cubit.earnings == null) {
+          return _SectionErrorCard(
+            message: cubit.earningsError,
+            onRetry: cubit.getTodayEarnings,
+          );
+        }
+        return HomeEarningsWidget(
+          amount: cubit.earnings!.displayAmount,
+          isPayrollProcessed: cubit.earnings!.payrollProcessed,
+        );
+      },
+    );
+  }
+}
+
+class _HomeAppointmentsSection extends StatelessWidget {
+  const _HomeAppointmentsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          current is HomeAppointmentsLoadingState ||
+          current is HomeAppointmentsSuccessState ||
+          current is HomeAppointmentsErrorState,
+      builder: (context, state) {
+        final cubit = HomeCubit.get(context);
+        if (cubit.isAppointmentsLoading && cubit.appointments.isEmpty) {
+          return const _SectionLoadingCard();
+        }
+        if (cubit.appointmentsError.isNotEmpty && cubit.appointments.isEmpty) {
+          return _SectionErrorCard(
+            message: cubit.appointmentsError,
+            onRetry: cubit.getUpcomingAppointments,
+          );
+        }
+        return HomeUpcomingAppointmentsWidget(appointments: cubit.appointments);
+      },
+    );
+  }
+}
+
+class _HomeLatestReviewSection extends StatelessWidget {
+  const _HomeLatestReviewSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          current is HomeLatestReviewLoadingState ||
+          current is HomeLatestReviewSuccessState ||
+          current is HomeLatestReviewErrorState,
+      builder: (context, state) {
+        final cubit = HomeCubit.get(context);
+        if (cubit.isLatestReviewLoading && cubit.latestReview == null) {
+          return const _SectionLoadingCard();
+        }
+        if (cubit.latestReviewError.isNotEmpty && cubit.latestReview == null) {
+          return _SectionErrorCard(
+            message: cubit.latestReviewError,
+            onRetry: cubit.getLatestReview,
+          );
+        }
+        return HomeLatestReviewWidget(review: cubit.latestReview);
+      },
+    );
+  }
+}
+
+class _SectionLoadingCard extends StatelessWidget {
+  const _SectionLoadingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.greyColor100,
+      highlightColor: AppColors.greyColorFA,
+      child: Container(
+        height: 96.h,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: AppColors.greyColor1001.withValues(alpha: .2),
+            width: .8,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionErrorCard extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _SectionErrorCard({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: AppColors.greyColor1001.withValues(alpha: .2),
+          width: .8,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            message.isEmpty ? context.tr('common.errorMessage') : message,
+            textAlign: TextAlign.center,
+            style: TextStyles.font12greyColor500W400,
+          ),
+          verticalSpace(8),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(
+              context.tr('common.retry'),
+              style: TextStyles.font14greenColor500Weight600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

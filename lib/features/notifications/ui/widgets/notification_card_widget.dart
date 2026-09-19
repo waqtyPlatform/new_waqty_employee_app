@@ -91,6 +91,11 @@ String? _forcedActionLabel(
       item.eventType == 'leave_approved') {
     return context.tr('notificationInbox.viewRequests');
   }
+  if (item.action.screen == 'employee_package_details' ||
+      item.type.startsWith('package_') ||
+      item.eventType.startsWith('package_')) {
+    return context.tr('notificationInbox.viewPackage');
+  }
   return null;
 }
 

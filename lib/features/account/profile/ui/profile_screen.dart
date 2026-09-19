@@ -144,6 +144,11 @@ class _ProfileScreenState extends State<ProfileScreen>
         onTap: () => context.pushNamed(Routes.myServicesScreen),
       ),
       ProfileMenuItemData(
+        title: context.tr('profile.myPackages'),
+        iconPath: ImageAsset.profileServiceIcon,
+        onTap: () => context.pushNamed(Routes.employeePackagesScreen),
+      ),
+      ProfileMenuItemData(
         title: context.tr('profile.myWorkingHours'),
         iconPath: ImageAsset.profileWorkingHoursIcon,
         onTap: () => context.pushNamed(Routes.workingHoursScreen),

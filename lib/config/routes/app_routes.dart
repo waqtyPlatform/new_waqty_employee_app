@@ -31,6 +31,9 @@ import 'package:new_waqty_employee_app/features/account/my_requests/logic/my_req
 import 'package:new_waqty_employee_app/features/account/my_requests/ui/my_requests_screen.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/logic/my_services_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/my_services/ui/my_services_screen.dart';
+import 'package:new_waqty_employee_app/features/account/packages/logic/employee_packages_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/packages/ui/employee_package_details_screen.dart';
+import 'package:new_waqty_employee_app/features/account/packages/ui/employee_packages_screen.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/logic/notification_setting_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/notification_setting/ui/notification_setting_screen.dart';
 import 'package:new_waqty_employee_app/features/account/profile_details/logic/profile_details_cubit.dart';
@@ -241,6 +244,37 @@ class RouteGenerator {
             create: (context) => MyServicesCubit(getIt())..init(),
             child: const MyServicesScreen(),
           ),
+        );
+
+      case Routes.employeePackagesScreen:
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  EmployeePackagesCubit(getIt())
+                    ..init(languageCode: languageCode),
+              child: const EmployeePackagesScreen(),
+            );
+          },
+        );
+
+      case Routes.employeePackageDetailsScreen:
+        final uuid = args is Map
+            ? (args['uuid'] ?? args['package_id'] ?? args['entity_id'])
+                      ?.toString() ??
+                  ''
+            : '';
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) =>
+                  EmployeePackagesCubit(getIt())
+                    ..initDetails(uuid: uuid, languageCode: languageCode),
+              child: EmployeePackageDetailsScreen(uuid: uuid),
+            );
+          },
         );
 
       case Routes.myRequestsScreen:

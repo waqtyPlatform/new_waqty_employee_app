@@ -13,6 +13,8 @@ class Routes {
   static const resetPasswordScreen = "/ResetPasswordScreen";
   static const bookingDetailsScreen = "/BookingDetailsScreen";
   static const myServicesScreen = "/MyServicesScreen";
+  static const employeePackagesScreen = "/EmployeePackagesScreen";
+  static const employeePackageDetailsScreen = "/EmployeePackageDetailsScreen";
   static const profileDetailsScreen = "/ProfileDetailsScreen";
   static const workingHoursScreen = "/WorkingHoursScreen";
   static const myRequestsScreen = "/MyRequestsScreen";

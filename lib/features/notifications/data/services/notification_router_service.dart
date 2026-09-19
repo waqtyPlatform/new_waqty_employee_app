@@ -156,6 +156,18 @@ class NotificationRouterService {
       case 'employee_requests':
         navigator.pushNamed(Routes.myRequestsScreen);
         return true;
+      case 'employee_package_details':
+        final packageId = _firstString(payload, const [
+          'package_id',
+          'package_uuid',
+          'entity_id',
+        ]);
+        if (packageId.isEmpty) return false;
+        navigator.pushNamed(
+          Routes.employeePackageDetailsScreen,
+          arguments: {'uuid': packageId},
+        );
+        return true;
       case 'attendance':
         navigator.pushNamed(Routes.attendanceScreen);
         return true;
@@ -220,6 +232,7 @@ class NotificationRouterService {
     if (eventType.contains('payslip')) return 'payslips';
     if (eventType.contains('bonus')) return 'bonuses';
     if (eventType.contains('deduction')) return 'deductions';
+    if (eventType.startsWith('package_')) return 'employee_package_details';
 
     switch (eventType) {
       case 'missing_clock_in':
@@ -277,6 +290,10 @@ class NotificationRouterService {
       case 'requests':
       case 'my_requests':
         return 'employee_requests';
+      case 'employee_package_details':
+      case 'package_details':
+      case 'my_package_details':
+        return 'employee_package_details';
       case 'shift':
       case 'shift_detail':
       case 'shift_details':

@@ -109,6 +109,8 @@ class _BonusEntryRowWidget extends StatelessWidget {
                         style: TextStyles.font12greyColorA3W400,
                       ),
                     ],
+                    verticalSpace(6),
+                    _BonusStatusChipWidget(item: item),
                   ],
                 ),
               ),
@@ -138,6 +140,29 @@ class _BonusEntryRowWidget extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _BonusStatusChipWidget extends StatelessWidget {
+  final MoneyLineItem item;
+
+  const _BonusStatusChipWidget({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: AppColors.greenColor500.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(100.r),
+      ),
+      child: Text(
+        context.tr(item.statusKey),
+        style: TextStyles.font10greyColorA3W600.copyWith(
+          color: AppColors.greenColor500,
+        ),
       ),
     );
   }

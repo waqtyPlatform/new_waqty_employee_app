@@ -694,7 +694,11 @@
     "amountThisMonth": "{amount} this month",
     "totalBonus": "Total Bonus",
     "deduction": "Deduction",
-    "approved": "APPROVED"
+    "approved": "APPROVED",
+    "reversed": "REVERSED",
+    "suggested": "SUGGESTED",
+    "cancelled": "CANCELLED",
+    "rejected": "REJECTED"
   },
   "mainNavigation": {
     "home": "Home",

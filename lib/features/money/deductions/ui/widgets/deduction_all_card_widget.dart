@@ -123,6 +123,8 @@ class _DeductionEntryRowWidget extends StatelessWidget {
                         style: TextStyles.font12greyColorA3W400,
                       ),
                     ],
+                    verticalSpace(6),
+                    _DeductionStatusChipWidget(item: item),
                   ],
                 ),
               ),
@@ -152,6 +154,29 @@ class _DeductionEntryRowWidget extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _DeductionStatusChipWidget extends StatelessWidget {
+  final MoneyLineItem item;
+
+  const _DeductionStatusChipWidget({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: AppColors.errorColor2003,
+        borderRadius: BorderRadius.circular(100.r),
+      ),
+      child: Text(
+        context.tr(item.statusKey),
+        style: TextStyles.font10greyColorA3W600.copyWith(
+          color: AppColors.errorColor2002,
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
+import 'package:new_waqty_employee_app/features/account/profile/logic/profile_state.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_clock_action_dialog_widget.dart';
 import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
@@ -33,16 +34,23 @@ class HomeScreen extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         final cubit = HomeCubit.get(context);
+        final profileCubit = _profileCubitOrNull(context);
         final summary = cubit.summary;
+        final isProfileLoading =
+            profileCubit != null &&
+            profileCubit.profileResponseModel == null &&
+            (profileCubit.state is ProfileInitialState ||
+                profileCubit.state is GetProfileLoadingState);
         final isInitialLoading =
-            summary == null &&
-            (state is InitialState ||
-                state is OnHomeLoadingState ||
-                cubit.isHomeLoading ||
-                cubit.isSnapshotLoading ||
-                cubit.isEarningsLoading ||
-                cubit.isAppointmentsLoading ||
-                cubit.isLatestReviewLoading);
+            (summary == null &&
+                (state is InitialState ||
+                    state is OnHomeLoadingState ||
+                    cubit.isHomeLoading ||
+                    cubit.isSnapshotLoading ||
+                    cubit.isEarningsLoading ||
+                    cubit.isAppointmentsLoading ||
+                    cubit.isLatestReviewLoading)) ||
+            isProfileLoading;
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: isInitialLoading
@@ -78,8 +86,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildContent(
     BuildContext context,
     HomeState state,
-    HomeSummaryModel? summary,
-    {
+    HomeSummaryModel? summary, {
     required bool isInitialLoading,
   }) {
     if (isInitialLoading) {
@@ -144,6 +151,12 @@ class _HomeTopSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = _profileCubitOrNull(context)?.profileResponseModel;
+    final customer = profile?.customer;
+    final employeeName = customer?.name ?? '';
+    final employeeAvatarUrl = customer?.avatarUrl ?? '';
+    final branchName = customer?.branchModel.name ?? summary.branchName;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(bottom: 18.h),
@@ -152,9 +165,9 @@ class _HomeTopSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HomeHeaderWidget(
-            employeeName: summary.employeeName,
-            employeeAvatarUrl: summary.employeeAvatarUrl,
-            branchName: summary.branchName,
+            employeeName: employeeName,
+            employeeAvatarUrl: employeeAvatarUrl,
+            branchName: branchName,
             onAvatarTap: () => MainNavigationCubit.get(context).changeTab(4),
             onNotificationTap: () =>
                 Navigator.pushNamed(context, Routes.notificationsScreen),
@@ -178,9 +191,11 @@ class _HomeGreetingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = _profileCubitOrNull(context)?.profileResponseModel;
+    final employeeName = profile?.customer.name ?? '';
     final date = DateTime.tryParse(summary.date) ?? DateTime.now();
     final dateLabel = AppDateFormat.dayMonth(context, date);
-    final firstName = _firstName(summary.employeeName);
+    final firstName = _firstName(employeeName);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,6 +234,14 @@ class _HomeGreetingWidget extends StatelessWidget {
   String _firstName(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
     return parts.isEmpty || parts.first.isEmpty ? '' : parts.first;
+  }
+}
+
+ProfileCubit? _profileCubitOrNull(BuildContext context) {
+  try {
+    return context.watch<ProfileCubit>();
+  } catch (_) {
+    return null;
   }
 }
 

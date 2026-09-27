@@ -1,81 +1,28 @@
 class HomeSummaryModel {
-  final String employeeName;
-  final String employeeAvatarUrl;
   final String branchName;
   final String date;
-  final String timezone;
   final bool clockedIn;
   final DateTime? clockedInAt;
-  final int booked;
-  final int done;
-  final int left;
-  final double rating;
-  final int ratingsCount;
-  final HomeEarningsModel earnings;
-  final List<HomeAppointmentModel> appointments;
-  final HomeReviewModel? latestReview;
 
   const HomeSummaryModel({
-    required this.employeeName,
-    required this.employeeAvatarUrl,
     required this.branchName,
     required this.date,
-    required this.timezone,
     required this.clockedIn,
     required this.clockedInAt,
-    required this.booked,
-    required this.done,
-    required this.left,
-    required this.rating,
-    required this.ratingsCount,
-    required this.earnings,
-    required this.appointments,
-    required this.latestReview,
   });
 
   factory HomeSummaryModel.fromJson(Map<String, dynamic> json) {
     final data = _asMap(json['data']);
-    final employee = _asMap(data['employee']);
     final branch = _asMap(data['branch']);
     final workingStatus = _asMap(data['working_status']);
-    final snapshot = _asMap(data['snapshot']);
-    final upcomingAppointments = _asList(data['upcoming_appointments']);
-    final latestReview = _asMap(data['latest_review']);
 
     return HomeSummaryModel(
-      employeeName: _asString(
-        employee['name'],
-        fallback: _asString(employee['first_name']),
-      ),
-      employeeAvatarUrl: _asString(employee['avatar_url']),
       branchName: _asString(branch['name']),
       date: _asString(data['date']),
-      timezone: _asString(data['timezone']),
       clockedIn: _asBool(workingStatus['clocked_in']),
       clockedInAt: _parseDate(workingStatus['clocked_in_at']),
-      booked: _asInt(snapshot['booked']),
-      done: _asInt(snapshot['done']),
-      left: _asInt(snapshot['left']),
-      rating: _asDouble(snapshot['rating_average']),
-      ratingsCount: _asInt(snapshot['ratings_count']),
-      earnings: HomeEarningsModel.fromJson(_asMap(data['earnings'])),
-      appointments: upcomingAppointments
-          .take(5)
-          .map(HomeAppointmentModel.fromJson)
-          .toList(),
-      latestReview: latestReview.isEmpty
-          ? null
-          : HomeReviewModel.fromJson(latestReview),
     );
   }
-
-  String get ratingLabel {
-    if (ratingsCount == 0) return '--';
-    if (rating == rating.roundToDouble()) return rating.toStringAsFixed(0);
-    return rating.toStringAsFixed(1);
-  }
-
-  String get earningsLabel => earnings.displayAmount;
 }
 
 class HomeSnapshotModel {

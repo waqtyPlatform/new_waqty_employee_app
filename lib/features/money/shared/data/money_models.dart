@@ -32,7 +32,8 @@ class EmployeeMoneyPreviewModel {
   });
 
   factory EmployeeMoneyPreviewModel.fromJson(Map<String, dynamic> json) {
-    final data = _data(json);
+    final root = _data(json);
+    final data = _firstMap(root['currencies']) ?? root;
     final salary = _mapAny(data, const ['salary', 'basic_salary', 'payroll']);
     final commission = _mapAny(data, const [
       'commission',
@@ -43,14 +44,20 @@ class EmployeeMoneyPreviewModel {
     final net = _mapAny(data, const ['net_pay', 'net', 'pay']);
 
     return EmployeeMoneyPreviewModel(
-      state: _str(data['state'] ?? data['pay_state'] ?? data['status']),
-      month: _str(_value(data['month']) ?? data['month']),
+      state: _str(
+        root['state'] ?? data['state'] ?? data['pay_state'] ?? data['status'],
+      ),
+      month: _str(_value(root['month']) ?? _value(data['month'])),
       currency: _currency(data),
       salary: _num(
-        data['basic_salary'] ?? salary['basic_salary'] ?? salary['amount'],
+        data['salary'] ??
+            data['basic_salary'] ??
+            salary['basic_salary'] ??
+            salary['amount'],
       ),
       commission: _num(
-        data['net_earned_commission'] ??
+        commission['net'] ??
+            data['net_earned_commission'] ??
             data['commission_earned'] ??
             commission['net_earned'] ??
             commission['earned'] ??
@@ -69,8 +76,8 @@ class EmployeeMoneyPreviewModel {
       ),
       actualDeduction: _num(
         data['actual_deduction'] ??
-            deduction['actual'] ??
             deduction['total'] ??
+            deduction['actual'] ??
             deduction['amount'],
       ),
       suggestedDeduction: _num(
@@ -80,7 +87,9 @@ class EmployeeMoneyPreviewModel {
             deduction['estimated_amount'],
       ),
       netPay: _num(
-        data['net_pay'] ??
+        data['estimated_net_pay'] ??
+            data['final_net_pay'] ??
+            data['net_pay'] ??
             data['estimated_net_pay'] ??
             data['final_net_pay'] ??
             data['paid_net_pay'] ??
@@ -89,14 +98,15 @@ class EmployeeMoneyPreviewModel {
       serviceValueGenerated: _num(
         data['service_value_generated'] ??
             data['attributed_service_value'] ??
-            commission['service_value_generated'],
+            commission['service_value_generated'] ??
+            commission['total_eligible_value'],
       ),
       attendance: MoneyAttendanceSummary.fromJson(
-        _mapAny(data, const ['attendance_summary', 'attendance']),
+        _mapAny(root, const ['attendance_summary', 'attendance']),
       ),
-      latestPayslip: _nullableMap(data['latest_payslip']) == null
+      latestPayslip: _nullableMap(root['latest_payslip']) == null
           ? null
-          : MoneyPayslipSummary.fromJson(_map(data['latest_payslip'])),
+          : MoneyPayslipSummary.fromJson(_map(root['latest_payslip'])),
       commissionTarget: _nullableMap(data['commission_target']) == null
           ? null
           : MoneyCommissionTarget.fromJson(_map(data['commission_target'])),
@@ -303,7 +313,9 @@ class MoneyTrendBucket {
       appointmentsCount: _int(json['appointments_count']),
       servicesCount: _int(json['services_count']),
       serviceValueGenerated: _num(json['service_value_generated']),
-      commissionEarned: _num(json['commission_earned']),
+      commissionEarned: _num(
+        json['net_commission'] ?? json['commission_earned'],
+      ),
       bonus: _num(json['bonus']),
       deduction: _num(json['deduction']),
       netEarnings: _num(json['net_earnings']),
@@ -534,6 +546,7 @@ class MoneyLineItem {
   final double amount;
   final String currency;
   final String status;
+  final String displayStatus;
   final String type;
   final String source;
 
@@ -543,6 +556,7 @@ class MoneyLineItem {
     required this.amount,
     required this.currency,
     required this.status,
+    required this.displayStatus,
     required this.type,
     required this.source,
   });
@@ -556,20 +570,42 @@ class MoneyLineItem {
     String fallbackCurrency = '',
   }) {
     final currency = _currency(json);
+    final status = _str(json['status']);
     return MoneyLineItem(
       title: _str(
-        json['title'] ?? json['reason'] ?? json['type'] ?? json['label'],
+        json['title'] ??
+            json['service'] ??
+            json['reason'] ??
+            json['type'] ??
+            json['label'],
       ),
       subtitle: _str(
-        json['subtitle'] ?? json['notes'] ?? json['effective_date'],
+        json['subtitle'] ??
+            json['customer_name'] ??
+            json['notes'] ??
+            json['effective_date'] ??
+            json['completed_at'] ??
+            json['attendance_date'] ??
+            json['booking_reference'],
       ),
       amount: _num(json['amount']),
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
-      status: _str(json['status']),
+      status: status,
+      displayStatus: _str(json['display_status'], fallback: status),
       type: _str(json['type'] ?? json['category'] ?? json['classification']),
       source: _str(json['source']),
     );
   }
+
+  String get statusKey => switch (displayStatus) {
+    'approved' => 'myEarning.approved',
+    'paid' => 'myEarning.paid',
+    'reversed' => 'myEarning.reversed',
+    'suggested' => 'myEarning.suggested',
+    'cancelled' => 'myEarning.cancelled',
+    'rejected' => 'myEarning.rejected',
+    _ => 'myEarning.pending',
+  };
 }
 
 class MoneyBonusResponse {
@@ -587,16 +623,30 @@ class MoneyBonusResponse {
 
   factory MoneyBonusResponse.fromJson(Map<String, dynamic> json) {
     final data = _data(json);
-    final currency = _currency(data);
+    final summary =
+        _firstMap(_map(json['meta'])['summary']) ??
+        _firstMap(data['summary']) ??
+        _map(data['summary']);
+    final currency = _currency(summary).isNotEmpty
+        ? _currency(summary)
+        : _currency(data);
     final items = _lineItems(
       data['items'] ?? data['bonuses'] ?? json['data'],
       fallbackCurrency: currency,
     );
     return MoneyBonusResponse(
-      total: _num(data['total'] ?? data['monthly_total'] ?? data['amount']),
+      total: _num(
+        summary['total'] ??
+            data['total'] ??
+            data['monthly_total'] ??
+            data['amount'],
+      ),
       currency: currency,
       categories: _lineItems(
-        data['by_category'] ?? data['categories'] ?? data['by_type'],
+        summary['by_type'] ??
+            data['by_category'] ??
+            data['categories'] ??
+            data['by_type'],
         fallbackCurrency: currency,
       ),
       items: items,
@@ -619,16 +669,30 @@ class MoneyDeductionResponse {
 
   factory MoneyDeductionResponse.fromJson(Map<String, dynamic> json) {
     final data = _data(json);
-    final currency = _currency(data);
+    final summary =
+        _firstMap(_map(json['meta'])['summary']) ??
+        _firstMap(data['summary']) ??
+        _map(data['summary']);
+    final currency = _currency(summary).isNotEmpty
+        ? _currency(summary)
+        : _currency(data);
     final items = _lineItems(
       data['items'] ?? data['deductions'] ?? json['data'],
       fallbackCurrency: currency,
     );
     return MoneyDeductionResponse(
-      total: _num(data['total'] ?? data['monthly_total'] ?? data['amount']),
+      total: _num(
+        summary['total'] ??
+            data['total'] ??
+            data['monthly_total'] ??
+            data['amount'],
+      ),
       currency: currency,
       categories: _lineItems(
-        data['by_category'] ?? data['categories'] ?? data['by_type'],
+        summary['by_type'] ??
+            data['by_category'] ??
+            data['categories'] ??
+            data['by_type'],
         fallbackCurrency: currency,
       ),
       items: items,
@@ -666,6 +730,16 @@ Map<String, dynamic>? _nullableMap(dynamic value) {
   if (value == null) return null;
   final map = _map(value);
   return map.isEmpty ? null : map;
+}
+
+Map<String, dynamic>? _firstMap(dynamic value) {
+  if (value is List) {
+    for (final item in value) {
+      final map = _map(item);
+      if (map.isNotEmpty) return map;
+    }
+  }
+  return null;
 }
 
 Map<String, dynamic> _mapAny(Map<String, dynamic> json, List<String> keys) {

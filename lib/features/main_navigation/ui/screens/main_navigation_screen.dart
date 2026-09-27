@@ -26,8 +26,13 @@ class MainNavigationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MainNavigationCubit(initialIndex: initialIndex),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => MainNavigationCubit(initialIndex: initialIndex),
+        ),
+        BlocProvider(create: (context) => ProfileCubit(getIt())..init()),
+      ],
       child: const MainNavigationScreenView(),
     );
   }
@@ -97,10 +102,7 @@ class MainNavigationScreenView extends StatelessWidget {
       case 3:
         return const MyEarningScreen();
       case 4:
-        return BlocProvider(
-          create: (context) => ProfileCubit(getIt())..init(),
-          child: const ProfileScreen(),
-        );
+        return const ProfileScreen();
       default:
         return BlocProvider(
           create: (context) =>

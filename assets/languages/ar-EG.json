@@ -694,7 +694,11 @@
     "amountThisMonth": "{amount} هذا الشهر",
     "totalBonus": "إجمالي المكافآت",
     "deduction": "خصم",
-    "approved": "معتمد"
+    "approved": "معتمد",
+    "reversed": "معكوس",
+    "suggested": "مقترح",
+    "cancelled": "ملغي",
+    "rejected": "مرفوض"
   },
   "mainNavigation": {
     "home": "الرئيسية",

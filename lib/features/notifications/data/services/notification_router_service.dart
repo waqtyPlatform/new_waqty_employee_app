@@ -180,6 +180,12 @@ class NotificationRouterService {
       case 'reviews':
         navigator.pushNamed(Routes.myReviewsScreen);
         return true;
+      case 'commissions':
+        navigator.pushNamed(
+          Routes.mainNavigationScreen,
+          arguments: {'initialIndex': 3},
+        );
+        return true;
       case 'payslips':
         navigator.pushNamed(Routes.payslipsScreen);
         return true;
@@ -229,6 +235,7 @@ class NotificationRouterService {
     if (eventType.startsWith('attendance_')) return 'attendance';
     if (eventType.startsWith('early_departure_')) return 'attendance';
     if (eventType.contains('review')) return 'reviews';
+    if (eventType.contains('commission')) return 'commissions';
     if (eventType.contains('payslip')) return 'payslips';
     if (eventType.contains('bonus')) return 'bonuses';
     if (eventType.contains('deduction')) return 'deductions';
@@ -258,6 +265,8 @@ class NotificationRouterService {
         return 'shift_details';
       case 'announcement':
         return 'notification_details';
+      case 'employee_commission_created':
+        return 'commissions';
       case 'support_updated':
         if (entityType == 'bug_report') return 'bug_reports';
         if (entityType == 'contact_message') return 'contact_messages';
@@ -303,6 +312,10 @@ class NotificationRouterService {
       case 'my_reviews':
       case 'employee_reviews':
         return 'reviews';
+      case 'commission':
+      case 'commissions':
+      case 'employee_commissions':
+        return 'commissions';
       case 'payslip':
       case 'payslips':
       case 'payslip_details':

@@ -413,7 +413,12 @@ class DailyServiceMoneyItem {
       commissionAmount: _num(
         json['commission_amount'] ?? json['commission_earned'],
       ),
-      commissionStatus: _str(json['commission_status'] ?? json['status']),
+      commissionStatus: _str(
+        json['payout_status'] ??
+            json['display_status'] ??
+            json['commission_status'] ??
+            json['status'],
+      ),
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
       sourceType: _str(json['source_type']),
     );
@@ -571,6 +576,7 @@ class MoneyLineItem {
   }) {
     final currency = _currency(json);
     final status = _str(json['status']);
+    final payoutStatus = _str(json['payout_status']);
     return MoneyLineItem(
       title: _str(
         json['title'] ??
@@ -588,24 +594,67 @@ class MoneyLineItem {
             json['attendance_date'] ??
             json['booking_reference'],
       ),
-      amount: _num(json['amount']),
+      amount: _num(json['amount'] ?? json['commission_amount']),
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
       status: status,
-      displayStatus: _str(json['display_status'], fallback: status),
+      displayStatus: payoutStatus.isNotEmpty
+          ? payoutStatus
+          : _str(json['display_status'], fallback: status),
       type: _str(json['type'] ?? json['category'] ?? json['classification']),
       source: _str(json['source']),
     );
   }
 
   String get statusKey => switch (displayStatus) {
+    'included' => 'myEarning.payoutIncluded',
     'approved' => 'myEarning.approved',
-    'paid' => 'myEarning.paid',
+    'paid' => 'myEarning.payoutPaid',
     'reversed' => 'myEarning.reversed',
     'suggested' => 'myEarning.suggested',
     'cancelled' => 'myEarning.cancelled',
     'rejected' => 'myEarning.rejected',
-    _ => 'myEarning.pending',
+    _ => 'myEarning.payoutPending',
   };
+}
+
+class MoneyCommissionResponse {
+  final double total;
+  final double pending;
+  final double earned;
+  final double reversed;
+  final String currency;
+  final List<MoneyLineItem> items;
+
+  const MoneyCommissionResponse({
+    required this.total,
+    required this.pending,
+    required this.earned,
+    required this.reversed,
+    required this.currency,
+    required this.items,
+  });
+
+  factory MoneyCommissionResponse.fromJson(Map<String, dynamic> json) {
+    final data = _data(json);
+    final summary =
+        _firstMap(_map(json['meta'])['summary']) ??
+        _firstMap(data['summary']) ??
+        _map(data['summary']);
+    final currency = _currency(summary).isNotEmpty
+        ? _currency(summary)
+        : _currency(data);
+    return MoneyCommissionResponse(
+      total: _num(summary['net'] ?? data['net'] ?? data['total']),
+      pending: _num(summary['pending'] ?? data['pending']),
+      earned: _num(summary['earned'] ?? data['earned']),
+      reversed: _num(summary['reversed'] ?? data['reversed']),
+      currency: currency,
+      items: _lineItems(
+        data['items'] ?? data['commissions'] ?? json['data'],
+        fallbackCurrency: currency,
+      ),
+    );
+  }
 }
 
 class MoneyBonusResponse {

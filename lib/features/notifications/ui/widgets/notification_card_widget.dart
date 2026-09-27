@@ -122,6 +122,9 @@ String? _actionLabel(BuildContext context, NotificationInboxItemModel item) {
   if (screen == 'notification_details' || item.type.contains('announcement')) {
     return null;
   }
+  if (screen == 'commissions' || item.type.contains('commission')) {
+    return context.tr('notificationInbox.viewEarnings');
+  }
   if (screen == 'bonuses' || item.type.contains('bonus')) {
     return context.tr('notificationInbox.viewBonuses');
   }

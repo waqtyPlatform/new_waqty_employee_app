@@ -261,6 +261,7 @@ IconData _iconFor({required String type, required String category}) {
   }
   if (type.contains('attendance')) return Icons.check_circle_outline_rounded;
   if (type.contains('support')) return Icons.support_agent_outlined;
+  if (type.contains('commission')) return Icons.trending_up;
   if (type.contains('shift') || type.contains('schedule')) {
     return Icons.access_time_rounded;
   }
@@ -273,6 +274,7 @@ Color _iconColorFor({required String type, required String category}) {
     return AppColors.errorColor2002;
   }
   if (type.contains('attendance')) return AppColors.greenColor500;
+  if (type.contains('commission')) return AppColors.greenColor500;
   if (category == 'booking' || type.startsWith('booking_')) {
     return AppColors.blueColor506;
   }
@@ -287,6 +289,7 @@ Color _backgroundColorFor({required String type, required String category}) {
     return AppColors.errorColor2003;
   }
   if (type.contains('attendance')) return AppColors.greenColor5005;
+  if (type.contains('commission')) return AppColors.greenColor5005;
   if (category == 'booking' || type.startsWith('booking_')) {
     return AppColors.blueColor5055;
   }

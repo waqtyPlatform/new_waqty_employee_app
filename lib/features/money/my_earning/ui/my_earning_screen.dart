@@ -11,6 +11,7 @@ import 'package:new_waqty_employee_app/features/money/my_earning/data/services/m
 import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/logic/my_earning_state.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/attendance_summary_card_widget.dart';
+import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/commission_preview_cards_widget.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/commission_target_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/estimated_pay_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/my_earning/ui/widgets/my_earning_action_tile_widget.dart';
@@ -70,6 +71,8 @@ class MyEarningScreen extends StatelessWidget {
                         verticalSpace(12),
                         const MyEarningSummaryRowWidget(),
                         verticalSpace(12),
+                        const CommissionPreviewCardsWidget(),
+                        verticalSpace(12),
                         const WeeklyTrendCardWidget(),
                         verticalSpace(12),
                         const CommissionTargetCardWidget(),
@@ -79,6 +82,8 @@ class MyEarningScreen extends StatelessWidget {
                         const MyEarningPayslipsTileWidget(),
                         verticalSpace(12),
                         const MyEarningBonusesTileWidget(),
+                        verticalSpace(12),
+                        const MyEarningCommissionsTileWidget(),
                         verticalSpace(12),
                         const MyEarningDeductionsTileWidget(),
                         verticalSpace(12),

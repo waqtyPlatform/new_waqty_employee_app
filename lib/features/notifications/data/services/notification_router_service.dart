@@ -181,10 +181,7 @@ class NotificationRouterService {
         navigator.pushNamed(Routes.myReviewsScreen);
         return true;
       case 'commissions':
-        navigator.pushNamed(
-          Routes.mainNavigationScreen,
-          arguments: {'initialIndex': 3},
-        );
+        navigator.pushNamed(Routes.commissionsScreen);
         return true;
       case 'payslips':
         navigator.pushNamed(Routes.payslipsScreen);

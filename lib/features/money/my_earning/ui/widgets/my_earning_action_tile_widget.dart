@@ -43,6 +43,26 @@ class MyEarningBonusesTileWidget extends StatelessWidget {
   }
 }
 
+class MyEarningCommissionsTileWidget extends StatelessWidget {
+  const MyEarningCommissionsTileWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = context.watch<MyEarningCubit>().preview;
+    return MyEarningActionTileWidget(
+      title: context.tr('myEarning.commissions'),
+      subtitle: preview == null
+          ? ''
+          : context.tr(
+              'myEarning.amountThisMonth',
+              namedArgs: {'amount': preview.money(preview.commission)},
+            ),
+      icon: Icons.trending_up,
+      onTap: () => Navigator.pushNamed(context, Routes.commissionsScreen),
+    );
+  }
+}
+
 class MyEarningDeductionsTileWidget extends StatelessWidget {
   const MyEarningDeductionsTileWidget({super.key});
 

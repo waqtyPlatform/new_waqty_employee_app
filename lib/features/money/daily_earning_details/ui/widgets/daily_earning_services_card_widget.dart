@@ -131,6 +131,43 @@ class _DailyServiceItemWidget extends StatelessWidget {
                     color: AppColors.greyColor300,
                   ),
                 ),
+                verticalSpace(4),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.greenColor50,
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                  child: Text(
+                    context.tr(service.commissionStatusKey),
+                    style: TextStyles.font10greyColorA3W600.copyWith(
+                      color: AppColors.greenColor500,
+                    ),
+                  ),
+                ),
+                if (service.hasCommissionPayoutSplit) ...[
+                  verticalSpace(4),
+                  Wrap(
+                    spacing: 6.w,
+                    runSpacing: 4.h,
+                    children: [
+                      _CommissionSplitPillWidget(
+                        label: context.tr('myEarning.paidAmount'),
+                        value: formatMoney(
+                          service.commissionPaidAmount,
+                          currency,
+                        ),
+                      ),
+                      _CommissionSplitPillWidget(
+                        label: context.tr('myEarning.remainingAmount'),
+                        value: formatMoney(
+                          service.commissionRemainingAmount,
+                          currency,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -140,6 +177,30 @@ class _DailyServiceItemWidget extends StatelessWidget {
             style: TextStyles.font14greenColor500Weight600,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CommissionSplitPillWidget extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _CommissionSplitPillWidget({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: AppColors.greyColorFA,
+        borderRadius: BorderRadius.circular(100.r),
+      ),
+      child: Text(
+        '$label: $value',
+        style: TextStyles.font10greyColorA3w400.copyWith(
+          color: AppColors.greyColor500,
+        ),
       ),
     );
   }

@@ -69,6 +69,10 @@ import 'package:new_waqty_employee_app/features/money/bonuses/data/repo/bonuses_
 import 'package:new_waqty_employee_app/features/money/bonuses/data/services/bonuses_service.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/ui/bonuses_screen.dart';
+import 'package:new_waqty_employee_app/features/money/commissions/data/repo/commissions_repo.dart';
+import 'package:new_waqty_employee_app/features/money/commissions/data/services/commissions_service.dart';
+import 'package:new_waqty_employee_app/features/money/commissions/logic/commissions_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/commissions/ui/commissions_screen.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/models/daily_earning_details_args.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/repo/daily_earning_details_repo.dart';
 import 'package:new_waqty_employee_app/features/money/daily_earning_details/data/services/daily_earning_details_service.dart';
@@ -573,6 +577,19 @@ class RouteGenerator {
                 BonusesRepo(BonusesService(apiConsumer: getIt())),
               )..init(languageCode: languageCode),
               child: const BonusesScreen(),
+            );
+          },
+        );
+
+      case Routes.commissionsScreen:
+        return MaterialPageRoute(
+          builder: (context) {
+            final languageCode = context.locale.languageCode;
+            return BlocProvider(
+              create: (_) => CommissionsCubit(
+                CommissionsRepo(CommissionsService(apiConsumer: getIt())),
+              )..init(languageCode: languageCode),
+              child: const CommissionsScreen(),
             );
           },
         );

@@ -127,7 +127,68 @@ class EstimatedPayCardWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              if (preview?.hasPayoutSplit ?? false) ...[
+                verticalSpace(12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PayoutAmountPill(
+                        label: context.tr('myEarning.paidAmount'),
+                        amount: preview!.money(preview.paidAmount),
+                      ),
+                    ),
+                    horizontalSpace(8),
+                    Expanded(
+                      child: _PayoutAmountPill(
+                        label: context.tr('myEarning.remainingAmount'),
+                        amount: preview.money(preview.remainingAmount),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PayoutAmountPill extends StatelessWidget {
+  final String label;
+  final String amount;
+
+  const _PayoutAmountPill({required this.label, required this.amount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: AppColors.whiteColor.withValues(alpha: .08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyles.font10greyColorA3W600.copyWith(
+              color: AppColors.whiteColor.withValues(alpha: .62),
+            ),
+          ),
+          verticalSpace(3),
+          Text(
+            amount,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyles.font12whiteColorWeight600.copyWith(
+              color: AppColors.whiteColor,
+            ),
           ),
         ],
       ),

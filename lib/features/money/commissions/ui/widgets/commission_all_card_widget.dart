@@ -5,17 +5,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
-import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubit.dart';
+import 'package:new_waqty_employee_app/features/money/commissions/logic/commissions_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
 
-class BonusAllCardWidget extends StatelessWidget {
-  const BonusAllCardWidget({super.key});
+class CommissionAllCardWidget extends StatelessWidget {
+  const CommissionAllCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bonuses = context.watch<BonusesCubit>().bonuses;
-    final items = bonuses?.items ?? const [];
+    final commissions = context.watch<CommissionsCubit>().commissions;
+    final items = commissions?.items ?? const [];
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -24,7 +24,7 @@ class BonusAllCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.tr('myEarning.allBonuses'),
+            context.tr('myEarning.allCommissions'),
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
@@ -36,7 +36,7 @@ class BonusAllCardWidget extends StatelessWidget {
           else ...[
             ...List.generate(
               items.length,
-              (index) => _BonusEntryRowWidget(
+              (index) => _CommissionEntryRowWidget(
                 item: items[index],
                 showDivider: index != items.length - 1,
               ),
@@ -52,9 +52,8 @@ class BonusAllCardWidget extends StatelessWidget {
                 ),
                 Text(
                   formatMoney(
-                    bonuses?.total ?? 0,
-                    bonuses?.currency ?? '',
-                    plus: true,
+                    commissions?.total ?? 0,
+                    commissions?.currency ?? '',
                   ),
                   style: TextStyles.font14greenColor500Weight600,
                 ),
@@ -67,92 +66,91 @@ class BonusAllCardWidget extends StatelessWidget {
   }
 }
 
-class _BonusEntryRowWidget extends StatelessWidget {
+class _CommissionEntryRowWidget extends StatelessWidget {
   final MoneyLineItem item;
   final bool showDivider;
 
-  const _BonusEntryRowWidget({required this.item, this.showDivider = true});
+  const _CommissionEntryRowWidget({
+    required this.item,
+    this.showDivider = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: showDivider ? 10.h : 0),
-      margin: EdgeInsets.only(bottom: showDivider ? 10.h : 0),
+      padding: EdgeInsets.only(bottom: showDivider ? 12.h : 0),
+      margin: EdgeInsets.only(bottom: showDivider ? 12.h : 0),
       decoration: BoxDecoration(
         border: showDivider
             ? Border(
                 bottom: BorderSide(
-                  color: AppColors.greyColor1001.withValues(alpha: .22),
+                  color: AppColors.greyColor1001.withValues(alpha: .18),
                   width: .8.w,
                 ),
               )
             : null,
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title.isEmpty
-                          ? context.tr('myEarning.bonus')
-                          : item.title,
-                      style: TextStyles.font14greyColor900Weight500,
-                    ),
-                    if (item.subtitle.isNotEmpty) ...[
-                      verticalSpace(3),
-                      Text(
-                        item.subtitle,
-                        style: TextStyles.font12greyColorA3W400,
-                      ),
-                    ],
-                    verticalSpace(6),
-                    _BonusStatusChipWidget(item: item),
-                    if (item.hasPayoutSplit) ...[
-                      verticalSpace(6),
-                      _BonusEntrySplitWidget(item: item),
-                    ],
-                  ],
-                ),
-              ),
-              horizontalSpace(12),
-              Text(
-                formatMoney(item.amount, item.currency, plus: true),
-                style: TextStyles.font14greenColor500Weight600,
-              ),
-              horizontalSpace(6),
-              Icon(
-                Icons.keyboard_arrow_down,
-                color: AppColors.greyColor100,
-                size: 18.r,
-              ),
-            ],
-          ),
-          if (item.source.isNotEmpty) ...[
-            verticalSpace(10),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(12.r),
-              decoration: BoxDecoration(
-                color: AppColors.greyColorFA,
-                borderRadius: BorderRadius.circular(6.r),
-              ),
-              child: Text(item.source, style: TextStyles.font12greyColorA3W400),
+          Container(
+            width: 36.r,
+            height: 36.r,
+            decoration: BoxDecoration(
+              color: AppColors.greenColor500.withValues(alpha: .08),
+              shape: BoxShape.circle,
             ),
-          ],
+            child: Icon(
+              Icons.trending_up,
+              color: AppColors.greenColor500,
+              size: 16.r,
+            ),
+          ),
+          horizontalSpace(10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title.isEmpty
+                      ? context.tr('myEarning.commission')
+                      : item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyles.font14greyColor900Weight500,
+                ),
+                if (item.subtitle.isNotEmpty) ...[
+                  verticalSpace(3),
+                  Text(
+                    item.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.font12greyColorA3W400,
+                  ),
+                ],
+                verticalSpace(6),
+                _CommissionStatusChipWidget(item: item),
+                if (item.hasPayoutSplit) ...[
+                  verticalSpace(6),
+                  _CommissionEntrySplitWidget(item: item),
+                ],
+              ],
+            ),
+          ),
+          horizontalSpace(8),
+          Text(
+            formatMoney(item.amount, item.currency),
+            style: TextStyles.font14greenColor500Weight600,
+          ),
         ],
       ),
     );
   }
 }
 
-class _BonusEntrySplitWidget extends StatelessWidget {
+class _CommissionEntrySplitWidget extends StatelessWidget {
   final MoneyLineItem item;
 
-  const _BonusEntrySplitWidget({required this.item});
+  const _CommissionEntrySplitWidget({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -160,24 +158,27 @@ class _BonusEntrySplitWidget extends StatelessWidget {
       spacing: 6.w,
       runSpacing: 4.h,
       children: [
-        _BonusEntrySplitPillWidget(
+        _CommissionEntrySplitPillWidget(
           label: context.tr('myEarning.paidAmount'),
-          value: formatMoney(item.paidAmount, item.currency, plus: true),
+          value: formatMoney(item.paidAmount, item.currency),
         ),
-        _BonusEntrySplitPillWidget(
+        _CommissionEntrySplitPillWidget(
           label: context.tr('myEarning.remainingAmount'),
-          value: formatMoney(item.remainingAmount, item.currency, plus: true),
+          value: formatMoney(item.remainingAmount, item.currency),
         ),
       ],
     );
   }
 }
 
-class _BonusEntrySplitPillWidget extends StatelessWidget {
+class _CommissionEntrySplitPillWidget extends StatelessWidget {
   final String label;
   final String value;
 
-  const _BonusEntrySplitPillWidget({required this.label, required this.value});
+  const _CommissionEntrySplitPillWidget({
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -197,10 +198,10 @@ class _BonusEntrySplitPillWidget extends StatelessWidget {
   }
 }
 
-class _BonusStatusChipWidget extends StatelessWidget {
+class _CommissionStatusChipWidget extends StatelessWidget {
   final MoneyLineItem item;
 
-  const _BonusStatusChipWidget({required this.item});
+  const _CommissionStatusChipWidget({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +212,11 @@ class _BonusStatusChipWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(100.r),
       ),
       child: Text(
-        context.tr(item.statusKey),
+        context.tr(
+          item.displayStatus == 'pending'
+              ? 'myEarning.commissionPendingStatus'
+              : item.statusKey,
+        ),
         style: TextStyles.font10greyColorA3W600.copyWith(
           color: AppColors.greenColor500,
         ),

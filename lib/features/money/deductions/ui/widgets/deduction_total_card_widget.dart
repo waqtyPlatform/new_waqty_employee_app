@@ -50,6 +50,77 @@ class DeductionTotalCardWidget extends StatelessWidget {
               color: AppColors.errorColor2002,
             ),
           ),
+          if (deductions?.hasPayoutSplit ?? false) ...[
+            verticalSpace(12),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _DeductionSplitAmountWidget(
+                      label: context.tr('myEarning.paidAmount'),
+                      amount: formatMoney(
+                        deductions!.paidAmount,
+                        deductions.currency,
+                        minus: true,
+                      ),
+                    ),
+                  ),
+                  horizontalSpace(8),
+                  Expanded(
+                    child: _DeductionSplitAmountWidget(
+                      label: context.tr('myEarning.remainingAmount'),
+                      amount: formatMoney(
+                        deductions.remainingAmount,
+                        deductions.currency,
+                        minus: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DeductionSplitAmountWidget extends StatelessWidget {
+  final String label;
+  final String amount;
+
+  const _DeductionSplitAmountWidget({
+    required this.label,
+    required this.amount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: AppColors.errorColor2003,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyles.font10greyColorA3W600,
+          ),
+          verticalSpace(3),
+          Text(
+            amount,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyles.font12greyColor900Weight600.copyWith(
+              color: AppColors.errorColor2002,
+            ),
+          ),
         ],
       ),
     );

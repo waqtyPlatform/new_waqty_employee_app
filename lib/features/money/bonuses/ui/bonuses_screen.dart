@@ -8,7 +8,6 @@ import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_cubi
 import 'package:new_waqty_employee_app/features/money/bonuses/logic/bonuses_state.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/ui/widgets/bonus_all_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/ui/widgets/bonus_categories_card_widget.dart';
-import 'package:new_waqty_employee_app/features/money/bonuses/ui/widgets/bonus_how_it_works_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/bonuses/ui/widgets/bonus_total_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/payslip_header_widget.dart';
 
@@ -56,8 +55,6 @@ class BonusesScreen extends StatelessWidget {
                     const BonusCategoriesCardWidget(),
                     verticalSpace(12),
                     const BonusAllCardWidget(),
-                    verticalSpace(12),
-                    const BonusHowItWorksCardWidget(),
                   ],
                 ),
               ),

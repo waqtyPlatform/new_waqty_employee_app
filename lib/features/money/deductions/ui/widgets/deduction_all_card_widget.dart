@@ -125,6 +125,10 @@ class _DeductionEntryRowWidget extends StatelessWidget {
                     ],
                     verticalSpace(6),
                     _DeductionStatusChipWidget(item: item),
+                    if (item.hasPayoutSplit) ...[
+                      verticalSpace(6),
+                      _DeductionEntrySplitWidget(item: item),
+                    ],
                   ],
                 ),
               ),
@@ -154,6 +158,57 @@ class _DeductionEntryRowWidget extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _DeductionEntrySplitWidget extends StatelessWidget {
+  final MoneyLineItem item;
+
+  const _DeductionEntrySplitWidget({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 4.h,
+      children: [
+        _DeductionEntrySplitPillWidget(
+          label: context.tr('myEarning.paidAmount'),
+          value: formatMoney(item.paidAmount, item.currency, minus: true),
+        ),
+        _DeductionEntrySplitPillWidget(
+          label: context.tr('myEarning.remainingAmount'),
+          value: formatMoney(item.remainingAmount, item.currency, minus: true),
+        ),
+      ],
+    );
+  }
+}
+
+class _DeductionEntrySplitPillWidget extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _DeductionEntrySplitPillWidget({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: AppColors.errorColor2003,
+        borderRadius: BorderRadius.circular(100.r),
+      ),
+      child: Text(
+        '$label: $value',
+        style: TextStyles.font10greyColorA3w400.copyWith(
+          color: AppColors.errorColor2002,
+        ),
       ),
     );
   }

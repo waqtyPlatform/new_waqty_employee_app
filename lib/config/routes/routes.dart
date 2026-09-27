@@ -41,6 +41,7 @@ class Routes {
   static const payslipsScreen = "/PayslipsScreen";
   static const payslipDetailsScreen = "/PayslipDetailsScreen";
   static const bonusesScreen = "/BonusesScreen";
+  static const commissionsScreen = "/CommissionsScreen";
   static const deductionsScreen = "/DeductionsScreen";
   static const myReviewsScreen = "/MyReviewsScreen";
 }

@@ -8,11 +8,17 @@ class EmployeeMoneyPreviewModel {
   final double bonus;
   final double actualDeduction;
   final double suggestedDeduction;
+  final double paidAmount;
+  final double remainingAmount;
+  final double projectedNetPay;
   final double netPay;
+  final String payoutStatus;
   final double serviceValueGenerated;
+  final MoneyPreviewSalaryPayment salaryPayment;
   final MoneyAttendanceSummary attendance;
   final MoneyPayslipSummary? latestPayslip;
   final MoneyCommissionTarget? commissionTarget;
+  final List<MoneyPreviewCommissionSummary> commissionSummaries;
 
   const EmployeeMoneyPreviewModel({
     required this.state,
@@ -24,15 +30,22 @@ class EmployeeMoneyPreviewModel {
     required this.bonus,
     required this.actualDeduction,
     required this.suggestedDeduction,
+    required this.paidAmount,
+    required this.remainingAmount,
+    required this.projectedNetPay,
     required this.netPay,
+    required this.payoutStatus,
     required this.serviceValueGenerated,
+    required this.salaryPayment,
     required this.attendance,
     required this.latestPayslip,
     required this.commissionTarget,
+    required this.commissionSummaries,
   });
 
   factory EmployeeMoneyPreviewModel.fromJson(Map<String, dynamic> json) {
     final root = _data(json);
+    final currencyRows = _list(root['currencies']);
     final data = _firstMap(root['currencies']) ?? root;
     final salary = _mapAny(data, const ['salary', 'basic_salary', 'payroll']);
     final commission = _mapAny(data, const [
@@ -42,6 +55,45 @@ class EmployeeMoneyPreviewModel {
     final bonus = _mapAny(data, const ['bonus', 'bonuses']);
     final deduction = _mapAny(data, const ['deduction', 'deductions']);
     final net = _mapAny(data, const ['net_pay', 'net', 'pay']);
+    final commissionSummaries = currencyRows
+        .map(MoneyPreviewCommissionSummary.fromCurrencyJson)
+        .where((item) => item.currency.isNotEmpty)
+        .toList();
+    final primaryCommission = commissionSummaries.isNotEmpty
+        ? commissionSummaries.first
+        : MoneyPreviewCommissionSummary.fromJson(commission);
+    final salaryPayment = MoneyPreviewSalaryPayment.fromJsonWithFallback(
+      _map(data['salary_payment']),
+      fallbackCurrency: _currency(data),
+      fallbackTotal: _num(
+        salary['total'] ??
+            salary['basic_salary'] ??
+            salary['amount'] ??
+            data['salary'] ??
+            data['basic_salary'],
+      ),
+    );
+    final bonusAmount = _num(
+      data['bonuses'] ??
+          data['bonus'] ??
+          data['bonuses_total'] ??
+          bonus['total'] ??
+          bonus['amount'],
+    );
+    final actualDeduction = _num(
+      deduction['manual'] ??
+          data['actual_deduction'] ??
+          deduction['total'] ??
+          deduction['actual'] ??
+          deduction['amount'],
+    );
+    final paidAmount = salaryPayment.paid + primaryCommission.paid;
+    final netPay =
+        salaryPayment.total +
+        primaryCommission.total +
+        bonusAmount -
+        actualDeduction;
+    final remainingAmount = netPay > paidAmount ? netPay - paidAmount : 0.0;
 
     return EmployeeMoneyPreviewModel(
       state: _str(
@@ -49,51 +101,44 @@ class EmployeeMoneyPreviewModel {
       ),
       month: _str(_value(root['month']) ?? _value(data['month'])),
       currency: _currency(data),
-      salary: _num(
-        data['salary'] ??
-            data['basic_salary'] ??
-            salary['basic_salary'] ??
-            salary['amount'],
-      ),
-      commission: _num(
-        commission['net'] ??
-            data['net_earned_commission'] ??
-            data['commission_earned'] ??
-            commission['net_earned'] ??
-            commission['earned'] ??
-            commission['amount'],
-      ),
+      salary: salaryPayment.total,
+      commission: primaryCommission.total > 0
+          ? primaryCommission.total
+          : _num(
+              commission['total'] ??
+                  commission['net'] ??
+                  data['commission_net'] ??
+                  data['net_earned_commission'] ??
+                  data['commission_earned'] ??
+                  commission['net_earned'] ??
+                  commission['earned'] ??
+                  commission['amount'],
+            ),
       pendingCommission: _num(
-        data['pending_commission'] ??
-            commission['pending'] ??
-            commission['pending_commission'],
+        primaryCommission.pending > 0
+            ? primaryCommission.pending
+            : data['pending_commission'] ??
+                  commission['pending'] ??
+                  commission['pending_commission'],
       ),
-      bonus: _num(
-        data['bonus'] ??
-            data['bonuses_total'] ??
-            bonus['total'] ??
-            bonus['amount'],
-      ),
-      actualDeduction: _num(
-        data['actual_deduction'] ??
-            deduction['total'] ??
-            deduction['actual'] ??
-            deduction['amount'],
-      ),
+      bonus: bonusAmount,
+      actualDeduction: actualDeduction,
       suggestedDeduction: _num(
         data['suggested_deduction'] ??
             deduction['suggested'] ??
             deduction['estimated'] ??
             deduction['estimated_amount'],
       ),
-      netPay: _num(
-        data['estimated_net_pay'] ??
-            data['final_net_pay'] ??
-            data['net_pay'] ??
-            data['estimated_net_pay'] ??
-            data['final_net_pay'] ??
-            data['paid_net_pay'] ??
-            net['amount'],
+      paidAmount: paidAmount,
+      remainingAmount: remainingAmount,
+      projectedNetPay: netPay,
+      netPay: netPay,
+      payoutStatus: _str(
+        salaryPayment.status.isNotEmpty
+            ? salaryPayment.status
+            : root['payout_status'] ??
+                  data['payout_status'] ??
+                  net['payout_status'],
       ),
       serviceValueGenerated: _num(
         data['service_value_generated'] ??
@@ -110,27 +155,119 @@ class EmployeeMoneyPreviewModel {
       commissionTarget: _nullableMap(data['commission_target']) == null
           ? null
           : MoneyCommissionTarget.fromJson(_map(data['commission_target'])),
+      salaryPayment: salaryPayment,
+      commissionSummaries: commissionSummaries,
     );
   }
 
   String get payTitleKey => switch (state) {
+    _ when hasPayoutSplit || projectedNetPay > 0 => 'myEarning.totalDue',
     'final' => 'myEarning.finalNetPay',
     'paid' => 'myEarning.paidNetPay',
     _ => 'myEarning.estimatedNetPay',
   };
 
   String get payStatusKey => switch (state) {
+    _ when remainingAmount > 0 => 'myEarning.remainingPending',
+    _ when paidAmount > 0 || payoutStatus == 'paid' => 'myEarning.payoutPaid',
     'final' => 'myEarning.finalLabel',
-    'paid' => 'myEarning.paid',
+    'paid' => 'myEarning.payoutPaid',
     _ => 'myEarning.estimatedLabel',
   };
 
-  double get shownDeduction => state == 'estimated' && actualDeduction == 0
-      ? suggestedDeduction
-      : actualDeduction;
+  bool get hasPayoutSplit => paidAmount > 0 || remainingAmount > 0;
+
+  double get shownDeduction =>
+      actualDeduction == 0 ? suggestedDeduction : actualDeduction;
 
   String money(double value, {bool plus = false, bool minus = false}) =>
       formatMoney(value, currency, plus: plus, minus: minus);
+}
+
+class MoneyPreviewSalaryPayment {
+  final double total;
+  final double paid;
+  final double remaining;
+  final String status;
+  final String currency;
+
+  const MoneyPreviewSalaryPayment({
+    required this.total,
+    required this.paid,
+    required this.remaining,
+    required this.status,
+    required this.currency,
+  });
+
+  factory MoneyPreviewSalaryPayment.fromJsonWithFallback(
+    Map<String, dynamic> json, {
+    required String fallbackCurrency,
+    required double fallbackTotal,
+  }) {
+    final total = json.containsKey('total')
+        ? _num(json['total'])
+        : fallbackTotal;
+    return MoneyPreviewSalaryPayment(
+      total: total,
+      paid: _num(json['paid']),
+      remaining: _num(json['remaining']),
+      status: _str(json['status']),
+      currency: _currency(json).isNotEmpty ? _currency(json) : fallbackCurrency,
+    );
+  }
+
+  String money(double value) => formatMoney(value, currency);
+}
+
+class MoneyPreviewCommissionSummary {
+  final double total;
+  final double paid;
+  final double remaining;
+  final double pending;
+  final double earned;
+  final double reversed;
+  final double net;
+  final String currency;
+
+  const MoneyPreviewCommissionSummary({
+    required this.total,
+    required this.paid,
+    required this.remaining,
+    required this.pending,
+    required this.earned,
+    required this.reversed,
+    required this.net,
+    required this.currency,
+  });
+
+  factory MoneyPreviewCommissionSummary.fromCurrencyJson(
+    Map<String, dynamic> json,
+  ) {
+    final commission = _map(json['commission']);
+    return MoneyPreviewCommissionSummary.fromJson({
+      'currency': json['currency'],
+      ...commission,
+    });
+  }
+
+  factory MoneyPreviewCommissionSummary.fromJson(Map<String, dynamic> json) {
+    final total = json.containsKey('total')
+        ? _num(json['total'])
+        : _num(json['net']);
+    return MoneyPreviewCommissionSummary(
+      total: total,
+      paid: _num(json['paid']),
+      remaining: _num(json['remaining']),
+      pending: _num(json['pending']),
+      earned: _num(json['earned']),
+      reversed: _num(json['reversed']),
+      net: total,
+      currency: _currency(json),
+    );
+  }
+
+  String money(double value, {bool minus = false}) =>
+      formatMoney(value, currency, minus: minus);
 }
 
 class MoneyAttendanceSummary {
@@ -380,6 +517,8 @@ class DailyServiceMoneyItem {
   final String completedAt;
   final double serviceValueGenerated;
   final double commissionAmount;
+  final double commissionPaidAmount;
+  final double commissionRemainingAmount;
   final String commissionStatus;
   final String currency;
   final String sourceType;
@@ -390,6 +529,8 @@ class DailyServiceMoneyItem {
     required this.completedAt,
     required this.serviceValueGenerated,
     required this.commissionAmount,
+    required this.commissionPaidAmount,
+    required this.commissionRemainingAmount,
     required this.commissionStatus,
     required this.currency,
     required this.sourceType,
@@ -405,6 +546,14 @@ class DailyServiceMoneyItem {
   }) {
     final customer = _map(json['customer']);
     final currency = _currency(json);
+    final payrollInclusion = _map(json['payroll_inclusion']);
+    final payoutStatus = _str(json['payout_status']);
+    final displayStatus = payoutStatus.isNotEmpty
+        ? payoutStatus
+        : _str(
+            json['display_status'],
+            fallback: payrollInclusion.isNotEmpty ? 'included' : '',
+          );
     return DailyServiceMoneyItem(
       serviceName: _str(json['service_name'] ?? json['name']),
       customerName: _str(json['customer_name'] ?? customer['name']),
@@ -413,16 +562,39 @@ class DailyServiceMoneyItem {
       commissionAmount: _num(
         json['commission_amount'] ?? json['commission_earned'],
       ),
+      commissionPaidAmount: _num(
+        json['paid_amount'] ??
+            _map(json['commission'])['paid_amount'] ??
+            _map(json['payroll_inclusion'])['paid_amount'],
+      ),
+      commissionRemainingAmount: _num(
+        json['remaining_amount'] ??
+            _map(json['commission'])['remaining_amount'] ??
+            _map(json['payroll_inclusion'])['remaining_amount'],
+      ),
       commissionStatus: _str(
-        json['payout_status'] ??
-            json['display_status'] ??
-            json['commission_status'] ??
-            json['status'],
+        displayStatus.isNotEmpty
+            ? displayStatus
+            : json['commission_status'] ?? json['status'],
       ),
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
       sourceType: _str(json['source_type']),
     );
   }
+
+  String get commissionStatusKey => switch (commissionStatus) {
+    'included' => 'myEarning.payoutIncluded',
+    'approved' => 'myEarning.approved',
+    'paid' => 'myEarning.payoutPaid',
+    'reversed' => 'myEarning.reversed',
+    'suggested' => 'myEarning.suggested',
+    'cancelled' => 'myEarning.cancelled',
+    'rejected' => 'myEarning.rejected',
+    _ => 'myEarning.payoutPending',
+  };
+
+  bool get hasCommissionPayoutSplit =>
+      commissionPaidAmount > 0 || commissionRemainingAmount > 0;
 }
 
 class MoneyPayslipsResponse {
@@ -549,9 +721,12 @@ class MoneyLineItem {
   final String title;
   final String subtitle;
   final double amount;
+  final double paidAmount;
+  final double remainingAmount;
   final String currency;
   final String status;
   final String displayStatus;
+  final String payrollInclusion;
   final String type;
   final String source;
 
@@ -559,9 +734,12 @@ class MoneyLineItem {
     required this.title,
     required this.subtitle,
     required this.amount,
+    required this.paidAmount,
+    required this.remainingAmount,
     required this.currency,
     required this.status,
     required this.displayStatus,
+    required this.payrollInclusion,
     required this.type,
     required this.source,
   });
@@ -577,6 +755,22 @@ class MoneyLineItem {
     final currency = _currency(json);
     final status = _str(json['status']);
     final payoutStatus = _str(json['payout_status']);
+    final payrollInclusion = _map(json['payroll_inclusion']);
+    final payrollInclusionStatus = _str(
+      payrollInclusion['status'] ??
+          payrollInclusion['display_status'] ??
+          payrollInclusion['payout_status'],
+    );
+    final paidAmount = _num(
+      json['paid_amount'] ??
+          _map(json['amounts'])['paid_amount'] ??
+          payrollInclusion['paid_amount'],
+    );
+    final remainingAmount = _num(
+      json['remaining_amount'] ??
+          _map(json['amounts'])['remaining_amount'] ??
+          payrollInclusion['remaining_amount'],
+    );
     return MoneyLineItem(
       title: _str(
         json['title'] ??
@@ -594,16 +788,35 @@ class MoneyLineItem {
             json['attendance_date'] ??
             json['booking_reference'],
       ),
-      amount: _num(json['amount'] ?? json['commission_amount']),
+      amount: _num(
+        json['commission_amount'] ??
+            json['projected_net_pay'] ??
+            json['net'] ??
+            json['total'] ??
+            json['amount'] ??
+            json['value'],
+      ),
+      paidAmount: paidAmount,
+      remainingAmount: remainingAmount,
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
       status: status,
       displayStatus: payoutStatus.isNotEmpty
           ? payoutStatus
-          : _str(json['display_status'], fallback: status),
+          : _str(
+              json['display_status'],
+              fallback: payrollInclusionStatus.isNotEmpty
+                  ? payrollInclusionStatus
+                  : payrollInclusion.isNotEmpty
+                  ? 'included'
+                  : status,
+            ),
+      payrollInclusion: payrollInclusionStatus,
       type: _str(json['type'] ?? json['category'] ?? json['classification']),
       source: _str(json['source']),
     );
   }
+
+  bool get hasPayoutSplit => paidAmount > 0 || remainingAmount > 0;
 
   String get statusKey => switch (displayStatus) {
     'included' => 'myEarning.payoutIncluded',
@@ -620,7 +833,10 @@ class MoneyLineItem {
 class MoneyCommissionResponse {
   final double total;
   final double pending;
+  final double included;
   final double earned;
+  final double approved;
+  final double paid;
   final double reversed;
   final String currency;
   final List<MoneyLineItem> items;
@@ -628,7 +844,10 @@ class MoneyCommissionResponse {
   const MoneyCommissionResponse({
     required this.total,
     required this.pending,
+    required this.included,
     required this.earned,
+    required this.approved,
+    required this.paid,
     required this.reversed,
     required this.currency,
     required this.items,
@@ -644,9 +863,14 @@ class MoneyCommissionResponse {
         ? _currency(summary)
         : _currency(data);
     return MoneyCommissionResponse(
-      total: _num(summary['net'] ?? data['net'] ?? data['total']),
+      total: _num(
+        summary['total'] ?? data['total'] ?? summary['net'] ?? data['net'],
+      ),
       pending: _num(summary['pending'] ?? data['pending']),
+      included: _num(summary['included'] ?? data['included']),
       earned: _num(summary['earned'] ?? data['earned']),
+      approved: _num(summary['approved'] ?? data['approved']),
+      paid: _num(summary['paid'] ?? data['paid']),
       reversed: _num(summary['reversed'] ?? data['reversed']),
       currency: currency,
       items: _lineItems(
@@ -659,12 +883,16 @@ class MoneyCommissionResponse {
 
 class MoneyBonusResponse {
   final double total;
+  final double paidAmount;
+  final double remainingAmount;
   final String currency;
   final List<MoneyLineItem> categories;
   final List<MoneyLineItem> items;
 
   const MoneyBonusResponse({
     required this.total,
+    required this.paidAmount,
+    required this.remainingAmount,
     required this.currency,
     required this.categories,
     required this.items,
@@ -679,17 +907,27 @@ class MoneyBonusResponse {
     final currency = _currency(summary).isNotEmpty
         ? _currency(summary)
         : _currency(data);
+    final paidAmount = _num(summary['paid_amount'] ?? summary['paid']);
+    final remainingAmount = _num(
+      summary['remaining_amount'] ?? summary['remaining'],
+    );
     final items = _lineItems(
       data['items'] ?? data['bonuses'] ?? json['data'],
       fallbackCurrency: currency,
     );
     return MoneyBonusResponse(
-      total: _num(
-        summary['total'] ??
+      total: _summaryTotal(
+        summary,
+        fallback:
+            summary['total'] ??
+            summary['net'] ??
+            summary['projected_net_pay'] ??
             data['total'] ??
             data['monthly_total'] ??
             data['amount'],
       ),
+      paidAmount: paidAmount,
+      remainingAmount: remainingAmount,
       currency: currency,
       categories: _lineItems(
         summary['by_type'] ??
@@ -701,16 +939,22 @@ class MoneyBonusResponse {
       items: items,
     );
   }
+
+  bool get hasPayoutSplit => paidAmount > 0 || remainingAmount > 0;
 }
 
 class MoneyDeductionResponse {
   final double total;
+  final double paidAmount;
+  final double remainingAmount;
   final String currency;
   final List<MoneyLineItem> categories;
   final List<MoneyLineItem> items;
 
   const MoneyDeductionResponse({
     required this.total,
+    required this.paidAmount,
+    required this.remainingAmount,
     required this.currency,
     required this.categories,
     required this.items,
@@ -725,17 +969,27 @@ class MoneyDeductionResponse {
     final currency = _currency(summary).isNotEmpty
         ? _currency(summary)
         : _currency(data);
+    final paidAmount = _num(summary['paid_amount'] ?? summary['paid']);
+    final remainingAmount = _num(
+      summary['remaining_amount'] ?? summary['remaining'],
+    );
     final items = _lineItems(
       data['items'] ?? data['deductions'] ?? json['data'],
       fallbackCurrency: currency,
     );
     return MoneyDeductionResponse(
-      total: _num(
-        summary['total'] ??
+      total: _summaryTotal(
+        summary,
+        fallback:
+            summary['total'] ??
+            summary['net'] ??
+            summary['projected_net_pay'] ??
             data['total'] ??
             data['monthly_total'] ??
             data['amount'],
       ),
+      paidAmount: paidAmount,
+      remainingAmount: remainingAmount,
       currency: currency,
       categories: _lineItems(
         summary['by_type'] ??
@@ -747,6 +1001,8 @@ class MoneyDeductionResponse {
       items: items,
     );
   }
+
+  bool get hasPayoutSplit => paidAmount > 0 || remainingAmount > 0;
 }
 
 String formatMoney(
@@ -833,6 +1089,13 @@ List<MoneyLineItem> _lineItems(dynamic value, {String fallbackCurrency = ''}) {
       'amount': entry.value,
     }, fallbackCurrency: fallbackCurrency);
   }).toList();
+}
+
+double _summaryTotal(Map<String, dynamic> summary, {Object? fallback}) {
+  final paid = _num(summary['paid_amount'] ?? summary['paid']);
+  final remaining = _num(summary['remaining_amount'] ?? summary['remaining']);
+  if (paid > 0 || remaining > 0) return paid + remaining;
+  return _num(fallback);
 }
 
 Object? _value(dynamic value) =>

@@ -18,6 +18,9 @@ class PayslipDetailsHeroCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final detail = context.watch<PayslipDetailsCubit>().details;
     final summary = detail?.summary;
+    final salaryLine = detail?.earnings.isNotEmpty == true
+        ? detail!.earnings.first
+        : null;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(18.r),
@@ -52,9 +55,14 @@ class PayslipDetailsHeroCardWidget extends StatelessWidget {
           ),
           verticalSpace(18),
           Text(
-            detail == null
+            salaryLine == null
                 ? args.amount
-                : formatMoney(detail.netPay, detail.currency),
+                : formatMoney(
+                    salaryLine.amount,
+                    salaryLine.currency.isNotEmpty
+                        ? salaryLine.currency
+                        : detail?.currency ?? '',
+                  ),
             style: TextStyles.font32greyColor900Weight600.copyWith(
               color: AppColors.whiteColor,
             ),

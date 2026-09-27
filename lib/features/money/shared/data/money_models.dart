@@ -87,12 +87,12 @@ class EmployeeMoneyPreviewModel {
           deduction['actual'] ??
           deduction['amount'],
     );
-    final paidAmount = salaryPayment.paid + primaryCommission.paid;
     final netPay =
         salaryPayment.total +
         primaryCommission.total +
         bonusAmount -
         actualDeduction;
+    final paidAmount = salaryPayment.paid + primaryCommission.paid;
     final remainingAmount = netPay > paidAmount ? netPay - paidAmount : 0.0;
 
     return EmployeeMoneyPreviewModel(
@@ -161,7 +161,7 @@ class EmployeeMoneyPreviewModel {
   }
 
   String get payTitleKey => switch (state) {
-    _ when hasPayoutSplit || projectedNetPay > 0 => 'myEarning.totalDue',
+    _ when projectedNetPay > 0 => 'myEarning.totalDue',
     'final' => 'myEarning.finalNetPay',
     'paid' => 'myEarning.paidNetPay',
     _ => 'myEarning.estimatedNetPay',
@@ -668,6 +668,8 @@ class MoneyPayslipDetailModel {
   final MoneyPayslipSummary summary;
   final Map<String, String> employee;
   final List<MoneyLineItem> earnings;
+  final List<MoneyLineItem> commissions;
+  final List<MoneyLineItem> bonuses;
   final List<MoneyLineItem> deductions;
   final MoneyLineItem? payment;
   final double grossPay;
@@ -679,6 +681,8 @@ class MoneyPayslipDetailModel {
     required this.summary,
     required this.employee,
     required this.earnings,
+    required this.commissions,
+    required this.bonuses,
     required this.deductions,
     required this.payment,
     required this.grossPay,
@@ -690,7 +694,14 @@ class MoneyPayslipDetailModel {
   factory MoneyPayslipDetailModel.fromJson(Map<String, dynamic> json) {
     final data = _data(json);
     final currency = _currency(data);
-    final earnings = _lineItems(data['earnings'], fallbackCurrency: currency);
+    final earnings = data['earnings'] is List
+        ? _lineItems(data['earnings'], fallbackCurrency: currency)
+        : const <MoneyLineItem>[];
+    final commissions = _lineItems(
+      data['commissions'],
+      fallbackCurrency: currency,
+    );
+    final bonuses = _lineItems(data['bonuses'], fallbackCurrency: currency);
     final deductions = _lineItems(
       data['deductions'],
       fallbackCurrency: currency,
@@ -705,6 +716,8 @@ class MoneyPayslipDetailModel {
         'branch': _str(employee['branch'] ?? employee['branch_snapshot']),
       },
       earnings: earnings,
+      commissions: commissions,
+      bonuses: bonuses,
       deductions: deductions,
       payment: _nullableMap(data['payment']) == null
           ? null
@@ -729,6 +742,9 @@ class MoneyLineItem {
   final String payrollInclusion;
   final String type;
   final String source;
+  final String bookingReference;
+  final String customerName;
+  final String completedAt;
 
   const MoneyLineItem({
     required this.title,
@@ -742,6 +758,9 @@ class MoneyLineItem {
     required this.payrollInclusion,
     required this.type,
     required this.source,
+    required this.bookingReference,
+    required this.customerName,
+    required this.completedAt,
   });
 
   factory MoneyLineItem.fromJson(Map<String, dynamic> json) {
@@ -755,6 +774,8 @@ class MoneyLineItem {
     final currency = _currency(json);
     final status = _str(json['status']);
     final payoutStatus = _str(json['payout_status']);
+    final customer = _map(json['customer']);
+    final service = _map(json['service']);
     final payrollInclusion = _map(json['payroll_inclusion']);
     final payrollInclusionStatus = _str(
       payrollInclusion['status'] ??
@@ -773,7 +794,9 @@ class MoneyLineItem {
     );
     return MoneyLineItem(
       title: _str(
-        json['title'] ??
+        service['name'] ??
+            json['service_name'] ??
+            json['title'] ??
             json['service'] ??
             json['reason'] ??
             json['type'] ??
@@ -781,12 +804,14 @@ class MoneyLineItem {
       ),
       subtitle: _str(
         json['subtitle'] ??
+            json['booking_reference'] ??
+            customer['name'] ??
             json['customer_name'] ??
+            json['completed_at'] ??
             json['notes'] ??
             json['effective_date'] ??
-            json['completed_at'] ??
             json['attendance_date'] ??
-            json['booking_reference'],
+            json['visit_uuid'],
       ),
       amount: _num(
         json['commission_amount'] ??
@@ -813,6 +838,9 @@ class MoneyLineItem {
       payrollInclusion: payrollInclusionStatus,
       type: _str(json['type'] ?? json['category'] ?? json['classification']),
       source: _str(json['source']),
+      bookingReference: _str(json['booking_reference']),
+      customerName: _str(customer['name'] ?? json['customer_name']),
+      completedAt: _str(json['completed_at']),
     );
   }
 
@@ -837,6 +865,7 @@ class MoneyCommissionResponse {
   final double earned;
   final double approved;
   final double paid;
+  final double remaining;
   final double reversed;
   final String currency;
   final List<MoneyLineItem> items;
@@ -848,6 +877,7 @@ class MoneyCommissionResponse {
     required this.earned,
     required this.approved,
     required this.paid,
+    required this.remaining,
     required this.reversed,
     required this.currency,
     required this.items,
@@ -871,6 +901,7 @@ class MoneyCommissionResponse {
       earned: _num(summary['earned'] ?? data['earned']),
       approved: _num(summary['approved'] ?? data['approved']),
       paid: _num(summary['paid'] ?? data['paid']),
+      remaining: _num(summary['remaining'] ?? data['remaining']),
       reversed: _num(summary['reversed'] ?? data['reversed']),
       currency: currency,
       items: _lineItems(

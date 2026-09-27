@@ -11,15 +11,20 @@ class CommissionsCubit extends Cubit<CommissionsState> {
 
   MoneyCommissionResponse? commissions;
   String languageCode = AppLanguage.currentCode;
+  String selectedMonth = _monthKey(DateTime.now());
 
-  Future<void> init({String? languageCode}) async {
+  Future<void> init({String? languageCode, String? month}) async {
     if (languageCode != null) this.languageCode = languageCode;
+    if (month != null && month.isNotEmpty) selectedMonth = month;
     await loadCommissions();
   }
 
   Future<void> loadCommissions() async {
     emit(CommissionsLoadingState());
-    final result = await repo.getCommissions(languageCode: languageCode);
+    final result = await repo.getCommissions(
+      languageCode: languageCode,
+      month: selectedMonth,
+    );
     result.fold((failure) => emit(CommissionsErrorState(failure.message)), (
       response,
     ) {
@@ -27,4 +32,7 @@ class CommissionsCubit extends Cubit<CommissionsState> {
       emit(CommissionsSuccessState());
     });
   }
+
+  static String _monthKey(DateTime value) =>
+      '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}';
 }

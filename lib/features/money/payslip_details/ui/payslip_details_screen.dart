@@ -5,12 +5,9 @@ import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/features/money/payslips/data/models/payslip_model.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_details_hero_card_widget.dart';
-import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_download_button_widget.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_earnings_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_employee_details_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/payslip_header_widget.dart';
-import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_net_pay_card_widget.dart';
-import 'package:new_waqty_employee_app/features/money/payslip_details/ui/widgets/payslip_deductions_card_widget.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_cubit.dart';
 import 'package:new_waqty_employee_app/features/money/payslip_details/logic/payslip_details_state.dart';
 
@@ -54,14 +51,6 @@ class PayslipDetailsScreen extends StatelessWidget {
                   const PayslipEmployeeDetailsCardWidget(),
                   verticalSpace(12),
                   PayslipEarningsCardWidget(isPaid: args.isPaid),
-                  verticalSpace(12),
-                  PayslipDeductionsCardWidget(isPaid: args.isPaid),
-                  verticalSpace(12),
-                  PayslipNetPayCardWidget(amount: args.amount),
-                  if (args.isPaid) ...[
-                    verticalSpace(18),
-                    const PayslipDownloadButtonWidget(),
-                  ],
                 ],
               ),
             );

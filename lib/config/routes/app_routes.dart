@@ -585,10 +585,11 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) {
             final languageCode = context.locale.languageCode;
+            final month = args is Map ? args['month']?.toString() : null;
             return BlocProvider(
               create: (_) => CommissionsCubit(
                 CommissionsRepo(CommissionsService(apiConsumer: getIt())),
-              )..init(languageCode: languageCode),
+              )..init(languageCode: languageCode, month: month),
               child: const CommissionsScreen(),
             );
           },

@@ -24,7 +24,7 @@ class CommissionAllCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.tr('myEarning.allCommissions'),
+            context.tr('myEarning.commissionHistory'),
             style: TextStyles.font14greyColor900Weight600,
           ),
           verticalSpace(12),
@@ -118,11 +118,11 @@ class _CommissionEntryRowWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyles.font14greyColor900Weight500,
                 ),
-                if (item.subtitle.isNotEmpty) ...[
+                if (_detailsText(item).isNotEmpty) ...[
                   verticalSpace(3),
                   Text(
-                    item.subtitle,
-                    maxLines: 1,
+                    _detailsText(item),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.font12greyColorA3W400,
                   ),
@@ -212,15 +212,28 @@ class _CommissionStatusChipWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(100.r),
       ),
       child: Text(
-        context.tr(
-          item.displayStatus == 'pending'
-              ? 'myEarning.commissionPendingStatus'
-              : item.statusKey,
-        ),
+        context.tr(switch (item.displayStatus) {
+          'paid' => 'myEarning.commissionPaidStatus',
+          'included' || 'approved' => 'myEarning.commissionIncludedStatus',
+          _ => 'myEarning.commissionUnpaidStatus',
+        }),
         style: TextStyles.font10greyColorA3W600.copyWith(
           color: AppColors.greenColor500,
         ),
       ),
     );
   }
+}
+
+String _detailsText(MoneyLineItem item) {
+  final parts = [
+    if (item.bookingReference.isNotEmpty) item.bookingReference,
+    if (item.customerName.isNotEmpty) item.customerName,
+    if (item.completedAt.isNotEmpty) item.completedAt,
+    if (item.bookingReference.isEmpty &&
+        item.customerName.isEmpty &&
+        item.completedAt.isEmpty)
+      item.subtitle,
+  ].where((part) => part.isNotEmpty).toList();
+  return parts.join(' · ');
 }

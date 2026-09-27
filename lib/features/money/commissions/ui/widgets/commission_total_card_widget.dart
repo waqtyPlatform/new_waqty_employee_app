@@ -71,48 +71,16 @@ class CommissionTotalCardWidget extends StatelessWidget {
             child: Column(
               children: [
                 _CommissionSummaryRowWidget(
-                  label: context.tr('myEarning.commissionPendingStatus'),
-                  amount: formatMoney(commissions?.pending ?? 0, currency),
-                  color: AppColors.warningColor1001,
-                ),
-                _CommissionSummaryRowWidget(
-                  label: context.tr('myEarning.commissionEarned'),
-                  amount: formatMoney(commissions?.earned ?? 0, currency),
-                  color: AppColors.greenColor500,
-                ),
-                _CommissionSummaryRowWidget(
-                  label: context.tr('myEarning.payoutIncluded'),
-                  amount: formatMoney(commissions?.included ?? 0, currency),
-                  color: AppColors.blueColor506,
-                ),
-                _CommissionSummaryRowWidget(
-                  label: context.tr('myEarning.approved'),
-                  amount: formatMoney(commissions?.approved ?? 0, currency),
-                  color: AppColors.greenColor500,
-                ),
-                _CommissionSummaryRowWidget(
                   label: context.tr('myEarning.payoutPaid'),
                   amount: formatMoney(commissions?.paid ?? 0, currency),
                   color: AppColors.greenColor500,
                 ),
-                if ((commissions?.reversed ?? 0) > 0)
-                  _CommissionSummaryRowWidget(
-                    label: context.tr('myEarning.reversed'),
-                    amount: formatMoney(
-                      commissions?.reversed ?? 0,
-                      currency,
-                      minus: true,
-                    ),
-                    color: AppColors.errorColor2002,
-                    showDivider: false,
-                  )
-                else
-                  _CommissionSummaryRowWidget(
-                    label: context.tr('myEarning.reversed'),
-                    amount: formatMoney(0, currency),
-                    color: AppColors.errorColor2002,
-                    showDivider: false,
-                  ),
+                _CommissionSummaryRowWidget(
+                  label: context.tr('myEarning.remainingUnpaid'),
+                  amount: formatMoney(commissions?.remaining ?? 0, currency),
+                  color: AppColors.warningColor1001,
+                  showDivider: false,
+                ),
               ],
             ),
           ),

@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/money/shared/widgets/my_earning_card_decoration.dart';
@@ -50,15 +49,6 @@ class PayslipEarningsCardWidget extends StatelessWidget {
                 icon: _icon(item.type),
               ),
             ),
-          Divider(color: AppColors.greyColor1001.withValues(alpha: .22)),
-          PayslipDetailRowWidget(
-            label: context.tr('myEarning.grossPay'),
-            value: details == null
-                ? '-'
-                : formatMoney(details.grossPay, details.currency),
-            valueColor: AppColors.greenColor500,
-            isTotal: true,
-          ),
         ],
       ),
     );

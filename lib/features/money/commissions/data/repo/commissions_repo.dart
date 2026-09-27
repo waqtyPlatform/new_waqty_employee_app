@@ -11,11 +11,16 @@ class CommissionsRepo {
 
   Future<Either<Failure, MoneyCommissionResponse>> getCommissions({
     required String languageCode,
+    required String month,
     int page = 1,
   }) async {
     try {
       return Right(
-        await service.getCommissions(languageCode: languageCode, page: page),
+        await service.getCommissions(
+          languageCode: languageCode,
+          month: month,
+          page: page,
+        ),
       );
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.serverFailure.message));

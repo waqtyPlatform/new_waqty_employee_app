@@ -18,8 +18,12 @@ class MoneyApiEndPoints {
   static String payslipDetails(String uuid) =>
       '${EndPoints.baseUrl}/employee/money/payslips/$uuid';
 
-  static String commissions({int page = 1, int perPage = 15}) =>
-      '${EndPoints.baseUrl}/employee/money/commissions?page=$page&per_page=$perPage';
+  static String commissions({
+    required String month,
+    int page = 1,
+    int perPage = 15,
+  }) =>
+      '${EndPoints.baseUrl}/employee/money/commissions?month=$month&page=$page&per_page=$perPage';
 
   static String bonuses({int page = 1, int perPage = 15}) =>
       '${EndPoints.baseUrl}/employee/money/bonuses?page=$page&per_page=$perPage';

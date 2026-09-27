@@ -16,10 +16,11 @@ class CommissionsService {
 
   Future<MoneyCommissionResponse> getCommissions({
     required String languageCode,
+    required String month,
     int page = 1,
   }) async {
     final response = await apiConsumer.get(
-      MoneyApiEndPoints.commissions(page: page),
+      MoneyApiEndPoints.commissions(month: month, page: page),
       await _headers(languageCode),
     );
     final body = _decode(response.body);

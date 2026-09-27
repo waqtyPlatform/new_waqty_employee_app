@@ -102,8 +102,6 @@ class _CommissionPreviewCardWidget extends StatelessWidget {
               ),
             ],
           ),
-          verticalSpace(8),
-          _CommissionPendingNoteWidget(value: summary.money(summary.pending)),
         ],
       ),
     );
@@ -148,33 +146,6 @@ class _CommissionMiniStatWidget extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CommissionPendingNoteWidget extends StatelessWidget {
-  final String value;
-
-  const _CommissionPendingNoteWidget({required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: AppColors.warningColor1002.withValues(alpha: .45),
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Text(
-        context.tr(
-          'myEarning.pendingCommissionsOnly',
-          namedArgs: {'amount': value},
-        ),
-        style: TextStyles.font10greyColorA3w400.copyWith(
-          color: AppColors.warningColor1001,
-        ),
       ),
     );
   }

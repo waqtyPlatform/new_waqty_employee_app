@@ -58,7 +58,11 @@ class MyEarningCommissionsTileWidget extends StatelessWidget {
               namedArgs: {'amount': preview.money(preview.commission)},
             ),
       icon: Icons.trending_up,
-      onTap: () => Navigator.pushNamed(context, Routes.commissionsScreen),
+      onTap: () => Navigator.pushNamed(
+        context,
+        Routes.commissionsScreen,
+        arguments: {'month': context.read<MyEarningCubit>().selectedMonth},
+      ),
     );
   }
 }

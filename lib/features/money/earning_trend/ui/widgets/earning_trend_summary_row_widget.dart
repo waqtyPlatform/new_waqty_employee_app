@@ -13,13 +13,15 @@ class EarningTrendSummaryRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final summary = context.watch<EarningTrendCubit>().trend?.summary;
+    final trend = context.watch<EarningTrendCubit>().trend;
+    final summary = trend?.summary;
+    final hasData = trend != null && trend.buckets.isNotEmpty;
     return Row(
       children: [
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: summary == null
-                ? '-'
+            value: !hasData || summary == null
+                ? context.tr('myEarning.noData')
                 : formatMoney(summary.total, summary.currency),
             label: context.tr('myEarning.total'),
           ),
@@ -27,8 +29,8 @@ class EarningTrendSummaryRowWidget extends StatelessWidget {
         horizontalSpace(8),
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: summary == null
-                ? '-'
+            value: !hasData || summary == null
+                ? context.tr('myEarning.noData')
                 : formatMoney(summary.avgDay, summary.currency),
             label: context.tr('myEarning.avgDay'),
           ),
@@ -36,10 +38,10 @@ class EarningTrendSummaryRowWidget extends StatelessWidget {
         horizontalSpace(8),
         Expanded(
           child: _TrendSummaryCardWidget(
-            value: summary == null
-                ? '-'
-                : formatMoney(summary.bestDay, summary.currency),
-            label: context.tr('myEarning.bestDay'),
+            value: !hasData || summary == null
+                ? context.tr('myEarning.noData')
+                : formatMoney(summary.avgWeek, summary.currency),
+            label: context.tr('myEarning.avgWeek'),
           ),
         ),
       ],

@@ -24,7 +24,7 @@ class EarningTrendChartCardWidget extends StatelessWidget {
         final cubit = context.read<EarningTrendCubit>();
         final isDaily = cubit.selectedPeriod == EarningTrendPeriod.daily;
         final buckets = cubit.trend?.buckets ?? const <MoneyTrendBucket>[];
-        final values = buckets.map((item) => item.netEarnings).toList();
+        final values = buckets.map((item) => item.commissionEarned).toList();
         return Container(
           width: double.infinity,
           padding: EdgeInsets.all(16.r),

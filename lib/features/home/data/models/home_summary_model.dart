@@ -151,7 +151,9 @@ class HomeAppointmentModel {
       ),
       status: _asString(json['status']),
       customerName: _asString(customer['name']),
-      customerAvatarUrl: _asString(customer['avatar_url']),
+      customerAvatarUrl: _asString(
+        customer['avatar_url'] ?? customer['avatar'],
+      ),
       servicesLabel: services.join('، '),
       resourceName: _asString(resource['name']),
       scheduledStartAt: _parseDate(json['scheduled_start_at']),

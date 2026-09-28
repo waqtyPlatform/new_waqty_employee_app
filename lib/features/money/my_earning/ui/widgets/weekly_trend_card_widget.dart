@@ -18,7 +18,7 @@ class WeeklyTrendCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final buckets =
         context.watch<MyEarningCubit>().weeklyTrend?.buckets ?? const [];
-    final values = buckets.map((item) => item.netEarnings).toList();
+    final values = buckets.map((item) => item.commissionEarned).toList();
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: myEarningCardDecoration(),

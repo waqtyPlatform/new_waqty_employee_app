@@ -4,8 +4,6 @@ import 'package:new_waqty_employee_app/features/money/earning_trend/data/repo/ea
 import 'package:new_waqty_employee_app/features/money/earning_trend/logic/earning_trend_state.dart';
 import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
-enum EarningTrendPeriod { weekly, daily }
-
 class EarningTrendCubit extends Cubit<EarningTrendState> {
   final EarningTrendRepo repo;
 
@@ -25,7 +23,7 @@ class EarningTrendCubit extends Cubit<EarningTrendState> {
   void changePeriod(EarningTrendPeriod period) {
     if (selectedPeriod == period) return;
     selectedPeriod = period;
-    emit(EarningTrendPeriodChangedState());
+    emit(EarningTrendPeriodChangedState(period));
     loadTrend();
   }
 

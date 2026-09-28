@@ -39,10 +39,14 @@ class HomeRepo {
 
   Future<Either<Failure, HomeEarningsModel>> getTodayEarnings({
     required String languageCode,
+    required String date,
   }) async {
     try {
       return Right(
-        await _homeService.getTodayEarnings(languageCode: languageCode),
+        await _homeService.getTodayEarnings(
+          languageCode: languageCode,
+          date: date,
+        ),
       );
     } on ServerException catch (failure) {
       return Left(failure.serverFailure);

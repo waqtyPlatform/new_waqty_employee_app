@@ -49,7 +49,7 @@ class _TrendRecentItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = item.date.isNotEmpty ? item.date : item.weekStart;
-    final amount = formatMoney(item.netEarnings, item.currency);
+    final amount = formatMoney(item.commissionEarned, item.currency);
     final hasAmount = date.isNotEmpty;
     return GestureDetector(
       onTap: date.isNotEmpty

@@ -99,7 +99,10 @@ class HomeCubit extends Cubit<HomeState> {
     isEarningsLoading = true;
     earningsError = '';
     emit(HomeEarningsLoadingState());
-    final result = await _homeRepo.getTodayEarnings(languageCode: languageCode);
+    final result = await _homeRepo.getTodayEarnings(
+      languageCode: languageCode,
+      date: summary?.date.isNotEmpty == true ? summary!.date : _todayDateKey(),
+    );
     result.fold(
       (failure) {
         earningsError = failure.message;
@@ -155,4 +158,11 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   static HomeCubit get(BuildContext context) => BlocProvider.of(context);
+
+  String _todayDateKey() {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+  }
 }

@@ -13,10 +13,11 @@ class EarningTrendPeriodSwitcherWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EarningTrendCubit, EarningTrendState>(
-      buildWhen: (previous, current) =>
-          current is EarningTrendPeriodChangedState,
       builder: (context, state) {
         final cubit = context.read<EarningTrendCubit>();
+        final selectedPeriod = state is EarningTrendPeriodChangedState
+            ? state.period
+            : cubit.selectedPeriod;
         return Container(
           height: 36.h,
           padding: EdgeInsets.all(4.r),
@@ -32,12 +33,12 @@ class EarningTrendPeriodSwitcherWidget extends StatelessWidget {
             children: [
               _TrendPeriodButtonWidget(
                 title: context.tr('myEarning.weekly'),
-                selected: cubit.selectedPeriod == EarningTrendPeriod.weekly,
+                selected: selectedPeriod == EarningTrendPeriod.weekly,
                 onTap: () => cubit.changePeriod(EarningTrendPeriod.weekly),
               ),
               _TrendPeriodButtonWidget(
                 title: context.tr('myEarning.daily'),
-                selected: cubit.selectedPeriod == EarningTrendPeriod.daily,
+                selected: selectedPeriod == EarningTrendPeriod.daily,
                 onTap: () => cubit.changePeriod(EarningTrendPeriod.daily),
               ),
             ],
@@ -64,8 +65,7 @@ class _TrendPeriodButtonWidget extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+        child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: selected ? AppColors.whiteColor : Colors.transparent,

@@ -63,18 +63,6 @@ class HomeEarningsWidget extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(8.r),
-            decoration: const BoxDecoration(
-              color: AppColors.greenColor505,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.chevron_right,
-              color: AppColors.greenColor500,
-              size: 24.r,
-            ),
-          ),
         ],
       ),
     );

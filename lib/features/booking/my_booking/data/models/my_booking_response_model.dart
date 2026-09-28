@@ -357,11 +357,13 @@ class MyBookingUserModel {
   final String uuid;
   final String name;
   final String phone;
+  final String avatarUrl;
 
   MyBookingUserModel({
     required this.uuid,
     required this.name,
     required this.phone,
+    required this.avatarUrl,
   });
 
   factory MyBookingUserModel.fromJson(Map<String, dynamic> json) {
@@ -369,6 +371,7 @@ class MyBookingUserModel {
       uuid: _asString(json['uuid']),
       name: _asString(json['name']),
       phone: _asString(json['phone']),
+      avatarUrl: _asString(json['avatar_url'] ?? json['avatar']),
     );
   }
 }

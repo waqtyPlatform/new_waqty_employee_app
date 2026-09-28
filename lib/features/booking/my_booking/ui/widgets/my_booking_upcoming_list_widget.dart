@@ -53,6 +53,7 @@ class MyBookingUpcomingListWidget extends StatelessWidget {
             clientName: booking.customerName.isEmpty
                 ? context.tr('myBooking.walkInCustomer')
                 : booking.customerName,
+            clientAvatarUrl: booking.user?.avatarUrl ?? '',
             serviceName: booking.servicesNamesForLanguage(
               context.locale.languageCode,
             ),

@@ -350,7 +350,12 @@ class MoneyTrendModel {
   factory MoneyTrendModel.fromJson(Map<String, dynamic> json) {
     final data = _data(json);
     final currency = _currency(data);
-    final buckets = _list(data['buckets'] ?? data['trend'] ?? data['items'])
+    final month = _str(_value(data['month']) ?? data['month']);
+    final rawBuckets = data['buckets'] ?? data['trend'] ?? data['items'];
+    final bucketSource = rawBuckets is List && rawBuckets.isNotEmpty
+        ? rawBuckets
+        : data['currencies'];
+    final buckets = _list(bucketSource)
         .map(
           (item) => MoneyTrendBucket.fromJsonWithFallback(
             item,
@@ -360,45 +365,102 @@ class MoneyTrendModel {
         .toList();
     return MoneyTrendModel(
       period: _str(data['period']),
-      month: _str(_value(data['month']) ?? data['month']),
+      month: month,
       currency: currency,
       buckets: buckets,
       summary: MoneyTrendSummary.fromJson(
-        _map(data['summary']),
-        buckets: buckets,
+        _trendSummary(data['summary'], buckets, month),
         currency: currency,
       ),
     );
   }
 }
 
+Map<String, dynamic> _trendSummary(
+  dynamic value,
+  List<MoneyTrendBucket> buckets,
+  String month,
+) {
+  final summary = value is List ? (_firstMap(value) ?? {}) : _map(value);
+  if (summary.containsKey('total') ||
+      summary.containsKey('average') ||
+      summary.containsKey('best')) {
+    final normalized = {...summary};
+    final days = _trendMonthDays(buckets, month);
+    final total = _num(normalized['total'] ?? normalized['net_earnings']);
+    normalized.putIfAbsent(
+      'average_daily',
+      () => _num(normalized['average'] ?? normalized['avg_day']),
+    );
+    normalized.putIfAbsent('average_weekly', () => total / ((days + 6) ~/ 7));
+    return normalized;
+  }
+
+  final commissionValues = buckets.map((item) => item.commissionEarned);
+  final total = commissionValues.fold<double>(0, (sum, value) => sum + value);
+  final best = commissionValues.isEmpty
+      ? 0.0
+      : commissionValues.reduce((a, b) => a > b ? a : b);
+  final days = _trendMonthDays(buckets, month);
+  return {
+    'total': total,
+    'average_daily': total / days,
+    'average_weekly': total / ((days + 6) ~/ 7),
+    'best': best,
+  };
+}
+
+int _trendMonthDays(List<MoneyTrendBucket> buckets, String month) {
+  final monthParts = month.split('-');
+  if (monthParts.length == 2) {
+    final year = int.tryParse(monthParts[0]);
+    final monthNumber = int.tryParse(monthParts[1]);
+    if (year != null && monthNumber != null) {
+      return DateTime(year, monthNumber + 1, 0).day;
+    }
+  }
+  final dates = buckets
+      .map((item) => item.date.isNotEmpty ? item.date : item.weekStart)
+      .where((date) => date.length >= 7)
+      .toList();
+  if (dates.isEmpty) return 1;
+  final year = int.tryParse(dates.first.substring(0, 4));
+  final fallbackMonth = int.tryParse(dates.first.substring(5, 7));
+  if (year == null || fallbackMonth == null) return 1;
+  return DateTime(year, fallbackMonth + 1, 0).day;
+}
+
 class MoneyTrendSummary {
   final double total;
   final double avgDay;
-  final double bestDay;
+  final double avgWeek;
   final String currency;
 
   const MoneyTrendSummary({
     required this.total,
     required this.avgDay,
-    required this.bestDay,
+    required this.avgWeek,
     required this.currency,
   });
 
   factory MoneyTrendSummary.fromJson(
     Map<String, dynamic> json, {
-    required List<MoneyTrendBucket> buckets,
     required String currency,
   }) {
     final total = _num(json['total'] ?? json['net_earnings']);
-    final avg = _num(json['avg_day'] ?? json['average'] ?? json['avg']);
-    final best = _num(json['best_day'] ?? json['best']);
+    final avg = _num(
+      json['average_daily'] ??
+          json['avg_day'] ??
+          json['average'] ??
+          json['avg'],
+    );
+    final avgWeek = _num(
+      json['average_weekly'] ?? json['avg_week'] ?? json['weekly_average'],
+    );
     return MoneyTrendSummary(
-      total: total == 0
-          ? buckets.fold<double>(0, (sum, item) => sum + item.netEarnings)
-          : total,
+      total: total,
       avgDay: avg,
-      bestDay: best,
+      avgWeek: avgWeek,
       currency: _str(json['currency'], fallback: currency),
     );
   }
@@ -411,6 +473,7 @@ class MoneyTrendBucket {
   final String label;
   final int appointmentsCount;
   final int servicesCount;
+  final double salary;
   final double serviceValueGenerated;
   final double commissionEarned;
   final double bonus;
@@ -425,6 +488,7 @@ class MoneyTrendBucket {
     required this.label,
     required this.appointmentsCount,
     required this.servicesCount,
+    required this.salary,
     required this.serviceValueGenerated,
     required this.commissionEarned,
     required this.bonus,
@@ -449,13 +513,17 @@ class MoneyTrendBucket {
       label: _str(json['label']),
       appointmentsCount: _int(json['appointments_count']),
       servicesCount: _int(json['services_count']),
+      salary: _num(json['salary']),
       serviceValueGenerated: _num(json['service_value_generated']),
       commissionEarned: _num(
-        json['net_commission'] ?? json['commission_earned'],
+        json['commission'] ??
+            json['net_earnings'] ??
+            json['net_commission'] ??
+            json['commission_earned'],
       ),
       bonus: _num(json['bonus']),
       deduction: _num(json['deduction']),
-      netEarnings: _num(json['net_earnings']),
+      netEarnings: _num(json['net_earnings'] ?? json['commission']),
       currency: currency.isNotEmpty ? currency : fallbackCurrency,
     );
   }
@@ -488,16 +556,43 @@ class DailyMoneyDetailModel {
 
   factory DailyMoneyDetailModel.fromJson(Map<String, dynamic> json) {
     final data = _data(json);
-    final currency = _currency(data);
+    final summary = _firstMap(data['currencies']) ?? data;
+    final commission = _map(data['commission']);
+    final summaryCommission = _map(summary['commission']);
+    final currency = _currency(summary).isNotEmpty
+        ? _currency(summary)
+        : _currency(data);
     return DailyMoneyDetailModel(
-      date: _str(data['date']),
-      appointmentsCount: _int(data['appointments_count']),
-      servicesCount: _int(data['services_count']),
-      serviceValueGenerated: _num(data['service_value_generated']),
-      commissionEarned: _num(data['commission_earned']),
-      bonus: _num(data['bonus']),
-      deduction: _num(data['deduction']),
-      netEarnings: _num(data['net_earnings']),
+      date: _str(data['date'] ?? summary['date']),
+      appointmentsCount: _int(
+        data['appointments_count'] ?? summary['appointments_count'],
+      ),
+      servicesCount: _int(data['services_count'] ?? summary['services_count']),
+      serviceValueGenerated: _num(
+        data['service_value_generated'] ?? summary['service_value_generated'],
+      ),
+      commissionEarned: _num(
+        data['commission_earned'] ??
+            data['commission'] ??
+            data['net_commission'] ??
+            data['net_earnings'] ??
+            commission['earned'] ??
+            commission['net'] ??
+            summary['commission_earned'] ??
+            summary['commission'] ??
+            summary['net_commission'] ??
+            summary['net_earnings'] ??
+            summaryCommission['earned'] ??
+            summaryCommission['net'],
+      ),
+      bonus: _num(data['bonus'] ?? summary['bonus']),
+      deduction: _num(data['deduction'] ?? summary['deduction']),
+      netEarnings: _num(
+        data['net_earnings'] ??
+            data['commission'] ??
+            summary['net_earnings'] ??
+            summary['commission'],
+      ),
       currency: currency,
       services: _list(data['services'])
           .map(

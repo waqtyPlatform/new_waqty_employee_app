@@ -16,6 +16,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
   final String bookingUuid;
 
   final String clientName;
+  final String clientAvatarUrl;
   final String serviceName;
   final int visitsCount;
   final bool canCancel;
@@ -30,6 +31,7 @@ class MyBookingItemCardWidget extends StatelessWidget {
     this.bookingStatusLabel,
     required this.bookingUuid,
     required this.clientName,
+    this.clientAvatarUrl = '',
     required this.serviceName,
     required this.visitsCount,
     this.canCancel = false,
@@ -122,11 +124,12 @@ class MyBookingItemCardWidget extends StatelessWidget {
                 SizedBox(
                   width: _hasSingleAction ? 80.w : 64.w,
                   height: _hasSingleAction ? 80.h : 64.h,
-                  child: CachedNetworkImageWidget(
-                    imgUrl:
-                        'https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-                    radius: BorderRadius.circular(8.r),
-                  ),
+                  child: clientAvatarUrl.trim().isEmpty
+                      ? _InitialAvatar(name: clientName)
+                      : CachedNetworkImageWidget(
+                          imgUrl: clientAvatarUrl,
+                          radius: BorderRadius.circular(8.r),
+                        ),
                 ),
                 horizontalSpace(16),
                 Expanded(
@@ -305,6 +308,29 @@ class MyBookingItemCardWidget extends StatelessWidget {
     if (shouldCancel == true) {
       onCancelTap?.call();
     }
+  }
+}
+
+class _InitialAvatar extends StatelessWidget {
+  final String name;
+
+  const _InitialAvatar({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = name.trim();
+    final initial = trimmed.isEmpty
+        ? '?'
+        : String.fromCharCode(trimmed.runes.first);
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.greenColor505,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Text(initial, style: TextStyles.font18greyColor900Weight600),
+    );
   }
 }
 

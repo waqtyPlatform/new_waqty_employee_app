@@ -8,6 +8,7 @@ import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/data/services/home_api_end_points.dart';
+import 'package:new_waqty_employee_app/features/money/shared/data/money_models.dart';
 
 class HomeService {
   ApiConsumer apiConsumer;
@@ -39,14 +40,26 @@ class HomeService {
 
   Future<HomeEarningsModel> getTodayEarnings({
     required String languageCode,
+    required String date,
   }) async {
     final response = await apiConsumer.get(
-      HomeApiEndPoints.todayEarnings,
+      HomeApiEndPoints.todayEarnings(date),
       await _headers(languageCode),
     );
-    final data = _okOrThrow(response)['data'];
-    final earnings = data is Map ? data['earnings'] : null;
-    return HomeEarningsModel.fromJson(_asMap(earnings));
+    final daily = DailyMoneyDetailModel.fromJson(_okOrThrow(response));
+    return HomeEarningsModel(
+      calculationStatus: 'estimated',
+      payrollProcessed: false,
+      amount: daily.commissionEarned,
+      currency: daily.currency,
+      currencies: [
+        HomeEarningsCurrencyModel(
+          currency: daily.currency,
+          amount: daily.commissionEarned,
+          attributedServiceValue: daily.serviceValueGenerated,
+        ),
+      ],
+    );
   }
 
   Future<List<HomeAppointmentModel>> getUpcomingAppointments({

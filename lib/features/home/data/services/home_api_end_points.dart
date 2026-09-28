@@ -4,8 +4,8 @@ class HomeApiEndPoints {
   static const String home = '${EndPoints.baseUrl}/employee/home';
   static const String todaySnapshot =
       '${EndPoints.baseUrl}/employee/home/today-snapshot';
-  static const String todayEarnings =
-      '${EndPoints.baseUrl}/employee/home/today-earnings';
+  static String todayEarnings(String date) =>
+      '${EndPoints.baseUrl}/employee/money/daily?date=$date';
   static String upcomingAppointments({int limit = 5}) =>
       '${EndPoints.baseUrl}/employee/home/upcoming-appointments?limit=$limit';
   static const String latestReview =

@@ -53,7 +53,7 @@ class _RecentEarningItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = item.date.isNotEmpty ? item.date : item.weekStart;
-    final amount = formatMoney(item.netEarnings, item.currency);
+    final amount = formatMoney(item.commissionEarned, item.currency);
     return GestureDetector(
       onTap: date.isEmpty
           ? null
@@ -104,7 +104,7 @@ class _RecentEarningItemWidget extends StatelessWidget {
             horizontalSpace(8),
             Text(
               amount,
-              style: item.netEarnings <= 0
+              style: item.commissionEarned <= 0
                   ? TextStyles.font14greyColor900Weight500.copyWith(
                       color: AppColors.greyColorA3,
                     )

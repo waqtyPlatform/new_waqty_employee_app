@@ -1,3 +1,5 @@
+enum EarningTrendPeriod { weekly, daily }
+
 abstract class EarningTrendState {}
 
 class EarningTrendInitialState extends EarningTrendState {}
@@ -12,4 +14,8 @@ class EarningTrendErrorState extends EarningTrendState {
   EarningTrendErrorState(this.message);
 }
 
-class EarningTrendPeriodChangedState extends EarningTrendState {}
+class EarningTrendPeriodChangedState extends EarningTrendState {
+  final EarningTrendPeriod period;
+
+  EarningTrendPeriodChangedState(this.period);
+}

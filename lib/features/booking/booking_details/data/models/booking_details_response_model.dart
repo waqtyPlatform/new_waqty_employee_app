@@ -145,6 +145,8 @@ class BookingDetailsModel {
 
   String get customerName => customer?.name ?? user?.name ?? '';
 
+  String get customerAvatarUrl => customer?.avatarUrl ?? user?.avatarUrl ?? '';
+
   String serviceNameForLanguage(String languageCode) {
     if (languageCode == 'ar') {
       return service.name.ar.isNotEmpty ? service.name.ar : service.name.en;
@@ -866,11 +868,13 @@ class BookingDetailsUserModel {
   final String uuid;
   final String name;
   final String phone;
+  final String avatarUrl;
 
   BookingDetailsUserModel({
     required this.uuid,
     required this.name,
     required this.phone,
+    required this.avatarUrl,
   });
 
   factory BookingDetailsUserModel.fromJson(Map<String, dynamic> json) {
@@ -878,6 +882,7 @@ class BookingDetailsUserModel {
       uuid: _asString(json['uuid']),
       name: _asString(json['name']),
       phone: _asString(json['phone']),
+      avatarUrl: _asString(json['avatar_url'] ?? json['avatar']),
     );
   }
 }
@@ -887,6 +892,7 @@ class BookingDetailsCustomerModel {
   final String name;
   final String initials;
   final String phone;
+  final String avatarUrl;
   final int visitsCount;
 
   BookingDetailsCustomerModel({
@@ -894,6 +900,7 @@ class BookingDetailsCustomerModel {
     required this.name,
     required this.initials,
     required this.phone,
+    required this.avatarUrl,
     required this.visitsCount,
   });
 
@@ -903,6 +910,7 @@ class BookingDetailsCustomerModel {
       name: _asString(json['name']),
       initials: _asString(json['initials']),
       phone: _asString(json['phone']),
+      avatarUrl: _asString(json['avatar_url'] ?? json['avatar']),
       visitsCount: _asInt(json['visits_count']),
     );
   }

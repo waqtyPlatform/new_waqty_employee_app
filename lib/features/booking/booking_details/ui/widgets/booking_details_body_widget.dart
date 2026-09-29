@@ -262,6 +262,7 @@ class _BookingDetailsContent extends StatelessWidget {
           bookingStatusLabel: booking.statusLabel,
           bookingId: booking.bookingNumber,
           userName: customerName,
+          avatarUrl: booking.customerAvatarUrl,
         ),
         if (booking.visits.isEmpty) ...[
           verticalSpace(12),
@@ -316,6 +317,7 @@ class _BookingDetailsContent extends StatelessWidget {
         BookingCustomerVisitsWidget(
           phone: booking.customer?.phone ?? booking.user?.phone ?? '',
           notes: booking.notes ?? '',
+          avatarUrl: booking.customerAvatarUrl,
           onCustomerDetailsTap: (booking.customer?.uuid ?? '').isEmpty
               ? null
               : () => showCustomerContextBottomSheet(

@@ -38,8 +38,6 @@ class NotificationSettingListWidget extends StatelessWidget {
     _NotificationSettingItem(
       apiKey: NotificationSettingKey.shiftStartReminders,
       titleKey: 'notifications.shiftStartReminders',
-      helperKey: 'notifications.shiftStartRemindersSoon',
-      isEnabled: false,
     ),
     _NotificationSettingItem(
       apiKey: NotificationSettingKey.leaveAndRequestUpdates,
@@ -61,14 +59,10 @@ class NotificationSettingListWidget extends StatelessWidget {
           final value = settings.valueOf(item.apiKey);
           return NotificationSettingItemWidget(
             title: context.tr(item.titleKey),
-            helperText: item.helperKey == null
-                ? null
-                : context.tr(item.helperKey!),
             value: value,
             isLoading: updatingKey == item.apiKey,
-            isEnabled: item.isEnabled,
             showDivider: index != _notificationItems.length - 1,
-            onTap: updatingKey == null && item.isEnabled
+            onTap: updatingKey == null
                 ? () => onChanged(item.apiKey, !value)
                 : null,
           );
@@ -81,33 +75,25 @@ class NotificationSettingListWidget extends StatelessWidget {
 class _NotificationSettingItem {
   final String apiKey;
   final String titleKey;
-  final String? helperKey;
-  final bool isEnabled;
 
   const _NotificationSettingItem({
     required this.apiKey,
     required this.titleKey,
-    this.helperKey,
-    this.isEnabled = true,
   });
 }
 
 class NotificationSettingItemWidget extends StatelessWidget {
   final String title;
-  final String? helperText;
   final bool value;
   final bool isLoading;
-  final bool isEnabled;
   final bool showDivider;
   final VoidCallback? onTap;
 
   const NotificationSettingItemWidget({
     super.key,
     required this.title,
-    this.helperText,
     required this.value,
     required this.isLoading,
-    this.isEnabled = true,
     required this.showDivider,
     required this.onTap,
   });
@@ -117,9 +103,7 @@ class NotificationSettingItemWidget extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        constraints: BoxConstraints(
-          minHeight: helperText == null ? 46.h : 62.h,
-        ),
+        constraints: BoxConstraints(minHeight: 46.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           border: showDivider
@@ -140,29 +124,14 @@ class NotificationSettingItemWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyles.font14greyColor900Weight500.copyWith(
-                        color: isEnabled
-                            ? AppColors.greyColor900
-                            : AppColors.greyColor3003,
+                        color: AppColors.greyColor900,
                       ),
                     ),
-                    if (helperText != null) ...[
-                      SizedBox(height: 3.h),
-                      Text(
-                        helperText!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyles.font10greyColor3003Weight400,
-                      ),
-                    ],
                   ],
                 ),
               ),
             ),
-            _NotificationToggleWidget(
-              value: value,
-              isLoading: isLoading,
-              isEnabled: isEnabled,
-            ),
+            _NotificationToggleWidget(value: value, isLoading: isLoading),
           ],
         ),
       ),
@@ -173,18 +142,16 @@ class NotificationSettingItemWidget extends StatelessWidget {
 class _NotificationToggleWidget extends StatelessWidget {
   final bool value;
   final bool isLoading;
-  final bool isEnabled;
 
   const _NotificationToggleWidget({
     required this.value,
     required this.isLoading,
-    required this.isEnabled,
   });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
-      opacity: isLoading || !isEnabled ? .55 : 1,
+      opacity: isLoading ? .55 : 1,
       duration: const Duration(milliseconds: 120),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
@@ -197,9 +164,7 @@ class _NotificationToggleWidget extends StatelessWidget {
           bottom: 0.8.h,
         ),
         decoration: BoxDecoration(
-          color: isEnabled && value
-              ? AppColors.greenColor500
-              : AppColors.greyColorE5,
+          color: value ? AppColors.greenColor500 : AppColors.greyColorE5,
           borderRadius: BorderRadius.circular(100.r),
         ),
         child: Container(

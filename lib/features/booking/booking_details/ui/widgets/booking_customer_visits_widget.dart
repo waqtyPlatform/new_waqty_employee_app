@@ -3,17 +3,20 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BookingCustomerVisitsWidget extends StatelessWidget {
   final String phone;
   final String notes;
+  final String avatarUrl;
   final VoidCallback? onCustomerDetailsTap;
 
   const BookingCustomerVisitsWidget({
     super.key,
     required this.phone,
     required this.notes,
+    this.avatarUrl = '',
     this.onCustomerDetailsTap,
   });
 
@@ -49,13 +52,22 @@ class BookingCustomerVisitsWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 16.r,
-                backgroundColor: AppColors.greyColorF5,
-                child: Icon(
-                  Icons.person_outlined,
-                  color: AppColors.greyColorA3,
-                ),
+              SizedBox(
+                width: 32.r,
+                height: 32.r,
+                child: avatarUrl.trim().isEmpty
+                    ? CircleAvatar(
+                        radius: 16.r,
+                        backgroundColor: AppColors.greyColorF5,
+                        child: Icon(
+                          Icons.person_outlined,
+                          color: AppColors.greyColorA3,
+                        ),
+                      )
+                    : CachedNetworkImageWidget(
+                        imgUrl: avatarUrl,
+                        radius: BorderRadius.circular(100.r),
+                      ),
               ),
               horizontalSpace(8),
               Text(

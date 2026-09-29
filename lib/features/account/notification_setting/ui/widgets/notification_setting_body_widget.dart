@@ -41,20 +41,27 @@ class NotificationSettingBodyWidget extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
-          color: AppColors.greenColor500,
-          onRefresh: () async {
-            cubit.getNotificationSettings(context.locale.languageCode);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return RefreshIndicator(
+              color: AppColors.greenColor500,
+              onRefresh: () async {
+                cubit.getNotificationSettings(context.locale.languageCode);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: NotificationSettingListWidget(
+                    settings: settings,
+                    updatingKey: cubit.updatingKey,
+                    onChanged: cubit.updateNotificationSetting,
+                  ),
+                ),
+              ),
+            );
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
-            child: NotificationSettingListWidget(
-              settings: settings,
-              updatingKey: cubit.updatingKey,
-              onChanged: cubit.updateNotificationSetting,
-            ),
-          ),
         );
       },
     );

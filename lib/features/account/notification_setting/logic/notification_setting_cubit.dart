@@ -39,8 +39,6 @@ class NotificationSettingCubit extends Cubit<NotificationSettingState> {
     if (oldSettings == null) {
       return;
     }
-    if (key == NotificationSettingKey.shiftStartReminders) return;
-
     final requestVersion = ++_updateVersion;
     updatingKey = key;
     notificationSettings = oldSettings.copyWithKey(key, value);

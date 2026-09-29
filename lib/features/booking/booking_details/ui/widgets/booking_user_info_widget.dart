@@ -3,18 +3,22 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
+import 'package:new_waqty_employee_app/core/widgets/cached_network_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BookingUserInfoWidget extends StatelessWidget {
   final String userName;
   final String bookingId;
   final String bookingStatus;
+  final String avatarUrl;
   final String? bookingStatusLabel;
+
   const BookingUserInfoWidget({
     Key? key,
     required this.userName,
     required this.bookingId,
     required this.bookingStatus,
+    this.avatarUrl = '',
     this.bookingStatusLabel,
   }) : super(key: key);
 
@@ -47,14 +51,27 @@ class BookingUserInfoWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24.r,
-            backgroundColor: AppColors.greenColor500.withValues(alpha: .12),
-            child: Text(
-              (userName.length >= 2 ? userName.substring(0, 2) : userName)
-                  .toUpperCase(),
-              style: TextStyles.font14greenColor500Weight600,
-            ),
+          SizedBox(
+            width: 48.r,
+            height: 48.r,
+            child: avatarUrl.trim().isEmpty
+                ? CircleAvatar(
+                    radius: 24.r,
+                    backgroundColor: AppColors.greenColor500.withValues(
+                      alpha: .12,
+                    ),
+                    child: Text(
+                      (userName.length >= 2
+                              ? userName.substring(0, 2)
+                              : userName)
+                          .toUpperCase(),
+                      style: TextStyles.font14greenColor500Weight600,
+                    ),
+                  )
+                : CachedNetworkImageWidget(
+                    imgUrl: avatarUrl,
+                    radius: BorderRadius.circular(100.r),
+                  ),
           ),
           horizontalSpace(8),
           Expanded(

@@ -50,13 +50,15 @@ class BiometricAuthService {
       final hasBiometrics = await hasEnrolledBiometrics();
       if (!hasBiometrics) return false;
 
-      return _localAuthentication.authenticate(
-        localizedReason: reason,
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-        ),
-      );
+      return _localAuthentication
+          .authenticate(
+            localizedReason: reason,
+            options: const AuthenticationOptions(
+              biometricOnly: true,
+              stickyAuth: false,
+            ),
+          )
+          .timeout(const Duration(seconds: 20));
     } catch (_) {
       return false;
     }

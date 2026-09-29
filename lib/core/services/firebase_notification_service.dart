@@ -202,7 +202,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
   }
 
   Future<bool> detachCurrentDevice(String token) async {
-    if (!_isSupportedNotificationPlatform || token.isEmpty) return false;
+    if (token.isEmpty) return false;
     _isLoggingOut = true;
     _registrationGeneration++;
     try {

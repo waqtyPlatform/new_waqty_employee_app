@@ -55,7 +55,9 @@ class BranchContactModel {
       mapUrl: json['map_url'],
       workingDays:
           (json['working_days'] as List?)
-              ?.map((day) => day.toString())
+              ?.map(_normalizeDayCode)
+              .where((day) => day.isNotEmpty)
+              .toSet()
               .toList() ??
           [],
       openTime: json['open_time'],
@@ -63,4 +65,18 @@ class BranchContactModel {
       hoursDisplay: json['hours_display'],
     );
   }
+}
+
+String _normalizeDayCode(dynamic value) {
+  final day = value.toString().trim().toLowerCase();
+  return switch (day) {
+    '0' || '7' || 'sun' || 'sunday' || 'الأحد' || 'احد' => 'sun',
+    '1' || 'mon' || 'monday' || 'الإثنين' || 'الاثنين' => 'mon',
+    '2' || 'tue' || 'tuesday' || 'الثلاثاء' => 'tue',
+    '3' || 'wed' || 'wednesday' || 'الأربعاء' || 'الاربعاء' => 'wed',
+    '4' || 'thu' || 'thursday' || 'الخميس' => 'thu',
+    '5' || 'fri' || 'friday' || 'الجمعة' => 'fri',
+    '6' || 'sat' || 'saturday' || 'السبت' => 'sat',
+    _ => day.length >= 3 ? day.substring(0, 3) : day,
+  };
 }

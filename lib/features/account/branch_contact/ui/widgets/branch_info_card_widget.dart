@@ -46,15 +46,7 @@ class BranchInfoCardWidget extends StatelessWidget {
           _InfoRow(
             icon: Icons.location_on_outlined,
             text: address,
-            onTap: hasMapUrl
-                ? () => AppConstant.openUrl(mapUrl)
-                : branchContact.latitude != null &&
-                      branchContact.longitude != null
-                ? () => AppConstant.openMap(
-                    branchContact.latitude!,
-                    branchContact.longitude!,
-                  )
-                : null,
+            onTap: hasMapUrl ? () => AppConstant.openUrl(mapUrl) : null,
           ),
           verticalSpace(10),
           _InfoRow(icon: Icons.phone_outlined, text: phone),

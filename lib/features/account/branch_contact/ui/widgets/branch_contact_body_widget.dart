@@ -41,25 +41,32 @@ class BranchContactBodyWidget extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
-          color: AppColors.greenColor500,
-          onRefresh: () async {
-            cubit.getBranchContact(context.locale.languageCode);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return RefreshIndicator(
+              color: AppColors.greenColor500,
+              onRefresh: () async {
+                cubit.getBranchContact(context.locale.languageCode);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BranchInfoCardWidget(branchContact: branchContact),
+                      verticalSpace(12),
+                      BranchOpeningHoursWidget(branchContact: branchContact),
+                      verticalSpace(12),
+                      BranchCallButtonWidget(phone: branchContact.phone),
+                    ],
+                  ),
+                ),
+              ),
+            );
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BranchInfoCardWidget(branchContact: branchContact),
-                verticalSpace(12),
-                BranchOpeningHoursWidget(branchContact: branchContact),
-                verticalSpace(12),
-                BranchCallButtonWidget(phone: branchContact.phone),
-              ],
-            ),
-          ),
         );
       },
     );

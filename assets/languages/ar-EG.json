@@ -357,6 +357,7 @@
     "openGoogleMap": "فتح في خرائط Google",
     "noAddress": "لا يوجد عنوان متاح",
     "noPhone": "لا يوجد هاتف متاح",
+    "unspecified": "غير محدد",
     "notFound": "لم يتم العثور على بيانات الفرع"
   },
   "contactManager": {

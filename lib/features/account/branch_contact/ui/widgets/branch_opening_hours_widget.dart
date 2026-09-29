@@ -25,9 +25,8 @@ class BranchOpeningHoursWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final workingDays = branchContact.workingDays.toSet();
-    final hoursDisplay = branchContact.hoursDisplay?.trim().isNotEmpty == true
-        ? branchContact.hoursDisplay!
-        : context.tr('branchContact.closed');
+    final hoursDisplay = _hoursDisplay();
+    final isScheduleUnknown = workingDays.isEmpty || hoursDisplay == null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,10 +44,12 @@ class BranchOpeningHoursWidget extends StatelessWidget {
               final isWorkingDay = workingDays.contains(day.code);
               return _OpeningHourRow(
                 day: context.tr(day.nameKey),
-                time: isWorkingDay
+                time: isScheduleUnknown
+                    ? context.tr('branchContact.unspecified')
+                    : isWorkingDay
                     ? hoursDisplay
                     : context.tr('branchContact.closed'),
-                isClosed: !isWorkingDay,
+                isMuted: isScheduleUnknown || !isWorkingDay,
                 showDivider: index != _days.length - 1,
               );
             }),
@@ -57,18 +58,31 @@ class BranchOpeningHoursWidget extends StatelessWidget {
       ],
     );
   }
+
+  String? _hoursDisplay() {
+    final display = branchContact.hoursDisplay?.trim();
+    if (display != null && display.isNotEmpty) return display;
+
+    final open = branchContact.openTime?.trim();
+    final close = branchContact.closeTime?.trim();
+    if (open != null && open.isNotEmpty && close != null && close.isNotEmpty) {
+      return '$open - $close';
+    }
+
+    return null;
+  }
 }
 
 class _OpeningHourRow extends StatelessWidget {
   final String day;
   final String time;
-  final bool isClosed;
+  final bool isMuted;
   final bool showDivider;
 
   const _OpeningHourRow({
     required this.day,
     required this.time,
-    required this.isClosed,
+    required this.isMuted,
     required this.showDivider,
   });
 
@@ -87,7 +101,7 @@ class _OpeningHourRow extends StatelessWidget {
           Text(
             time,
             style: TextStyles.font14greyColor900Weight500.copyWith(
-              color: isClosed ? AppColors.greyColorA3 : AppColors.greyColor900,
+              color: isMuted ? AppColors.greyColorA3 : AppColors.greyColor900,
             ),
           ),
         ],

@@ -357,6 +357,7 @@
     "openGoogleMap": "Open in Google Maps",
     "noAddress": "No address available",
     "noPhone": "No phone available",
+    "unspecified": "Unspecified",
     "notFound": "Branch contact not found"
   },
   "contactManager": {

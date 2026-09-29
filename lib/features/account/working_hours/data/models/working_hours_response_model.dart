@@ -123,6 +123,13 @@ class WorkingHoursModel {
 
   String get expandKey => '$uuid-$shiftDate';
 
+  bool get hasScheduledShift => startTime.isNotEmpty && endTime.isNotEmpty;
+
+  bool get hasAttendance =>
+      shiftMinutes > 0 || netMinutes > 0 || breakMinutes > 0;
+
+  bool get isPartialAttendance => netMinutes > 0 && isDayOff;
+
   int get totalMinutes =>
       plannedMinutes ??
       (plannedHours != null ? (plannedHours! * 60).round() : null) ??

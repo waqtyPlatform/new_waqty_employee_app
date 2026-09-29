@@ -541,6 +541,7 @@
     "inactive": "Inactive",
     "shiftUnavailable": "Shift details are not available right now",
     "dayOff": "Day Off",
+    "partialAttendance": "Partial Attendance",
     "noScheduledShift": "No scheduled shift",
     "noWorkingHoursFound": "No working hours found"
   },

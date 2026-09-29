@@ -119,7 +119,9 @@ class _ShiftDetailsContent extends StatelessWidget {
               ),
               _InfoRow(
                 label: context.tr('workingHours.status'),
-                value: shift.status.trim().isNotEmpty
+                value: shift.isPartialAttendance
+                    ? context.tr('workingHours.partialAttendance')
+                    : shift.status.trim().isNotEmpty
                     ? shift.status
                     : shift.isDayOff
                     ? context.tr('workingHours.dayOff')

@@ -541,6 +541,7 @@
     "inactive": "غير نشط",
     "shiftUnavailable": "تفاصيل الشيفت غير متاحة الآن",
     "dayOff": "إجازة",
+    "partialAttendance": "حضور جزئي",
     "noScheduledShift": "لا يوجد شيفت محدد",
     "noWorkingHoursFound": "لا توجد ساعات عمل"
   },

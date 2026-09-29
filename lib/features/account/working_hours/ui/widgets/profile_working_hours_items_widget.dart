@@ -24,18 +24,16 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasScheduledShift =
-        items.startTime.isNotEmpty && items.endTime.isNotEmpty;
-    final hasAttendance =
-        items.shiftMinutes > 0 ||
-        items.breakMinutes > 0 ||
-        items.netMinutes > 0;
+    final hasScheduledShift = items.hasScheduledShift;
+    final hasAttendance = items.hasAttendance;
     final hasShift = hasScheduledShift || hasAttendance;
     final dayName = _dayName(context, items.shiftDate);
     final dayShort = _dayShort(context, items.shiftDate);
     final shiftDate = _formatShiftDate(items.shiftDate);
     final timeRange = hasScheduledShift
         ? '${_formatTime(context, items.startTime)} - ${_formatTime(context, items.endTime)}'
+        : items.isPartialAttendance
+        ? context.tr('workingHours.partialAttendance')
         : context.tr('workingHours.noScheduledShift');
 
     return Column(
@@ -175,8 +173,7 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasScheduledShift =
-        items.startTime.isNotEmpty && items.endTime.isNotEmpty;
+    final hasScheduledShift = items.hasScheduledShift;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),

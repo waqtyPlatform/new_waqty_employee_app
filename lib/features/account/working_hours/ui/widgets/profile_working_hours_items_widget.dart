@@ -24,14 +24,17 @@ class ProfileWorkingHoursItemsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasShift =
-        !items.isDayOff &&
-        items.startTime.isNotEmpty &&
-        items.endTime.isNotEmpty;
+    final hasScheduledShift =
+        items.startTime.isNotEmpty && items.endTime.isNotEmpty;
+    final hasAttendance =
+        items.shiftMinutes > 0 ||
+        items.breakMinutes > 0 ||
+        items.netMinutes > 0;
+    final hasShift = hasScheduledShift || hasAttendance;
     final dayName = _dayName(context, items.shiftDate);
     final dayShort = _dayShort(context, items.shiftDate);
     final shiftDate = _formatShiftDate(items.shiftDate);
-    final timeRange = hasShift
+    final timeRange = hasScheduledShift
         ? '${_formatTime(context, items.startTime)} - ${_formatTime(context, items.endTime)}'
         : context.tr('workingHours.noScheduledShift');
 
@@ -172,6 +175,8 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasScheduledShift =
+        items.startTime.isNotEmpty && items.endTime.isNotEmpty;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
@@ -183,10 +188,25 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _TimelineBarWidget(items: items),
-          verticalSpace(14),
+          if (hasScheduledShift) ...[
+            _TimelineBarWidget(items: items),
+            verticalSpace(14),
+          ],
           Row(
             children: [
+              Expanded(
+                child: _BreakdownCardWidget(
+                  title: context.tr('workingHours.shift'),
+                  value: WorkingHoursDurationFormatter.format(
+                    items.totalMinutes,
+                  ),
+                  icon: Icons.schedule_outlined,
+                  color: AppColors.greyColorA3,
+                  backgroundColor: AppColors.whiteColor,
+                  borderColor: AppColors.greyColorE5,
+                ),
+              ),
+              horizontalSpace(6),
               Expanded(
                 child: _BreakdownCardWidget(
                   title: context.tr('workingHours.breakLabel'),
@@ -197,19 +217,6 @@ class _WorkingHoursDetailsWidget extends StatelessWidget {
                   color: AppColors.warningColor1001,
                   backgroundColor: AppColors.warningColor0,
                   borderColor: AppColors.warningColor50,
-                ),
-              ),
-              horizontalSpace(6),
-              Expanded(
-                child: _BreakdownCardWidget(
-                  title: context.tr('workingHours.shift'),
-                  value: WorkingHoursDurationFormatter.format(
-                    items.shiftMinutes,
-                  ),
-                  icon: Icons.schedule_outlined,
-                  color: AppColors.greyColorA3,
-                  backgroundColor: AppColors.whiteColor,
-                  borderColor: AppColors.greyColorE5,
                 ),
               ),
               horizontalSpace(6),
@@ -239,7 +246,8 @@ class _TimelineBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shift = items.shiftMinutes == 0 ? 1 : items.shiftMinutes;
-    final breakRatio = (items.breakMinutes / shift).clamp(0.0, 1.0);
+    final total = items.totalMinutes == 0 ? shift : items.totalMinutes;
+    final breakRatio = (items.breakMinutes / total).clamp(0.0, 1.0);
     final shiftFlex = ((1 - breakRatio) * 50).round().clamp(1, 50).toInt();
     final breakFlex = (breakRatio * 100).round().clamp(1, 100).toInt();
 

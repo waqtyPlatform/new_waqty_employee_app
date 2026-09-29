@@ -104,7 +104,7 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
     totalBreakMinutes = 0;
     totalNetMinutes = 0;
     for (final item in myWorkingHours) {
-      totalShiftMinutes += item.shiftMinutes;
+      totalShiftMinutes += item.totalMinutes;
       totalBreakMinutes += item.breakMinutes;
       totalNetMinutes += item.netMinutes;
     }

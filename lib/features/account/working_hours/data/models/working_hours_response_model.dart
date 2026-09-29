@@ -104,8 +104,12 @@ class WorkingHoursModel {
       apiBreakHours: _parseDouble(json['break_hours']),
       apiNetMinutes: _parseInt(json['net_minutes']),
       apiNetHours: _parseDouble(json['net_hours']),
-      plannedMinutes: _parseInt(json['planned_minutes']),
-      plannedHours: _parseDouble(json['planned_hours']),
+      plannedMinutes: _parseInt(
+        json['scheduled_minutes'] ?? json['planned_minutes'],
+      ),
+      plannedHours: _parseDouble(
+        json['scheduled_hours'] ?? json['planned_hours'],
+      ),
       periods:
           (json['periods'] as List?)
               ?.map((e) => WorkingHoursPeriod.fromJson(e))
@@ -119,10 +123,15 @@ class WorkingHoursModel {
 
   String get expandKey => '$uuid-$shiftDate';
 
+  int get totalMinutes =>
+      plannedMinutes ??
+      (plannedHours != null ? (plannedHours! * 60).round() : null) ??
+      _durationMinutes(startTime, endTime);
+
   int get shiftMinutes =>
       apiShiftMinutes ??
       (apiShiftHours != null ? (apiShiftHours! * 60).round() : null) ??
-      _durationMinutes(startTime, endTime);
+      (totalMinutes - breakMinutes).clamp(0, totalMinutes).toInt();
 
   int get breakMinutes {
     if (apiBreakMinutes != null) {
@@ -140,9 +149,7 @@ class WorkingHoursModel {
   int get netMinutes =>
       apiNetMinutes ??
       (apiNetHours != null ? (apiNetHours! * 60).round() : null) ??
-      plannedMinutes ??
-      (plannedHours != null ? (plannedHours! * 60).round() : null) ??
-      (shiftMinutes - breakMinutes).clamp(0, shiftMinutes).toInt();
+      shiftMinutes;
 }
 
 class WorkingHoursPeriod {

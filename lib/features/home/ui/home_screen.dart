@@ -5,11 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_waqty_employee_app/config/routes/routes.dart';
 import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/core/services/cache_helper.dart';
+import 'package:new_waqty_employee_app/core/services/geofence_service.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
 import 'package:new_waqty_employee_app/core/utils/app_date_format.dart';
 import 'package:new_waqty_employee_app/core/utils/styles.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_cubit.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_state.dart';
+import 'package:new_waqty_employee_app/features/account/profile/data/models/profile_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/profile/ui/widgets/profile_clock_action_dialog_widget.dart';
 import 'package:new_waqty_employee_app/features/home/data/models/home_summary_model.dart';
 import 'package:new_waqty_employee_app/features/home/logic/home_cubit.dart';
@@ -26,8 +29,141 @@ import 'widgets/home_latest_review_widget.dart';
 import 'widgets/home_shimmer_loading_widget.dart';
 import 'package:new_waqty_employee_app/core/utils/spacing.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  bool _disclosureScheduled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final profile = _profileCubitOrNull(context)?.profileResponseModel;
+    if (profile == null) return;
+    getIt<GeofenceService>().configureBranch(
+      branch: profile.customer.branchModel,
+      languageCode: context.locale.languageCode,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final profile = _profileCubitOrNull(context)?.profileResponseModel;
+    if (_disclosureScheduled || profile == null) return;
+    _disclosureScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showGeofenceDisclosure(profile.customer.branchModel);
+    });
+  }
+
+  Future<void> _showGeofenceDisclosure(BranchModel branch) async {
+    if (!mounted || branch.latitude == null || branch.longitude == null) return;
+    if (CacheHelper.getString('GEOFENCE_DISCLOSURE_SHOWN') == 'true') return;
+    final shouldContinue = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: AppColors.whiteColor,
+        insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 22.h, 20.w, 18.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52.w,
+                height: 52.w,
+                decoration: const BoxDecoration(
+                  color: AppColors.greenColor5005,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.location_on_outlined,
+                  size: 28.sp,
+                  color: AppColors.greenColor500,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              Text(
+                context.tr('presence.disclosureTitle'),
+                textAlign: TextAlign.center,
+                style: TextStyles.font18greyColor900Weight600,
+              ),
+              SizedBox(height: 10.h),
+              Text(
+                context.tr('presence.disclosureMessage'),
+                textAlign: TextAlign.center,
+                style: TextStyles.font12greyColor4002Weight400.copyWith(
+                  height: 1.7,
+                ),
+              ),
+              SizedBox(height: 18.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.greenColor500,
+                        side: const BorderSide(color: AppColors.greenColor500),
+                        minimumSize: Size.fromHeight(44.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(context.tr('presence.notNow')),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.greenColor500,
+                        foregroundColor: AppColors.whiteColor,
+                        minimumSize: Size.fromHeight(44.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(context.tr('presence.continue')),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted || shouldContinue != true) return;
+    final languageCode = context.locale.languageCode;
+    await CacheHelper.setData('GEOFENCE_DISCLOSURE_SHOWN', 'true');
+    await getIt<GeofenceService>().requestPermissionsAndConfigure(
+      branch: branch,
+      languageCode: languageCode,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +256,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _HomeTopSection(summary: summary),
+              const _GeofencePresenceIndicator(),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
                 child: Column(
@@ -140,6 +277,43 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GeofencePresenceIndicator extends StatelessWidget {
+  const _GeofencePresenceIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<BranchPresence>(
+      future: getIt<GeofenceService>().getPresence(),
+      builder: (context, snapshot) {
+        final presence = snapshot.data ?? BranchPresence.unknown;
+        final label = switch (presence) {
+          BranchPresence.insideBranch => context.tr('presence.inside'),
+          BranchPresence.outsideBranch => context.tr('presence.outside'),
+          BranchPresence.unknown => context.tr('presence.unknown'),
+        };
+        final color = switch (presence) {
+          BranchPresence.insideBranch => AppColors.greenColor500,
+          BranchPresence.outsideBranch => AppColors.errorColor100,
+          BranchPresence.unknown => AppColors.greyColor500,
+        };
+        return Padding(
+          padding: EdgeInsets.fromLTRB(24.w, 10.h, 24.w, 0),
+          child: Row(
+            children: [
+              Icon(Icons.location_on_outlined, size: 16.r, color: color),
+              horizontalSpace(4),
+              Text(
+                label,
+                style: TextStyles.font12greyColor500W400.copyWith(color: color),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

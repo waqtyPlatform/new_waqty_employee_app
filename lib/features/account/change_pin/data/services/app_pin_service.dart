@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
+import 'package:new_waqty_employee_app/core/services/geofence_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 import 'package:new_waqty_employee_app/core/utils/constant_keys.dart';
 import 'package:new_waqty_employee_app/features/account/change_pin/data/services/app_pin_storage_keys.dart';
 
@@ -247,6 +249,7 @@ class AppPinService {
   }
 
   Future<void> logoutAndClearSecurityData() async {
+    await getIt<GeofenceService>().clear();
     try {
       final token = await _secureStorage.read(
         key: ConstantKeys.saveTokenToShared,

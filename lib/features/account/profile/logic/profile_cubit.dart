@@ -4,6 +4,9 @@ import 'package:new_waqty_employee_app/features/account/profile/data/models/prof
 import 'package:new_waqty_employee_app/features/account/profile/data/repo/profile_repo.dart';
 import 'package:new_waqty_employee_app/features/account/profile/data/services/profile_service.dart';
 import 'package:new_waqty_employee_app/features/account/profile/logic/profile_state.dart';
+import 'package:new_waqty_employee_app/core/services/geofence_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
+import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo _profileRepo;
@@ -39,12 +42,24 @@ class ProfileCubit extends Cubit<ProfileState> {
         },
         (r) {
           profileResponseModel = r;
+          getIt<GeofenceService>().configureBranch(
+            branch: r.customer.branchModel,
+            languageCode: 'ar',
+          );
+          _refreshGeofenceSchedule();
           emit(GetProfileSuccessState());
         },
       );
     } catch (error) {
       emit(GetProfileCatchErrorState());
     }
+  }
+
+  Future<void> _refreshGeofenceSchedule() async {
+    final result = await getIt<WorkingHoursRepo>().getWorkingHours(1, 'ar');
+    result.fold((_) {}, (response) {
+      getIt<GeofenceService>().syncSchedule(shifts: response.data);
+    });
   }
 
   Future<void> checkCurrentAttendance() async {

@@ -890,6 +890,15 @@
     "seeAll": "See All",
     "searchPlaceholder": "Search for client, appointment.."
   },
+  "presence": {
+    "disclosureTitle": "Verify your branch presence",
+    "disclosureMessage": "Waqty Staff collects location data to verify whether you are inside or outside your assigned branch for attendance and workplace presence during your scheduled shifts, even when the app is closed or not in use. Location is used only during scheduled working shifts and is not used for advertising or analytics.",
+    "continue": "Continue",
+    "notNow": "Not now",
+    "inside": "Inside branch",
+    "outside": "Outside branch",
+    "unknown": "Location unavailable"
+  },
   "employeeSearch": {
     "title": "Search",
     "searchHint": "Search by customer, phone, service or date",

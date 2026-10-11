@@ -4,6 +4,8 @@ import 'package:new_waqty_employee_app/core/utils/app_language.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/models/working_hours_response_model.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/data/repo/working_hours_repo.dart';
 import 'package:new_waqty_employee_app/features/account/working_hours/logic/working_hours_state.dart';
+import 'package:new_waqty_employee_app/core/services/geofence_service.dart';
+import 'package:new_waqty_employee_app/core/services/services_locator.dart';
 
 class WorkingHoursCubit extends Cubit<WorkingHoursState> {
   final WorkingHoursRepo _workingHoursRepo;
@@ -83,6 +85,7 @@ class WorkingHoursCubit extends Cubit<WorkingHoursState> {
               ? myWorkingHours.first.expandKey
               : null;
           _calculateWorkingHoursSummary();
+          getIt<GeofenceService>().syncSchedule(shifts: myWorkingHours);
           isGettingWorkingHours = false;
           emit(GetWorkingHoursSuccessState());
         },

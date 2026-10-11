@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:new_waqty_employee_app/core/services/employee_notification_api_service.dart';
 import 'package:new_waqty_employee_app/core/services/firebase_notification_service.dart';
 import 'package:new_waqty_employee_app/core/services/local_notification_service.dart';
+import 'package:new_waqty_employee_app/core/services/geofence_service.dart';
 import 'package:new_waqty_employee_app/features/notifications/data/services/notification_center_service.dart';
 import 'package:new_waqty_employee_app/features/notifications/data/services/notification_router_service.dart';
 import 'package:new_waqty_employee_app/core/utils/app_colors_white_theme.dart';
@@ -109,6 +110,7 @@ class ServicesLocator {
     getIt.registerLazySingleton<LocalNotificationService>(
       () => LocalNotificationService(),
     );
+    getIt.registerLazySingleton<GeofenceService>(() => GeofenceService());
     getIt.registerLazySingleton<EmployeeNotificationApiService>(
       () => EmployeeNotificationApiService(getIt()),
     );

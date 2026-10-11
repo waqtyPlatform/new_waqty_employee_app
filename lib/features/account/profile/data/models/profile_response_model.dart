@@ -75,6 +75,7 @@ class BranchModel {
   final String? openTime;
   final String? closeTime;
   final String? workingHours;
+  final String? timezone;
 
   BranchModel({
     required this.uuid,
@@ -86,6 +87,7 @@ class BranchModel {
     this.openTime,
     this.closeTime,
     this.workingHours,
+    this.timezone,
   });
 
   factory BranchModel.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,10 @@ class BranchModel {
           _asString(json['working_hours']) ??
           _asString(json['working_hours_text']) ??
           _asString(json['hours']),
+      timezone:
+          _asString(json['timezone']) ??
+          _asString(json['time_zone']) ??
+          _asString(json['tz']),
     );
   }
 }

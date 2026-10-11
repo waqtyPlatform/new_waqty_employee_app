@@ -285,7 +285,7 @@ class _ProfileClockActionDialogWidgetState
     final navigator = Navigator.of(context);
     final parentContext = navigator.context;
     try {
-      final attendanceLocation = await _attendanceLocation();
+      final attendanceLocation = await _attendanceLocation(forceRefresh: true);
       final position = attendanceLocation.position;
       if (position == null) {
         if (!context.mounted) return;
@@ -613,9 +613,11 @@ class _ProfileClockActionDialogWidgetState
     });
   }
 
-  Future<AttendanceLocationResult> _attendanceLocation() {
+  Future<AttendanceLocationResult> _attendanceLocation({
+    bool forceRefresh = false,
+  }) {
     final cachedPosition = _currentPositionValue;
-    if (cachedPosition != null) {
+    if (!forceRefresh && cachedPosition != null) {
       final distance = YourLocation.distanceFromPositionToBranch(
         position: cachedPosition,
         branchLatitude: _branchLatitude,

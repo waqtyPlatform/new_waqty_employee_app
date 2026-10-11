@@ -47,6 +47,11 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(null)
                 }
                 "getPresence" -> result.success(GeofenceStore.presence(this))
+                "debugTestExitNotification" -> {
+                    android.util.Log.i("WAQTY_GEOFENCE", "WAQTY_DEBUG_EXIT_NOTIFICATION_TRIGGERED")
+                    GeofenceBroadcastReceiver().debugTestNotification(this)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }

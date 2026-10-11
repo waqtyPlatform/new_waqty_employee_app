@@ -129,4 +129,15 @@ class GeofenceService {
       // Cleanup must not block logout.
     }
   }
+
+  /// Temporary internal diagnostic action for separating geofence callbacks
+  /// from local-notification delivery on a real iPhone.
+  Future<void> debugTestExitNotification() async {
+    if (!Platform.isIOS && !Platform.isAndroid) return;
+    try {
+      await _channel.invokeMethod<void>('debugTestExitNotification');
+    } on PlatformException {
+      // Diagnostic-only action; it must not affect attendance behavior.
+    }
+  }
 }

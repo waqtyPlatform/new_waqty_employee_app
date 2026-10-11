@@ -300,17 +300,22 @@ class _GeofencePresenceIndicator extends StatelessWidget {
           BranchPresence.outsideBranch => AppColors.errorColor100,
           BranchPresence.unknown => AppColors.greyColor500,
         };
-        return Padding(
-          padding: EdgeInsets.fromLTRB(24.w, 10.h, 24.w, 0),
-          child: Row(
-            children: [
-              Icon(Icons.location_on_outlined, size: 16.r, color: color),
-              horizontalSpace(4),
-              Text(
-                label,
-                style: TextStyles.font12greyColor500W400.copyWith(color: color),
-              ),
-            ],
+        return GestureDetector(
+          onLongPress: () => getIt<GeofenceService>().debugTestExitNotification(),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 10.h, 24.w, 0),
+            child: Row(
+              children: [
+                Icon(Icons.location_on_outlined, size: 16.r, color: color),
+                horizontalSpace(4),
+                Text(
+                  label,
+                  style: TextStyles.font12greyColor500W400.copyWith(
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

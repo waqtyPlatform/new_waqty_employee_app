@@ -4,12 +4,14 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import org.json.JSONArray
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 internal object GeofenceScheduleManager {
+    private const val TAG = "WAQTY_GEOFENCE"
     private const val REQUEST_CODE = 7404
     private const val ACTION_REFRESH = "com.waqtyservices.app.REFRESH_GEOFENCE"
     private const val BUFFER_MINUTES = 15L
@@ -18,11 +20,21 @@ internal object GeofenceScheduleManager {
     fun refresh(context: Context) {
         cancelAlarm(context)
         val now = ZonedDateTime.now(zone(context))
-        if (isMonitoringWindow(context, now)) GeofenceManager.register(context) else GeofenceManager.unregister(context)
-        nextBoundary(context, now)?.let { scheduleAlarm(context, it) }
+        val monitoring = isMonitoringWindow(context, now)
+        Log.d(TAG, "refresh now=$now timezone=${zone(context)} monitoringWindow=$monitoring schedule=${GeofenceStore.schedule(context)}")
+        if (monitoring) GeofenceManager.register(context) else GeofenceManager.unregister(context)
+        nextBoundary(context, now)?.let {
+            Log.d(TAG, "next boundary=$it")
+            scheduleAlarm(context, it)
+        } ?: Log.d(TAG, "no next boundary")
     }
 
-    fun isActive(context: Context): Boolean = isActiveShift(context, ZonedDateTime.now(zone(context)))
+    fun isActive(context: Context): Boolean {
+        val now = ZonedDateTime.now(zone(context))
+        val active = isActiveShift(context, now)
+        Log.d(TAG, "active shift check now=$now timezone=${zone(context)} active=$active")
+        return active
+    }
 
     fun clear(context: Context) {
         cancelAlarm(context)
@@ -91,6 +103,7 @@ internal object GeofenceScheduleManager {
         val intent = Intent(context, GeofenceScheduleReceiver::class.java).setAction(ACTION_REFRESH)
         val pending = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at.toInstant().toEpochMilli(), pending)
+        Log.d(TAG, "alarm scheduled at=$at")
     }
 
     private fun cancelAlarm(context: Context) {
